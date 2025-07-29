@@ -2,9 +2,10 @@ package frc.robot.utilities.constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
-import com.google.flatbuffers.FlexBuffers.Map;
+import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -15,7 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
-public static final class FieldConstants {
+public class FieldConstants {
     public static final FieldType kFieldType = FieldType.WELDED;
 
     public static final double kFieldLength = VisionConstants.kAprilTagLayout.getFieldLength();
