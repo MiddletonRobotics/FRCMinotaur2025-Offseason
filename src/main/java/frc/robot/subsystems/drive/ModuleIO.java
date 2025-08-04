@@ -66,7 +66,7 @@ public interface ModuleIO {
      * Sets the current limits for both the drive motor and the steer motor
      * @param supplyLimits
      */
-    public void setCurrentLimit(double supplyLimits);
+    public void setCurrentLimit(double supplyLimit);
 
     /**
      * Set the raw output for the drive motor
@@ -87,7 +87,7 @@ public interface ModuleIO {
      * @param kD Set the derivative gain
      * @param kF Set the force-feedback gain
      */
-    public void setDrivePID(double kP, double kI, double kD, double kF);
+    public void setDrivePID(double kP, double kI, double kD);
 
     /**
      * Set the steer motor PID gains
@@ -96,7 +96,7 @@ public interface ModuleIO {
      * @param kD Set the derivative gain
      * @param kF Set the force-feedback gain
      */
-    public void setSteerPID(double kP, double kI, double kD, double kF);
+    public void setSteerPID(double kP, double kI, double kD);
 
     /**
      * Resets the steer motor position, which allows it to be resynced with the CANCoder
