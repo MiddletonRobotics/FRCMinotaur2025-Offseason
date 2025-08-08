@@ -1,7 +1,6 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
 
 public class ModuleIOReplay implements ModuleIO {
     
@@ -9,32 +8,23 @@ public class ModuleIOReplay implements ModuleIO {
     public void updateInputs(ModuleIOInputs inputs) {}
 
     @Override
-    public void setDriveVelocity(double velocityRadiansPerSecond, double feedforward) {}
+    public void setDriveOpenLoop(double output) {}
 
     @Override
-    public void setSteerPosition(Rotation2d position) {}
+    public void setSteerOpenLoop(double output) {}
 
     @Override
-    public void setDriveBrakeMode(boolean enable) {}
+    public void setDriveVelocity(double velocityRadPerSec, double feedforward) {}
 
     @Override
-    public void setSteerBrakeMode(boolean enable) {}
+    public void setSteerPosition(Rotation2d rotation) {}
 
     @Override
-    public void setCurrentLimit(double supplyLimit) {}
+    public void setDrivePIDCoefficients(double kP, double kI, double kD) {}
 
     @Override
-    public void setDriveRawOutput(double output) {}
+    public void setSteerPIDCoefficients(double kP, double kI, double kD) {}
 
     @Override
-    public void setSteerRawOutput(double output) {}
-
-    @Override
-    public void setDrivePID(double kP, double kI, double kD) {}
-
-    @Override
-    public void setSteerPID(double kP, double kI, double kD) {}
-
-    @Override
-    public void resetSteerMotor(Angle position) {}
+    public void setBrakeMode(boolean enabled) {}
 }
