@@ -151,7 +151,6 @@ public class FieldConstants {
       public final double pitch;
     }
 
-    @RequiredArgsConstructor
     public enum FieldType {
       ANDYMARK,
       WELDED,
