@@ -4,25 +4,25 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class DriverButtonBindings implements DriverControls {
-  private CommandXboxController m_controller;
+  private CommandXboxController controller;
 
   public DriverButtonBindings(int port) {
-    m_controller = new CommandXboxController(port);
+    controller = new CommandXboxController(port);
   }
 
   @Override
   public double getForward() {
-    return -m_controller.getLeftY();
+    return -controller.getLeftY();
   }
 
   @Override
   public double getStrafe() {
-    return -m_controller.getLeftX();
+    return -controller.getLeftX();
   }
 
   @Override
   public double getTurn() {
-    return -m_controller.getRightX();
+    return -controller.getRightX();
   }
 
   @Override
@@ -32,82 +32,82 @@ public class DriverButtonBindings implements DriverControls {
 
   @Override
   public Trigger coralIntake() {
-    return m_controller.leftBumper();
+    return controller.leftBumper();
   }
 
   @Override
   public Trigger coralOuttake() {
-    return m_controller.rightBumper();
+    return controller.rightBumper();
   }
 
   @Override
   public Trigger setLocationL1() {
-    return m_controller.povUp();
+    return controller.povUp();
   }
 
   @Override
   public Trigger setLocationL2() {
-    return m_controller.povRight();
+    return controller.povRight();
   }
 
   @Override
   public Trigger setLocationL3() {
-    return m_controller.povDown();
+    return controller.povDown();
   }
 
   @Override
   public Trigger setLocationL4() {
-    return m_controller.povLeft();
+    return controller.povLeft();
   }
 
   @Override
   public Trigger autoscoreLeft() {
-    return m_controller.x();
+    return controller.x();
   }
 
   @Override
   public Trigger autoscoreRight() {
-    return m_controller.b();
+    return controller.b();
   }
 
   @Override
   public Trigger manualScore() {
-    return m_controller.y();
+    return controller.y();
   }
 
   @Override
   public Trigger climb() {
-    return m_controller.a();
+    return controller.a();
   }
 
   @Override
   public Trigger otbMagic() {
-    return m_controller.rightTrigger(0.1);
+    return controller.rightTrigger(0.1);
   }
 
   @Override
   public Trigger algaeDescore() {
-    return m_controller.leftTrigger(0.1);
+    return controller.leftTrigger(0.1);
   }
 
   @Override
   public Trigger zeroElevator() {
-    return m_controller.back();
+    return controller.back();
   }
 
   @Override
   public Trigger toggleVision() {
-    return m_controller.start();
+    return controller.start();
   }
 
   @Override
   public Trigger coralEject() {
-    return m_controller.rightStick();
+    return controller.rightStick();
   }
 
   @Override
   public Trigger toggleOtbRunthrough() {
-    return m_controller.leftStick();
+    return controller.leftStick();
   }
 
   @Override
