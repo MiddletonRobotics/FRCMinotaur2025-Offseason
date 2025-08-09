@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive;
+package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
@@ -62,7 +62,6 @@ import frc.robot.utilities.constants.GlobalConstants.Mode;
 import frc.robot.utilities.EqualsUtility;
 import frc.robot.utilities.LoggedTracer;
 import frc.robot.Robot;
-import frc.robot.subsystems.drive.Drivetrain.CoastRequest;
 import frc.robot.utilities.AlertManager;
 import frc.robot.utilities.SwerveSetpointGenerator;
 import frc.robot.utilities.SwerveSetpoint;
@@ -337,7 +336,7 @@ public class Drivetrain extends SubsystemBase {
     private SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] states = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
-          states[i] = modules[i].getPosition();
+            states[i] = modules[i].getPosition();
         }
 
         return states;

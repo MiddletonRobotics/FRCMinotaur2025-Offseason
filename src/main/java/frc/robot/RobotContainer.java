@@ -9,12 +9,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.io.DriverButtonBindings;
 import frc.robot.io.TestingButtonBindings;
-import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.GyroIOReplay;
-import frc.robot.subsystems.drive.ModuleIOReplay;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.GyroIOPigeon2;
+import frc.robot.subsystems.drivetrain.GyroIOReplay;
+import frc.robot.subsystems.drivetrain.ModuleIOReplay;
+import frc.robot.subsystems.drivetrain.ModuleIOSim;
+import frc.robot.subsystems.drivetrain.ModuleIOTalonFX;
 import frc.robot.utilities.constants.DrivetrainConstants;
 import frc.robot.utilities.constants.GlobalConstants;
 
