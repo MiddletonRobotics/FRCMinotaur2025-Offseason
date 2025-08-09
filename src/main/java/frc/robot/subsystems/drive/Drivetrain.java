@@ -122,9 +122,9 @@ public class Drivetrain extends SubsystemBase {
         this.gyroIO = gyroIO;
 
         modules[0] = new Module(flModule, 0);
-        modules[1] = new Module(flModule, 1);
-        modules[2] = new Module(flModule, 2);
-        modules[3] = new Module(flModule, 3);
+        modules[1] = new Module(frModule, 1);
+        modules[2] = new Module(blModule, 2);
+        modules[3] = new Module(brModule, 3);
 
         lastMovementTimer.start();
         setBrakeMode(true);
