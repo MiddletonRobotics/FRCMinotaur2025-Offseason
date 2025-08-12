@@ -100,6 +100,11 @@ public class ModuleIOTalonFX implements ModuleIO {
         tryUntilOk(5, () -> driveMotor.getConfigurator().apply(driveConfiguration));
         tryUntilOk(5, () -> driveMotor.setPosition(0.0));
 
+        swerveEncoderConfiguration.MagnetSensor.MagnetOffset = configuration.swerveEncoderOffset().getRotations();
+        swerveEncoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        swerveEncoderConfiguration.MagnetSensor.SensorDirection = configuration.swerveEncoderInverted() ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+        tryUntilOk(5, () -> swerveEncoder.getConfigurator().apply(swerveEncoderConfiguration));
+
         steerConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         steerConfiguration.MotorOutput.Inverted = configuration.steerInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         steerConfiguration.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
@@ -112,11 +117,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfiguration.CurrentLimits.StatorCurrentLimit = DrivetrainConstants.kSteerCurrentLimit.baseUnitMagnitude();
         steerConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerConfiguration));
-
-        swerveEncoderConfiguration.MagnetSensor.MagnetOffset = configuration.swerveEncoderOffset().getRotations();
-        swerveEncoderConfiguration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        swerveEncoderConfiguration.MagnetSensor.SensorDirection = configuration.swerveEncoderInverted() ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> swerveEncoder.getConfigurator().apply(swerveEncoderConfiguration));
+        tryUnitsOk(5, () -> steerMotor.setPosition(swerveEncoder.getAbsolutePosition.getValueAsDouble()));
 
         timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
