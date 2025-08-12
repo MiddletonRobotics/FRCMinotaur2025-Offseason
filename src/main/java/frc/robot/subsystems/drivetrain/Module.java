@@ -24,13 +24,13 @@ import frc.robot.utilities.constants.DrivetrainConstants;
 import frc.robot.utilities.constants.GlobalConstants;
 
 public class Module {
-    private static final LoggedTunableNumber drivekS = new LoggedTunableNumber("Drive/Module/DrivekS");
-    private static final LoggedTunableNumber drivekV = new LoggedTunableNumber("Drive/Module/DrivekV");
-    private static final LoggedTunableNumber drivekT = new LoggedTunableNumber("Drive/Module/DrivekT");
-    private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("Drive/Module/DrivekP");
-    private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("Drive/Module/DrivekD");
-    private static final LoggedTunableNumber steerkP = new LoggedTunableNumber("Drive/Module/TurnkP");
-    private static final LoggedTunableNumber steerkD = new LoggedTunableNumber("Drive/Module/TurnkD");
+    private static final LoggedTunableNumber drivekS = new LoggedTunableNumber("Drivetrain/Module/DrivekS");
+    private static final LoggedTunableNumber drivekV = new LoggedTunableNumber("Drivetrain/Module/DrivekV");
+    private static final LoggedTunableNumber drivekT = new LoggedTunableNumber("Drivetrain/Module/DrivekT");
+    private static final LoggedTunableNumber drivekP = new LoggedTunableNumber("Drivetrain/Module/DrivekP");
+    private static final LoggedTunableNumber drivekD = new LoggedTunableNumber("Drivetrain/Module/DrivekD");
+    private static final LoggedTunableNumber steerkP = new LoggedTunableNumber("Drivetrain/Module/TurnkP");
+    private static final LoggedTunableNumber steerkD = new LoggedTunableNumber("Drivetrain/Module/TurnkD");
 
     static {
         switch (GlobalConstants.kCurrentMode) {
