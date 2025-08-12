@@ -117,7 +117,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfiguration.CurrentLimits.StatorCurrentLimit = DrivetrainConstants.kSteerCurrentLimit.baseUnitMagnitude();
         steerConfiguration.CurrentLimits.StatorCurrentLimitEnable = true;
         tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerConfiguration));
-        tryUnitsOk(5, () -> steerMotor.setPosition(swerveEncoder.getAbsolutePosition.getValueAsDouble()));
+        tryUntilOk(5, () -> steerMotor.setPosition(swerveEncoder.getAbsolutePosition().getValueAsDouble()));
 
         timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
