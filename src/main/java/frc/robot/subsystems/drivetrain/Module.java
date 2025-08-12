@@ -100,7 +100,7 @@ public class Module {
             io.setSteerPIDCoefficients(steerkP.get(), 0.0, steerkD.get());
         }
 
-        int sampleCounts = inputs.odometryDrivePositionsRadians.length;
+        int sampleCounts = inputs.odometryTimestamps.length;
         odometryPositions = new SwerveModulePosition[sampleCounts];
         for (int i = 0; i < sampleCounts; i++) {
             double positionMeters = inputs.odometryDrivePositionsRadians[i] * DrivetrainConstants.kWheelRadius.in(Meters);
