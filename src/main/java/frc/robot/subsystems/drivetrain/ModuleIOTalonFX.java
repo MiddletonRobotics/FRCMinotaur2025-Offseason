@@ -26,6 +26,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
 import static frc.robot.utilities.PhoenixUtility.tryUntilOk;
+import static edu.wpi.first.units.Units.Celsius;
 import static frc.robot.utilities.PhoenixUtility.registerSignals;
 import frc.robot.utilities.constants.DrivetrainConstants;
 import frc.robot.utilities.constants.DrivetrainConstants.ModuleConfiguration;
@@ -109,7 +110,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         steerConfiguration.MotorOutput.Inverted = configuration.steerInverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
         steerConfiguration.Slot0 = new Slot0Configs().withKP(0).withKI(0).withKD(0);
         steerConfiguration.Feedback.FeedbackRemoteSensorID = configuration.swerveEncoderID();
-        steerConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        steerConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         steerConfiguration.Feedback.SensorToMechanismRatio = DrivetrainConstants.kTurnGearRatio;
         steerConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
         steerConfiguration.TorqueCurrent.PeakForwardTorqueCurrent = DrivetrainConstants.kSteerCurrentLimit.baseUnitMagnitude();
@@ -274,5 +275,15 @@ public class ModuleIOTalonFX implements ModuleIO {
                 tryUntilOk(5, () -> steerMotor.getConfigurator().apply(steerConfiguration));
             }
         });
+    }
+
+    @Override
+    public boolean isDriveOverheating() {
+        return driveTempurature.getValue().in(Celsius) > 90;
+    }
+
+    @Override
+    public boolean isSteerOverheating() {
+        return steerTempurature.getValue().in(Celsius) > 90;
     }
 }

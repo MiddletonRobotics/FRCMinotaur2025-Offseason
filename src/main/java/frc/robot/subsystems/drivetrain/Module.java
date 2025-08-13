@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.swerve.SwerveModule;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -14,8 +15,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+
 import frc.robot.Robot;
 import frc.robot.utilities.AlertManager;
 import frc.robot.utilities.LoggedTracer;
@@ -68,8 +69,12 @@ public class Module {
     private final Debouncer swerveEncoderConnectedDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
     private final Alert driveDisconnectedAlert;
+    private final Alert driveOverheatingAlert;
     private final Alert steerDisconnectedAlert;
+    private final Alert steerOverheatingAlert;
     private final Alert swerveEncoderDisonnectedAlert;
+    private final Alert swerveEncoderMagnetAlert;
+    private final Alert swerveEncoderMagnetAccuracy;
 
     public Module(ModuleIO io, int index) {
         this.io = io;
@@ -78,8 +83,12 @@ public class Module {
         driveFeedforward = new SimpleMotorFeedforward(drivekS.get(), drivekV.get());
 
         driveDisconnectedAlert = new Alert("Swerve Module [" + index + "] drive motor is disconnected", AlertType.kError);
+        driveOverheatingAlert = new Alert("Swerve Module [" + index + "] drive motor is overheating", AlertType.kWarning);
         steerDisconnectedAlert = new Alert("Swerve Module [" + index + "] steer motor is disconnected" + index + " is disconnected.", AlertType.kError);
+        steerOverheatingAlert = new Alert("Swerve Module [" + index + "] steer motor is overheating", AlertType.kWarning);
         swerveEncoderDisonnectedAlert = new Alert("Swerve Module [" + index + "] swerve encoder is disconnected", AlertType.kError);
+        swerveEncoderMagnetAlert = new Alert("Swerve Module [" + index + "] swerve magnet unoptimal", AlertType.kError);
+        swerveEncoderMagnetAccuracy = new Alert("Swerve Module [" + index + "] swerve encoder magnet accuracy is slightly unoptimal, expect reduced performance", AlertType.kWarning);
     }
 
     public void updateInputs() {
@@ -109,8 +118,12 @@ public class Module {
         }
 
         driveDisconnectedAlert.set(!driveMotorConnectedDebouncer.calculate(inputs.isDriveMotorConnected) && !Robot.isJITing());
+        driveOverheatingAlert.set(io.isDriveOverheating() && !Robot.isJITing());
         steerDisconnectedAlert.set(!steerMotorConnectedDebouncer.calculate(inputs.isSteerMotorConnected) && !Robot.isJITing());
+        steerOverheatingAlert.set(io.isSteerOverheating() && !Robot.isJITing());
         swerveEncoderDisonnectedAlert.set(!swerveEncoderConnectedDebouncer.calculate(inputs.isSwerveEncoderConnected) && !Robot.isJITing());
+        swerveEncoderMagnetAlert.set((inputs.swerveEncoderMagnetHealth != MagnetHealthValue.Magnet_Green) && !Robot.isJITing());
+        swerveEncoderMagnetAccuracy.set((inputs.swerveEncoderMagnetHealth == MagnetHealthValue.Magnet_Orange) && !Robot.isJITing());
 
         LoggedTracer.record("Drivetrain/Module" + index);
     }

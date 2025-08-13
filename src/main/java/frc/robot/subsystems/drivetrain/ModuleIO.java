@@ -57,4 +57,7 @@ public interface ModuleIO {
 
     /** Set brake mode on drive motor */
     public default void setBrakeMode(boolean enabled) {}
+
+    public default boolean isDriveOverheating() { return false; }
+    public default boolean isSteerOverheating() { return false; }
 }
