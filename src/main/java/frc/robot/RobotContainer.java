@@ -9,12 +9,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.io.DriverButtonBindings;
 import frc.robot.io.TestingButtonBindings;
-import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.GyroIOReplay;
-import frc.robot.subsystems.drive.ModuleIOReplay;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.GyroIOPigeon2;
+import frc.robot.subsystems.drivetrain.GyroIOReplay;
+import frc.robot.subsystems.drivetrain.ModuleIOReplay;
+import frc.robot.subsystems.drivetrain.ModuleIOSim;
+import frc.robot.subsystems.drivetrain.ModuleIOTalonFX;
+import frc.robot.utilities.constants.DrivetrainConstants;
 import frc.robot.utilities.constants.GlobalConstants;
 
 public class RobotContainer {
@@ -34,10 +35,10 @@ public class RobotContainer {
       case REAL:
         drivetrain = new Drivetrain(
           new GyroIOPigeon2(), 
-          new ModuleIOTalonFX(0), 
-          new ModuleIOTalonFX(1), 
-          new ModuleIOTalonFX(2), 
-          new ModuleIOTalonFX(3)
+          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[0]), 
+          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[1]), 
+          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[2]), 
+          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[3])
         );
 
         break;
@@ -75,7 +76,7 @@ public class RobotContainer {
       driverController::getForward, 
       driverController::getStrafe, 
       driverController::getTurn, 
-      false
+      () -> false
     ));
   }
 

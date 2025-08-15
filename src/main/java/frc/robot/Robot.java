@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utilities.constants.BuildConstants;
@@ -104,6 +105,11 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().run();
     AlertManager.update();
+  }
+
+  /** Returns whether we should wait to enable because JIT optimizations are in progress. */
+  public static boolean isJITing() {
+    return Timer.getTimestamp() < 45.0;
   }
 
   @Override

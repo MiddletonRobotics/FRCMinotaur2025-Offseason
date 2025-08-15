@@ -28,14 +28,8 @@ import lombok.experimental.ExtensionMethod;
 @RequiredArgsConstructor
 @ExtensionMethod({GeometryUtility.class, EqualsUtility.GeomExtensions.class})
 public class SwerveSetpointGenerator {
-  public static record SwerveSetpoint(
-      ChassisSpeeds chassisSpeeds, SwerveModuleState[] moduleStates) {}
-
-  public static record ModuleLimits(
-      double maxDriveVelocity, double maxDriveAcceleration, double maxSteeringVelocity) {}
-
-  private final SwerveDriveKinematics m_kinematics;
-  private final Translation2d[] m_moduleLocations;
+  private final SwerveDriveKinematics kinematics;
+  private final Translation2d[] moduleLocations;
 
   /**
    * Check if it would be faster to go to the opposite of the goal heading (and reverse drive
@@ -157,6 +151,28 @@ public class SwerveSetpointGenerator {
     return findRoot(func, x_0, y_0, f_0 - offset, x_1, y_1, f_1 - offset, max_iterations);
   }
 
+  // protected double findDriveMaxS(
+  //     double x_0, double y_0, double x_1, double y_1, double max_vel_step) {
+  //   // Our drive velocity between s=0 and s=1 is quadratic in s:
+  //   // v^2 = ((x_1 - x_0) * s + x_0)^2 + ((y_1 - y_0) * s + y_0)^2
+  //   //     = a * s^2 + b * s + c
+  //   // Where:
+  //   //   a = (x_1 - x_0)^2 + (y_1 - y_0)^2
+  //   //   b = 2 * x_0 * (x_1 - x_0) + 2 * y_0 * (y_1 - y_0)
+  //   //   c = x_0^2 + y_0^2
+  //   // We want to find where this quadratic results in a velocity that is > max_vel_step from our
+  //   // velocity at s=0:
+  //   // sqrt(x_0^2 + y_0^2) +/- max_vel_step = ...quadratic...
+  //   final double dx = x_1 - x_0;
+  //   final double dy = y_1 - y_0;
+  //   final double a = dx * dx + dy * dy;
+  //   final double b = 2.0 * x_0 * dx + 2.0 * y_0 * dy;
+  //   final double c = x_0 * x_0 + y_0 * y_0;
+  //   final double v_limit_upper_2 = Math.pow(Math.hypot(x_0, y_0) + max_vel_step, 2.0);
+  //   final double v_limit_lower_2 = Math.pow(Math.hypot(x_0, y_0) - max_vel_step, 2.0);
+  //   return 0.0;
+  // }
+
   /**
    * Generate a new setpoint.
    *
@@ -174,13 +190,13 @@ public class SwerveSetpointGenerator {
       final SwerveSetpoint prevSetpoint,
       ChassisSpeeds desiredState,
       double dt) {
-    final Translation2d[] modules = m_moduleLocations;
+    final Translation2d[] modules = moduleLocations;
 
-    SwerveModuleState[] desiredModuleState = m_kinematics.toSwerveModuleStates(desiredState);
+    SwerveModuleState[] desiredModuleState = kinematics.toSwerveModuleStates(desiredState);
     // Make sure desiredState respects velocity limits.
     if (limits.maxDriveVelocity() > 0.0) {
       SwerveDriveKinematics.desaturateWheelSpeeds(desiredModuleState, limits.maxDriveVelocity());
-      desiredState = m_kinematics.toChassisSpeeds(desiredModuleState);
+      desiredState = kinematics.toChassisSpeeds(desiredModuleState);
     }
 
     // Special case: desiredState is a complete stop. In this case, module angle is arbitrary, so
@@ -355,7 +371,7 @@ public class SwerveSetpointGenerator {
             prevSetpoint.chassisSpeeds().vxMetersPerSecond + min_s * dx,
             prevSetpoint.chassisSpeeds().vyMetersPerSecond + min_s * dy,
             prevSetpoint.chassisSpeeds().omegaRadiansPerSecond + min_s * dtheta);
-    var retStates = m_kinematics.toSwerveModuleStates(retSpeeds);
+    var retStates = kinematics.toSwerveModuleStates(retSpeeds);
     for (int i = 0; i < modules.length; ++i) {
       final var maybeOverride = overrideSteering.get(i);
       if (maybeOverride.isPresent()) {
