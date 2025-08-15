@@ -42,7 +42,7 @@ public class DrivetrainConstants {
     public static final Current kSteerCurrentLimit = Amps.of(40.0);
 
     public static final Distance kWheelRadius = Inches.of(1.917);
-    public static final double kOdometryFrequency = new CANBus().isNetworkFD() ? 250.0 : 50.0; // Hz
+    public static final double kOdometryFrequency = new CANBus("*").isNetworkFD() ? 250.0 : 50.0; // Hz
 
     public static final SwerveModuleGearing kDrivetrainGearing = SwerveModuleGearing.MK4N_L2;
     public static final double kDriveGearRatio = kDrivetrainGearing.getDriveReduction();
@@ -73,7 +73,7 @@ public class DrivetrainConstants {
             .steerMotorID(3)
             .swerveEncoderID(10)
             .swerveEncoderOffset(Rotation2d.fromDegrees(0.0))
-            .steerInverted(false)
+            .steerInverted(true)
             .swerveEncoderInverted(false)
             .build(),
 
@@ -82,7 +82,7 @@ public class DrivetrainConstants {
             .steerMotorID(5)
             .swerveEncoderID(11)
             .swerveEncoderOffset(Rotation2d.fromDegrees(0.0))
-            .steerInverted(false)
+            .steerInverted(true)
             .swerveEncoderInverted(false)
             .build(),
 
@@ -91,7 +91,7 @@ public class DrivetrainConstants {
             .steerMotorID(7)
             .swerveEncoderID(12)
             .swerveEncoderOffset(Rotation2d.fromDegrees(0.0))
-            .steerInverted(false)
+            .steerInverted(true)
             .swerveEncoderInverted(false)
             .build(),
 
@@ -100,7 +100,7 @@ public class DrivetrainConstants {
             .steerMotorID(9)
             .swerveEncoderID(13)
             .swerveEncoderOffset(Rotation2d.fromDegrees(0.0))
-            .steerInverted(false)
+            .steerInverted(true)
             .swerveEncoderInverted(false)
             .build()
     };

@@ -85,9 +85,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     private final Rotation2d absoluteEncoderOffset;
 
     public ModuleIOTalonFX(ModuleConfiguration configuration) {
-        driveMotor = new TalonFX(configuration.driveMotorID());
-        steerMotor = new TalonFX(configuration.steerMotorID());
-        swerveEncoder = new CANcoder(configuration.swerveEncoderID());
+        driveMotor = new TalonFX(configuration.driveMotorID(), "*");
+        steerMotor = new TalonFX(configuration.steerMotorID(), "*");
+        swerveEncoder = new CANcoder(configuration.swerveEncoderID(), "*");
         absoluteEncoderOffset = configuration.swerveEncoderOffset();
 
         driveConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -158,7 +158,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         );
 
         registerSignals(
-            false, 
+            true, 
             drivePosition,
             driveVelocity,
             driveAcceleration,
