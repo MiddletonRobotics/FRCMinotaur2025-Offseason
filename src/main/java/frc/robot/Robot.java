@@ -22,9 +22,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utilities.constants.BuildConstants;
-import frc.robot.utilities.constants.GlobalConstants;
-import frc.robot.utilities.AlertManager;
+import frc.robot.constants.BuildConstants;
+import frc.robot.constants.GlobalConstants;
+import frc.minolib.advantagekit.AlertManager;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
