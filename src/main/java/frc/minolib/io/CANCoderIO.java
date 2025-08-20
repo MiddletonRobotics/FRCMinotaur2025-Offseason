@@ -8,11 +8,11 @@ public interface CANCoderIO {
     
     @AutoLog
     public static class CANCoderInputs {
-        protected StatusCode status = StatusCode.OK;
-        protected int faultField = 0;
-        protected int stickyFaultField = 0;
-        protected double position = 0.0;
-        protected double absolutePosition = 0.0;
-        protected double velocity = 0.0;
+        public StatusCode status = StatusCode.OK;
+        public int faultField = 0;
+        public int stickyFaultField = 0;
+        public double position = 0.0;
+        public double absolutePosition = 0.0;
+        public double velocity = 0.0;
     }
 }

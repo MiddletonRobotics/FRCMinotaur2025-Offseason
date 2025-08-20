@@ -8,15 +8,15 @@ public interface PigeonIO {
     
     @AutoLog
     public static class Pigeon2Inputs {
-        protected StatusCode status = StatusCode.OK;
-        protected int faultField = 0;
-        protected int stickyFaultField = 0;
-        protected double roll = 0.0;
-        protected double pitch = 0.0;
-        protected double yaw = 0.0;
-        protected double latencyCompensatedYaw = 0.0;
-        protected double rollRate = 0.0;
-        protected double pitchRate = 0.0;
-        protected double yawRate = 0.0;
+        public StatusCode status = StatusCode.OK;
+        public int faultField = 0;
+        public int stickyFaultField = 0;
+        public double roll = 0.0;
+        public double pitch = 0.0;
+        public double yaw = 0.0;
+        public double latencyCompensatedYaw = 0.0;
+        public double rollRate = 0.0;
+        public double pitchRate = 0.0;
+        public double yawRate = 0.0;
     }
 }
