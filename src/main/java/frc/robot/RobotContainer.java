@@ -4,25 +4,36 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.DriveCommands;
-import frc.robot.io.DriverButtonBindings;
-import frc.robot.io.TestingButtonBindings;
-import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.GyroIOPigeon2;
-import frc.robot.subsystems.drivetrain.GyroIOReplay;
-import frc.robot.subsystems.drivetrain.ModuleIOReplay;
-import frc.robot.subsystems.drivetrain.ModuleIOSim;
-import frc.robot.subsystems.drivetrain.ModuleIOTalonFX;
-import frc.robot.utilities.constants.DrivetrainConstants;
-import frc.robot.utilities.constants.GlobalConstants;
+import frc.minolib.hardware.MinoPigeon2;
+import frc.minolib.interfaces.MinoVisionCamera;
+import frc.minolib.vision.MinoVisionSimulation;
+import frc.minolib.vision.PhotonVisionCamera;
+import frc.robot.command_factories.DriveFactory;
+import frc.robot.constants.DrivetrainConstants;
+import frc.robot.constants.VisionConstants;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.utilities.Fiducials;
 
 public class RobotContainer {
-  private Drivetrain drivetrain;
+  private DrivetrainSubsystem drivetrainSubsystem;
+  public final XboxController driverXbox = new XboxController(0);
 
-  private DriverButtonBindings driverController;
-  private TestingButtonBindings testingController;
+  private final ArrayList<MinoVisionCamera> cameras = new ArrayList<>(Arrays.asList(
+    new PhotonVisionCamera("le", VisionConstants.LeftElevator.robotToCameraT, VisionConstants.LeftElevator.pipelineConfigs),
+    new PhotonVisionCamera("re", VisionConstants.RightElevator.robotToCameraT, VisionConstants.RightElevator.pipelineConfigs)
+  ));
+
+  private final MinoPigeon2 imu = new MinoPigeon2(DrivetrainConstants.IMU.pigeonID, MinoPigeon2.makeDefaultConfig());
+  private final ArrayList<MinoVisionCamera> localizationCameras = new ArrayList<>(Arrays.asList(cameras.get(0), cameras.get(1)));
+  private final MinoVisionSimulation visionSimulation = new MinoVisionSimulation(cameras, Fiducials.aprilTagFiducials);
+  private final Field2d fieldViz = visionSimulation.getSimField();
 
   public RobotContainer() {
     configureSubsystems();
@@ -31,53 +42,22 @@ public class RobotContainer {
   }
 
   private void configureSubsystems() {
-    switch(GlobalConstants.kCurrentMode) {
-      case REAL:
-        drivetrain = new Drivetrain(
-          new GyroIOPigeon2(), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[0]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[1]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[2]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[3])
-        );
+    drivetrainSubsystem = new DrivetrainSubsystem(
+        imu,
+        localizationCameras,
+        visionSimulation,
+        fieldViz
+    );
 
-        break;
-      case SIM:
-        drivetrain = new Drivetrain(
-          new GyroIOPigeon2(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim()
-        );
-
-        break;
-      case REPLAY:
-        drivetrain = new Drivetrain(
-          new GyroIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay()
-        );
-
-        break;
-    }
+    drivetrainSubsystem.setDefaultCommand(new DriveFactory(drivetrainSubsystem, new XboxController(0)));
   }
 
   private void configureControllers() {
-    driverController = new DriverButtonBindings(0);
-    testingController = new TestingButtonBindings(2);
+
   }
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(DriveCommands.teleopDrive(
-      drivetrain, 
-      driverController::getForward, 
-      driverController::getStrafe, 
-      driverController::getTurn, 
-      () -> false
-    ));
+    drivetrainSubsystem.setDefaultCommand(new DriveFactory(drivetrainSubsystem, driverXbox));
   }
 
   public Command getAutonomousCommand() {

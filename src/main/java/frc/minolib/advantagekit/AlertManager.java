@@ -1,8 +1,6 @@
 package frc.minolib.advantagekit;
 
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.RobotState;
-import frc.robot.Robot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
