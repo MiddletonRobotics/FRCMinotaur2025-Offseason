@@ -4,10 +4,11 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Timestamp;
+
 import java.util.function.Function;
 
 /**
- * The QuixStatusSignal class is a wrapper around the StatusSignal class, providing additional
+ * The MinoStatusSignal class is a wrapper around the StatusSignal class, providing additional
  * functionality such as unit conversion and latency compensation.
  *
  * @param <T> The type of the value held by the StatusSignal.
@@ -53,10 +54,10 @@ public class MinoStatusSignal<T> {
         return statusSignal.getTimestamp();
     }
 
-    public static BaseStatusSignal[] toBaseStatusSignals(final MinoStatusSignal<?>... quixSignals) {
-        final BaseStatusSignal[] signals = new BaseStatusSignal[quixSignals.length];
-        for (int i = 0; i < quixSignals.length; i++) {
-            signals[i] = quixSignals[i].statusSignal;
+    public static BaseStatusSignal[] toBaseStatusSignals(final MinoStatusSignal<?>... minoSignals) {
+        final BaseStatusSignal[] signals = new BaseStatusSignal[minoSignals.length];
+        for (int i = 0; i < minoSignals.length; i++) {
+            signals[i] = minoSignals[i].statusSignal;
         }
 
         return signals;

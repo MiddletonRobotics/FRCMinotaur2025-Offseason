@@ -1,6 +1,5 @@
 package frc.minolib.phoenix;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -16,6 +15,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 
 import edu.wpi.first.wpilibj.DriverStation;
+
 import frc.minolib.math.EqualsUtility;
 
 import java.util.function.Supplier;
