@@ -1,7 +1,7 @@
 package frc.minolib.interfaces;
 
 /**
- * Interface representing a Quix Absolute Encoder. Provides methods to interact with and simulate an
+ * Interface representing a Absolute Encoder. Provides methods to interact with and simulate an
  * absolute encoder sensor.
  */
 
@@ -13,8 +13,6 @@ public interface MinoAbsoluteEncoder {
     /** Sets the sensor position to the given value. Uses MechanismRatio units. */
     public void setPosition(double pos);
 
-    // ==================== Getters ====================
-
     /** Returns the sensor position. Uses MechanismRatio units. */
     public double getPosition();
 
@@ -23,8 +21,6 @@ public interface MinoAbsoluteEncoder {
 
     /** Returns the sensor velocity. Uses MechanismRatio units. */
     public double getVelocity();
-
-    // ==================== Simulation ====================
 
     /**
      * Sets the simulated angular velocity of the sensor in mechanism units. Also sets the simulated

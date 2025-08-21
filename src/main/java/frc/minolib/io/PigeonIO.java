@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.AutoLog;
 import com.ctre.phoenix6.StatusCode;
 
 public interface PigeonIO {
-    
+
     @AutoLog
     public static class Pigeon2Inputs {
         public StatusCode status = StatusCode.OK;
