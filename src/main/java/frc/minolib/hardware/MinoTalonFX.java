@@ -30,7 +30,7 @@ import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PIDConfiguration;
 import frc.minolib.phoenix.PhoenixUtility;
-import frc.minolib.interfaces.MinoMotorControllerWithEncoder;
+import frc.minolib.io.MotorIO;
 import frc.minolib.io.PhoenixIO;
 import frc.minolib.io.TalonFXInputsAutoLogged;
 
@@ -38,7 +38,7 @@ import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
-public class MinoTalonFX implements PhoenixIO, MinoMotorControllerWithEncoder, AutoCloseable {
+public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -564,7 +564,7 @@ public class MinoTalonFX implements PhoenixIO, MinoMotorControllerWithEncoder, A
         return vel / toNativeSensorVelocity(1.0);
     }
 
-    public void setSimSensorPositionAndVelocity(final double pos, final double vel, final double dt, final MechanismRatio mr) {
+    public void setSimulatedSensorPositionAndVelocity(final double pos, final double vel, final double dt, final MechanismRatio mr) {
         // Convert position into rotations.
         final double rotations = toNativeSensorPosition(pos, mr, 0.0);
         // Convert velocity into rotations per second.
@@ -575,7 +575,7 @@ public class MinoTalonFX implements PhoenixIO, MinoMotorControllerWithEncoder, A
         simulationState.setRawRotorPosition(sign * rotations);
     }
 
-    public void setSimSensorVelocity(final double vel, final double dt, final MechanismRatio mr) {
+    public void setSimulatedSensorVelocity(final double vel, final double dt, final MechanismRatio mr) {
         // Convert velocity into rotations per second.
         final double rotationsPerSecond = toNativeSensorVelocity(vel, mr);
         // Simulated hardware is never inverted, so flip signs accordingly.

@@ -7,6 +7,8 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
 import java.util.Optional;
 
+import com.revrobotics.spark.SparkMax;
+
 /**
  * The CameraInfo class holds information about a camera's transform, camera matrix, and distortion
  * coefficients.

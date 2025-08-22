@@ -4,10 +4,10 @@ import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.StatusCode;
 
-public interface PigeonIO {
+public interface GyroIO {
 
     @AutoLog
-    public static class Pigeon2Inputs {
+    public static class GyroInputs {
         public StatusCode status = StatusCode.OK;
         public int faultField = 0;
         public int stickyFaultField = 0;

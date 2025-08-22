@@ -4,8 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.StatusCode;
 
-public interface CANCoderIO {
-    
+public interface AbsoluteEncoderIO {
     @AutoLog
     public static class CANCoderInputs {
         public StatusCode status = StatusCode.OK;

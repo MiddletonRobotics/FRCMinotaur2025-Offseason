@@ -1,8 +1,44 @@
-package frc.minolib.interfaces;
+package frc.minolib.io;
+
+import org.littletonrobotics.junction.AutoLog;
+
+import com.ctre.phoenix6.StatusCode;
 
 import frc.minolib.phoenix.MechanismRatio;
 
-public interface MinoMotorControllerWithEncoder {
+public interface MotorIO {
+    @AutoLog
+    public static class TalonFXInputs {
+        public StatusCode status = StatusCode.OK;
+        public int faultField = 0;
+        public int stickyFaultField = 0;
+        public double percentOutput = 0.0;
+        public double supplyCurrent = 0.0;
+        public double statorCurrent = 0.0;
+        public double torqueCurrent = 0.0;
+        public double closedLoopReference = 0.0;
+        public double closedLoopReferenceSlope = 0.0;
+        public double rotorPosition = 0.0;
+        public double sensorPosition = 0.0;
+        public double latencyCompensatedSensorPosition = 0.0;
+        public double sensorVelocity = 0.0;
+        public double temperature = 0.0;
+    }
+
+    @AutoLog
+    public static class SparkMaxInputs {
+        public boolean isMotorConnected = false;
+        public double percentOutput = 0.0;
+        public double supplyCurrent = 0.0;
+        public double statorCurrent = 0.0;
+        public double closedLoopReference = 0.0;
+        public double rotorPosition = 0.0;
+        public double sensorPosition = 0.0;
+        public double sensorVelocity = 0.0;
+        public double sensorAcceleration = 0.0;
+        public double temperature = 0.0;
+    }
+
     /** Returns the CAN ID of the device. */
     public int getDeviceID();
   
@@ -37,10 +73,7 @@ public interface MinoMotorControllerWithEncoder {
     /** Returns the percent output (-1.0 to 1.0) as reported by the device. */
     public double getPercentOutput();
   
-    /**
-     * Returns the percent output (-1.0 to 1.0) as reported by the device. Sign corresponds to the
-     * physical direction of the motor. Useful for simulation.
-     */
+    /** Returns the percent output (-1.0 to 1.0) as reported by the device. Sign corresponds to the physical direction of the motor. Useful for simulation. */
     public double getPhysicalPercentOutput();
   
     /** Returns the stator current draw in amps. */
@@ -77,11 +110,8 @@ public interface MinoMotorControllerWithEncoder {
     public double fromNativeSensorVelocity(double vel);
   
     /** Sets the simulated angular position and velocity of the sensor in mechanism units. */
-    public void setSimSensorPositionAndVelocity(double pos, double vel, double dt, MechanismRatio mr);
+    public void setSimulatedSensorPositionAndVelocity(double pos, double vel, double dt, MechanismRatio mr);
   
-    /**
-     * Sets the simulated angular velocity of the sensor in mechanism units. Also sets the simulated
-     * position.
-     */
-    public void setSimSensorVelocity(double vel, double dt, MechanismRatio mr);
-  }
+    /** Sets the simulated angular velocity of the sensor in mechanism units. Also sets the simulated position. */
+    public void setSimulatedSensorVelocity(double vel, double dt, MechanismRatio mr);
+}

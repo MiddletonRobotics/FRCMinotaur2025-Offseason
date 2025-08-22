@@ -129,8 +129,8 @@ public abstract class MinoSwerve extends SubsystemBase {
     m_imu.updateInputs();
     for (var module : m_modules) {
       module.updateInputs();
-      module.m_driveMotor.checkFaultsAndReconfigureIfNecessary();
-      module.m_steeringMotor.checkFaultsAndReconfigureIfNecessary();
+      module.driveMotor.checkFaultsAndReconfigureIfNecessary();
+      module.steeringMotor.checkFaultsAndReconfigureIfNecessary();
       // TODO: Handle reconfiguration if necessary.
     }
     for (var camera : m_cameras) {

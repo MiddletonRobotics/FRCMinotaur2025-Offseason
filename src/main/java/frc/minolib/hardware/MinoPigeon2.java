@@ -10,8 +10,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.minolib.interfaces.MinoGyro;
+import frc.minolib.io.GyroInputsAutoLogged;
 import frc.minolib.io.PhoenixIO;
-import frc.minolib.io.Pigeon2InputsAutoLogged;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PhoenixUtility;
 
@@ -95,7 +95,7 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
 
   private double continuousYawOffset = 0.0;
 
-  private final Pigeon2InputsAutoLogged m_inputs = new Pigeon2InputsAutoLogged();
+  private final GyroInputsAutoLogged m_inputs = new GyroInputsAutoLogged();
 
   /**
    * Configuration class for MinoPigeon2 that handles mount pose and gyro trim settings. All angle

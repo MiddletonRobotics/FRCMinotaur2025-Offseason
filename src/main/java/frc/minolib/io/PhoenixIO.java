@@ -7,5 +7,5 @@ public interface PhoenixIO {
   public StatusCode updateInputs();
 
   /** Performs a blocking update on the inputs. */
-  public StatusCode waitForInputs(final double timeoutSec);
+  public StatusCode waitForInputs(final double timeoutSeconds);
 }

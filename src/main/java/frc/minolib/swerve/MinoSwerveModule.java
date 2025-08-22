@@ -22,16 +22,16 @@ public class MinoSwerveModule {
     private static final int kSteeringPIDSlot = 0;
 
     private final Translation2d position;
-    private final double m_absEncoderOffsetRad;
-    protected final MinoTalonFX m_driveMotor;
-    protected final MinoTalonFX m_steeringMotor;
-    private final MechanismRatio m_driveRatio;
-    private final MechanismRatio m_steeringRatio;
+    private final double absoluteEncoderOffset;
+    protected final MinoTalonFX driveMotor;
+    protected final MinoTalonFX steeringMotor;
+    private final MechanismRatio driveRatio;
+    private final MechanismRatio steeringRatio;
     // For every steering rotation with the wheel fixed, the drive motor turns this much. May be
     // negative.
-    private final double m_steerDriveCouplingRatio;
-    private final MinoCANCoder m_absSteeringEncoder;
-    private final double m_wheelCircumference;
+    private final double steerDriveCouplingRatio;
+    private final MinoCANCoder absoluteSteeringEncoder;
+    private final double wheelCircumference;
 
     private SwerveModuleState m_lastCommandedState;
     private double m_steeringZeroPosition = 0.0;
@@ -49,12 +49,12 @@ public class MinoSwerveModule {
         final MechanismRatio driveRatio,
         final MechanismRatio steeringRatio,
         final double steerDriveCouplingRatio,
-        final double absEncoderOffsetRad,
-        final double wheelCircumference) {
-
+        final double absEncoderOffsetRadians,
+        final double wheelCircumference
+    ) {
         this.position = position;
-        m_absEncoderOffsetRad = absEncoderOffsetRad;
-        m_driveMotor = new MinoTalonFX(driveMotorID, driveRatio, MinoTalonFX.makeDefaultConfig()
+        this.absoluteEncoderOffset = absEncoderOffsetRadians;
+        driveMotor = new MinoTalonFX(driveMotorID, driveRatio, MinoTalonFX.makeDefaultConfig()
             .setBrakeMode()
             .setSupplyCurrentLimit(40)
             .setStatorCurrentLimit(120)
@@ -62,18 +62,18 @@ public class MinoSwerveModule {
             .setPIDConfig(kDriveClosedLoopVelocityPIDSlot, driveClosedLoopPIDConfig)
         );
 
-        m_steeringMotor = new MinoTalonFX(steeringMotorID, steeringRatio, MinoTalonFX.makeDefaultConfig()
+        steeringMotor = new MinoTalonFX(steeringMotorID, steeringRatio, MinoTalonFX.makeDefaultConfig()
             .setInverted(true)
             .setSupplyCurrentLimit(30)
             .setStatorCurrentLimit(60)
             .setPIDConfig(kSteeringPIDSlot, steeringPIDConfig)
         );
 
-        m_driveRatio = driveRatio;
-        m_steeringRatio = steeringRatio;
-        m_steerDriveCouplingRatio = steerDriveCouplingRatio;
-        m_absSteeringEncoder = new MinoCANCoder(absEncoderID, new MechanismRatio());
-        m_wheelCircumference = wheelCircumference;
+        this.driveRatio = driveRatio;
+        this.steeringRatio = steeringRatio;
+        this.steerDriveCouplingRatio = steerDriveCouplingRatio;
+        absoluteSteeringEncoder = new MinoCANCoder(absEncoderID, new MechanismRatio());
+        this.wheelCircumference = wheelCircumference;
 
         zeroToAbsPosition();
         m_lastCommandedState = getState();
@@ -96,9 +96,9 @@ public class MinoSwerveModule {
     }
 
     public void updateInputs() {
-        m_absSteeringEncoder.updateInputs();
-        m_driveMotor.updateInputs();
-        m_steeringMotor.updateInputs();
+        absoluteSteeringEncoder.updateInputs();
+        driveMotor.updateInputs();
+        steeringMotor.updateInputs();
     }
 
     public Translation2d getPosition() {
@@ -106,30 +106,30 @@ public class MinoSwerveModule {
     }
 
     public void zeroToAbsPosition() {
-        final double absAngle = m_absSteeringEncoder.getAbsPosition() - m_absEncoderOffsetRad;
-        m_steeringZeroPosition = m_steeringMotor.getSensorPosition() - absAngle;
+        final double absAngle = absoluteSteeringEncoder.getAbsPosition() - absoluteEncoderOffset;
+        m_steeringZeroPosition = steeringMotor.getSensorPosition() - absAngle;
     }
 
     public double getAbsoluteSensorAngle() {
-        return m_absSteeringEncoder.getAbsPosition();
+        return absoluteSteeringEncoder.getAbsPosition();
     }
 
     public double getSteeringAngle() {
-        return m_steeringMotor.getSensorPosition() - m_steeringZeroPosition;
+        return steeringMotor.getSensorPosition() - m_steeringZeroPosition;
     }
 
     public void setDesiredState(final SwerveModuleState desiredState, final boolean isClosedLoop) {
         double curTime = Timer.getTimestamp();
         double dT = curTime - m_prevStateTime;
         double a = m_prevStateTime != 0.0 ? ((desiredState.speedMetersPerSecond - m_lastCommandedState.speedMetersPerSecond) / dT) : 0.0;
-        m_driveMotor.setVelocitySetpoint(
+        driveMotor.setVelocitySetpoint(
             isClosedLoop ? kDriveClosedLoopVelocityPIDSlot : kDriveOpenLoopVelocityPIDSlot,
             desiredState.speedMetersPerSecond,
             a,
             0.0
         );
 
-        m_steeringMotor.setPositionSetpoint(kSteeringPIDSlot, desiredState.angle.getRadians() + m_steeringZeroPosition);
+        steeringMotor.setPositionSetpoint(kSteeringPIDSlot, desiredState.angle.getRadians() + m_steeringZeroPosition);
 
         // Save this state
         m_lastCommandedState = desiredState;
@@ -137,7 +137,7 @@ public class MinoSwerveModule {
     }
 
     public SwerveModuleState getState() {
-        final double velocity = m_driveMotor.getSensorVelocity();
+        final double velocity = driveMotor.getSensorVelocity();
         final double angle = getSteeringAngle();
         return new SwerveModuleState(velocity, new Rotation2d(angle));
     }
@@ -147,19 +147,19 @@ public class MinoSwerveModule {
     }
 
     public SwerveModulePosition getPositionState() {
-        final double position = m_driveMotor.getLatencyCompensatedSensorPosition();
+        final double position = driveMotor.getLatencyCompensatedSensorPosition();
         final double angle =
-            m_steeringMotor.getLatencyCompensatedSensorPosition() - m_steeringZeroPosition;
+            steeringMotor.getLatencyCompensatedSensorPosition() - m_steeringZeroPosition;
 
         // Compute drive position offset (in meters) due to steer coupling.
-        final double steerCouplingDriveOffset = m_driveMotor.getMechanismRatio().sensorRadiansToMechanismPosition(m_steerDriveCouplingRatio * angle);
+        final double steerCouplingDriveOffset = driveMotor.getMechanismRatio().sensorRadiansToMechanismPosition(steerDriveCouplingRatio * angle);
 
         return new SwerveModulePosition(position - steerCouplingDriveOffset, new Rotation2d(angle));
     }
 
     public Translation2d getGroundForceVector(double maxFrictionForce) {
-        final double motorTorque = DCMotor.getKrakenX60Foc(1).getTorque(m_driveMotor.getTorqueCurrent());
-        final double groundForce = Math.abs(motorTorque) * m_driveMotor.getMechanismRatio().reduction() / (m_wheelCircumference / (2.0 * Math.PI));
+        final double motorTorque = DCMotor.getKrakenX60Foc(1).getTorque(driveMotor.getTorqueCurrent());
+        final double groundForce = Math.abs(motorTorque) * driveMotor.getMechanismRatio().reduction() / (wheelCircumference / (2.0 * Math.PI));
         return new Translation2d(MathUtility.clamp(groundForce, -maxFrictionForce, maxFrictionForce), new Rotation2d(getSteeringAngle() + (motorTorque < 0.0 ? Math.PI : 0.0)));
     }
 
@@ -174,12 +174,12 @@ public class MinoSwerveModule {
         m_simTimer.reset();
 
         // Set drive speed from MinoSwerve Simulation
-        m_driveMotor.setSimSensorVelocity(velocity, dt, m_driveRatio);
+        driveMotor.setSimulatedSensorVelocity(velocity, dt, driveRatio);
 
         // Simulate steering
-        m_steeringSim.setInput( m_steeringMotor.getPercentOutput() * RobotController.getBatteryVoltage());
+        m_steeringSim.setInput( steeringMotor.getPercentOutput() * RobotController.getBatteryVoltage());
         m_steeringSim.update(dt);
-        m_steeringMotor.setSimSensorPositionAndVelocity(m_steeringSim.getAngleRads(), m_steeringSim.getVelocityRadPerSec(), dt, m_steeringRatio);
+        steeringMotor.setSimulatedSensorPositionAndVelocity(m_steeringSim.getAngleRads(), m_steeringSim.getVelocityRadPerSec(), dt, steeringRatio);
     }
 
     // --- END STUFF FOR SIMULATION ---
