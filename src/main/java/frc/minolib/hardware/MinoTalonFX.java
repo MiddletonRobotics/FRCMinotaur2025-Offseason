@@ -31,14 +31,13 @@ import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PIDConfiguration;
 import frc.minolib.phoenix.PhoenixUtility;
 import frc.minolib.io.MotorIO;
-import frc.minolib.io.PhoenixIO;
-import frc.minolib.io.TalonFXInputsAutoLogged;
+import frc.minolib.io.MotorInputsAutoLogged;
 
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
-public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
+public class MinoTalonFX implements  AutoCloseable, MotorIO {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -69,7 +68,7 @@ public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
     private final MinoStatusSignal<Temperature> temperatureSignal;
     private final BaseStatusSignal[] allSignals;
 
-    private final TalonFXInputsAutoLogged inputs = new TalonFXInputsAutoLogged();
+    private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
     public static class MinoTalonFXConfiguration {
         private NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
@@ -340,7 +339,7 @@ public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
         allSuccess &= PhoenixUtility.retryUntilSuccess(() -> controller.optimizeBusUtilization(0.0, kCANTimeoutS), name + ": optimizeBusUtilization");
 
         // Block until we get valid signals.
-        allSuccess &= PhoenixUtility.retryUntilSuccess(() -> waitForInputs(kCANTimeoutS), name + ": waitForInputs()");
+        allSuccess &= BaseStatusSignal.waitForAll(kCANTimeoutS, allSignals).isOK();
 
         // Check if unlicensed.
         allSuccess &= !controller.getStickyFault_UnlicensedFeatureInUse().getValue();
@@ -366,16 +365,10 @@ public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
         return controller.getDeviceID();
     }
 
-    public StatusCode updateInputs() {
-        return waitForInputs(0.0);
-    }
 
-    public StatusCode waitForInputs(final double timeoutSec) {
-        inputs.status = BaseStatusSignal.waitForAll(timeoutSec, allSignals);
-        // TODO: Figure out why these signals aren't refreshing in waitForAll().
-        closedLoopReferenceSignal.refresh();
-        closedLoopReferenceSlopeSignal.refresh();
-
+    @Override
+    public void updateInputs() {
+        inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals);
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
         inputs.percentOutput = percentOutputSignal.getUnitConvertedValue();
@@ -391,8 +384,6 @@ public class MinoTalonFX implements PhoenixIO, AutoCloseable, MotorIO {
         inputs.temperature = temperatureSignal.getUnitConvertedValue();
 
         Logger.processInputs(loggingName, inputs);
-
-        return inputs.status;
     }
 
     public void setBrakeMode(final boolean on) {

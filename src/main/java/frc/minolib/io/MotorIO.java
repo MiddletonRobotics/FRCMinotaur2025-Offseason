@@ -8,8 +8,8 @@ import frc.minolib.phoenix.MechanismRatio;
 
 public interface MotorIO {
     @AutoLog
-    public static class TalonFXInputs {
-        public StatusCode status = StatusCode.OK;
+    public static class MotorInputs {
+        public boolean isMotorConnected;
         public int faultField = 0;
         public int stickyFaultField = 0;
         public double percentOutput = 0.0;
@@ -25,27 +25,13 @@ public interface MotorIO {
         public double temperature = 0.0;
     }
 
-    @AutoLog
-    public static class SparkMaxInputs {
-        public boolean isMotorConnected = false;
-        public double percentOutput = 0.0;
-        public double supplyCurrent = 0.0;
-        public double statorCurrent = 0.0;
-        public double closedLoopReference = 0.0;
-        public double rotorPosition = 0.0;
-        public double sensorPosition = 0.0;
-        public double sensorVelocity = 0.0;
-        public double sensorAcceleration = 0.0;
-        public double temperature = 0.0;
-    }
-
     /** Returns the CAN ID of the device. */
     public int getDeviceID();
+
+    /** Updates inputs for logging. Should be called periodically. */
+    public void updateInputs();
   
-    /**
-     * Configures the motor. Should be called on construction or when recovering from power loss or
-     * fault. Returns true if the configuration was set successfully.
-     */
+    /** Configures the motor. Should be called on construction or when recovering from power loss or fault. Returns true if the configuration was set successfully. */
     public boolean setConfiguration();
   
     /** Sets percent output from -1.0 to 1.0. */
@@ -57,17 +43,13 @@ public interface MotorIO {
     /** Closed-loop position mode. Position setpoint defined in MechanismRatio units. */
     public void setPositionSetpoint(int slot, double setpoint);
   
-    /**
-     * Closed-loop position mode with feed-forward. Position setpoint defined in MechanismRatio units.
-     */
+    /** Closed-loop position mode with feed-forward. Position setpoint defined in MechanismRatio units. */
     public void setPositionSetpoint(int slot, double setpoint, double feedforwardVolts);
   
     /** Closed-loop velocity mode. Velocity setpoint defined in MechanismRatio units. */
     public void setVelocitySetpoint(int slot, double setpoint);
   
-    /**
-     * Closed-loop velocity mode with feed-forward. Velocity setpoint defined in MechanismRatio units.
-     */
+    /** Closed-loop velocity mode with feed-forward. Velocity setpoint defined in MechanismRatio units. */
     public void setVelocitySetpoint(int slot, double setpoint, double feedforwardVolts);
   
     /** Returns the percent output (-1.0 to 1.0) as reported by the device. */
