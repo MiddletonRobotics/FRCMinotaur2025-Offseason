@@ -60,28 +60,28 @@ public class DrivetrainConstants {
 
     /* Rear Left Module - Module 1 */
     public static final class RearLeft {
-        public static final CANDeviceID driveMotorID = new CANDeviceID(4, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID steeringMotorID = new CANDeviceID(5, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID canCoderID = new CANDeviceID(11, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID driveMotorID = new CANDeviceID(6, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID steeringMotorID = new CANDeviceID(7, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID canCoderID = new CANDeviceID(12, GlobalConstants.kCanivoreName);
         public static final Translation2d modulePosition = new Translation2d(-wheelBase / 2.0, trackWidth / 2.0);
-        public static final double absEncoderOffsetRad = 0.45652 * 2.0 * Math.PI;
+        public static final double absEncoderOffsetRad = 0.373535 * 2.0 * Math.PI;
     }
 
     /* Rear Right Module - Module 2 */
     public static final class RearRight {
-        public static final CANDeviceID driveMotorID = new CANDeviceID(6, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID steeringMotorID = new CANDeviceID(7, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID canCoderID = new CANDeviceID(12, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID driveMotorID = new CANDeviceID(8, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID steeringMotorID = new CANDeviceID(9, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID canCoderID = new CANDeviceID(13, GlobalConstants.kCanivoreName);
         public static final Translation2d modulePosition = new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0);
-        public static final double absEncoderOffsetRad = 0.373535 * 2.0 * Math.PI;
+        public static final double absEncoderOffsetRad = 0.510742 * 2.0 * Math.PI;
     }
 
     /* Front Right Module - Module 3 */
     public static final class FrontRight {
-        public static final CANDeviceID driveMotorID = new CANDeviceID(8, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID steeringMotorID = new CANDeviceID(9, GlobalConstants.kCanivoreName);
-        public static final CANDeviceID canCoderID = new CANDeviceID(13, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID driveMotorID = new CANDeviceID(4, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID steeringMotorID = new CANDeviceID(5, GlobalConstants.kCanivoreName);
+        public static final CANDeviceID canCoderID = new CANDeviceID(11, GlobalConstants.kCanivoreName);
         public static final Translation2d modulePosition = new Translation2d(wheelBase / 2.0, -trackWidth / 2.0);
-        public static final double absEncoderOffsetRad = 0.510742 * 2.0 * Math.PI;
+        public static final double absEncoderOffsetRad = 0.45652 * 2.0 * Math.PI;
     }
 }
