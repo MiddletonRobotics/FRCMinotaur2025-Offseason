@@ -63,8 +63,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     private final MinoStatusSignal<Current> statorCurrentSignal;
     private final MinoStatusSignal<Current> torqueCurrentSignal;
     private final MinoStatusSignal<Angle> rotorPositionSignal;
+    private final MinoStatusSignal<AngularVelocity> rotorVelocitySignal;
+    private final MinoStatusSignal<AngularAcceleration> rotorAccelerationSignal;
     private final MinoStatusSignal<Angle> sensorPositionSignal;
     private final MinoStatusSignal<AngularVelocity> sensorVelocitySignal;
+    private final MinoStatusSignal<AngularAcceleration> sensorAccelerationSignal;
     private final MinoStatusSignal<Double> closedLoopReferenceSignal;
     private final MinoStatusSignal<Double> closedLoopReferenceSlopeSignal;
     private final MinoStatusSignal<Temperature> temperatureSignal;
@@ -77,6 +80,8 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         private boolean INVERTED = false;
         private double SUPPLY_CURRENT_LIMIT = 40.0; // A
         private double STATOR_CURRENT_LIMIT = 40.0; // A
+        private double FORWARD_TORQUE_CURRENT = 40.0;
+        private double REVERSE_TORQUE_CURRENT = 40.0;
         private boolean FWD_SOFT_LIMIT_ENABLED = false;
         private double FWD_SOFT_LIMIT = 0.0; // In MechanismRatio units
         private boolean REV_SOFT_LIMIT_ENABLED = false;
@@ -87,8 +92,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         private double motionMagicCruiseVelocity = 0.0; // In MechanismRatio units
         private double motionMagicAcceleration = 0.0; // In MechanismRatio units
         private double motionMagicJerk = 0.0; // In MechanismRatio units
-        private double bootPositionOffset = 0.0; // In MechanismRatio units
-        private double rotorBootOffset = 0.0; // In rotor rotations [-1, 1]
 
         public MinoTalonFXConfiguration setBrakeMode() {
             NEUTRAL_MODE = NeutralModeValue.Brake;
@@ -107,6 +110,16 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
         public MinoTalonFXConfiguration setSupplyCurrentLimit(final double amperes) {
             SUPPLY_CURRENT_LIMIT = amperes;
+            return this;
+        }
+
+        public MinoTalonFXConfiguration setForwardTorqueCurrent(final double amperes) {
+            FORWARD_TORQUE_CURRENT = amperes;
+            return this;
+        }
+
+        public MinoTalonFXConfiguration setReverseTorqueCurrent(final double amperes) {
+            REVERSE_TORQUE_CURRENT = amperes;
             return this;
         }
 
@@ -147,16 +160,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
             return this;
         }
 
-        public MinoTalonFXConfiguration setBootPositionOffset(final double position) {
-            bootPositionOffset = position;
-            return this;
-        }
-
-        public MinoTalonFXConfiguration setRotorBootOffset(final double position) {
-            rotorBootOffset = position;
-            return this;
-        }
-
         public TalonFXConfiguration toTalonFXConfiguration(final Function<Double, Double> toNativeSensorPosition, final Function<Double, Double> toNativeSensorVelocity) {
             final TalonFXConfiguration config = new TalonFXConfiguration();
             config.MotorOutput.NeutralMode = NEUTRAL_MODE;
@@ -171,11 +174,9 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
             config.CurrentLimits.SupplyCurrentLowerLimit = SUPPLY_CURRENT_LIMIT;
             config.CurrentLimits.SupplyCurrentLowerTime = 0.1; // s
 
-            config.TorqueCurrent.PeakForwardTorqueCurrent = STATOR_CURRENT_LIMIT;
-            config.TorqueCurrent.PeakReverseTorqueCurrent = -STATOR_CURRENT_LIMIT;
+            config.TorqueCurrent.PeakForwardTorqueCurrent = FORWARD_TORQUE_CURRENT;
+            config.TorqueCurrent.PeakReverseTorqueCurrent = REVERSE_TORQUE_CURRENT;
             config.TorqueCurrent.TorqueNeutralDeadband = 0.0;
-
-            config.Feedback.FeedbackRotorOffset = rotorBootOffset;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = FWD_SOFT_LIMIT_ENABLED;
             config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = toNativeSensorPosition.apply(FWD_SOFT_LIMIT);
@@ -209,13 +210,13 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     }
 
     /** Constructor with full configuration */
-    public MinoTalonFX(final CANDeviceID canID, final MechanismRatio ratio, final MinoTalonFXConfiguration config) {
+    public MinoTalonFX(final CANDeviceID canID, final MechanismRatio gearRatio, final MinoTalonFXConfiguration configuration) {
         name = "TalonFX " + canID.toString();
         loggingName = "Inputs/" + name;
         controller = new TalonFX(canID.deviceNumber, canID.CANbusName);
         simulationState = controller.getSimState();
-        gearRatio = ratio;
-        configuration = config;
+        this.gearRatio = gearRatio;
+        this.configuration = configuration;
 
         faultFieldSignal = new MinoStatusSignal<>(controller.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(controller.getStickyFaultField());
@@ -223,9 +224,12 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         supplyCurrentSignal = new MinoStatusSignal<>(controller.getSupplyCurrent());
         statorCurrentSignal = new MinoStatusSignal<>(controller.getStatorCurrent());
         torqueCurrentSignal = new MinoStatusSignal<>(controller.getTorqueCurrent());
-        rotorPositionSignal = new MinoStatusSignal<>(controller.getRotorPosition());
-        sensorPositionSignal = new MinoStatusSignal<>(controller.getRotorPosition(), this::fromNativeSensorPosition);
-        sensorVelocitySignal = new MinoStatusSignal<>(controller.getRotorVelocity(), this::fromNativeSensorVelocity);
+        rotorPositionSignal = new MinoStatusSignal<>(controller.getPosition());
+        rotorVelocitySignal = new MinoStatusSignal<>(controller.getVelocity());
+        rotorAccelerationSignal = new MinoStatusSignal<>(controller.getAcceleration());
+        sensorPositionSignal = new MinoStatusSignal<>(controller.getPosition(), this::fromNativeSensorPosition);
+        sensorVelocitySignal = new MinoStatusSignal<>(controller.getVelocity(), this::fromNativeSensorVelocity);
+        sensorAccelerationSignal = new MinoStatusSignal<>(controller.getAcceleration(), this::fromNativeSensorAcceleration);
         closedLoopReferenceSignal = new MinoStatusSignal<>(controller.getClosedLoopReference(), this::fromNativeSensorPosition);
         closedLoopReferenceSlopeSignal = new MinoStatusSignal<>(controller.getClosedLoopReferenceSlope(), this::fromNativeSensorVelocity);
         temperatureSignal = new MinoStatusSignal<>(controller.getDeviceTemp());
@@ -367,7 +371,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         return controller.getDeviceID();
     }
 
-
     @Override
     public void updateInputs() {
         inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals);
@@ -380,9 +383,12 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         inputs.closedLoopReference = closedLoopReferenceSignal.getUnitConvertedValue();
         inputs.closedLoopReferenceSlope = closedLoopReferenceSlopeSignal.getUnitConvertedValue();
         inputs.rotorPosition = rotorPositionSignal.getUnitConvertedValue();
+        inputs.rotorVelocity = rotorVelocitySignal.getUnitConvertedValue();
+        inputs.rotorAcceleration = rotorAccelerationSignal.getUnitConvertedValue();
         inputs.sensorPosition = sensorPositionSignal.getUnitConvertedValue();
-        inputs.latencyCompensatedSensorPosition = MinoStatusSignal.getLatencyCompensatedValue(sensorPositionSignal, sensorVelocitySignal);
         inputs.sensorVelocity = sensorVelocitySignal.getUnitConvertedValue();
+        inputs.sensorAcceleration = sensorAccelerationSignal.getUnitConvertedValue();
+        inputs.latencyCompensatedSensorPosition = MinoStatusSignal.getLatencyCompensatedValue(sensorPositionSignal, sensorVelocitySignal);
         inputs.temperature = temperatureSignal.getUnitConvertedValue();
 
         Logger.processInputs(loggingName, inputs);
@@ -543,16 +549,16 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     }
 
     public double toNativeSensorPosition(final double pos) {
-        return toNativeSensorPosition(pos, gearRatio, configuration.bootPositionOffset);
+        return toNativeSensorPosition(pos, gearRatio);
     }
 
-    public static double toNativeSensorPosition(final double pos, final MechanismRatio mr, final double bootPositionOffset) {
+    public static double toNativeSensorPosition(final double pos, final MechanismRatio mr) {
         // Native position is rotations. There is 1 rotation per revolution (lol).
-        return mr.mechanismPositionToSensorRadians(pos - bootPositionOffset) / (2.0 * Math.PI);
+        return mr.mechanismPositionToSensorRadians(pos) / (2.0 * Math.PI);
     }
 
     public double fromNativeSensorPosition(final double pos) {
-        return (pos / toNativeSensorPosition(1.0, gearRatio, 0.0)) + configuration.bootPositionOffset;
+        return (pos / toNativeSensorPosition(1.0, gearRatio));
     }
 
     public double toNativeSensorVelocity(final double vel) {
@@ -561,16 +567,29 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
     public static double toNativeSensorVelocity(final double vel, final MechanismRatio mr) {
         // Native velocity is rotations per second.
-        return toNativeSensorPosition(vel, mr, 0.0);
+        return toNativeSensorPosition(vel, mr);
     }
 
     public double fromNativeSensorVelocity(final double vel) {
         return vel / toNativeSensorVelocity(1.0);
     }
 
+    public double toNativeSensorAcceleration(final double accel) {
+        return toNativeSensorAcceleration(accel, gearRatio);
+    }
+
+    public static double toNativeSensorAcceleration(final double accel, final MechanismRatio mr) {
+        // Native velocity is rotations per second.
+        return toNativeSensorVelocity(accel, mr);
+    }
+
+    public double fromNativeSensorAcceleration(final double accel) {
+        return accel / toNativeSensorAcceleration(1.0);
+    }
+
     public void setSimulatedSensorPositionAndVelocity(final double pos, final double vel, final double dt, final MechanismRatio mr) {
         // Convert position into rotations.
-        final double rotations = toNativeSensorPosition(pos, mr, 0.0);
+        final double rotations = toNativeSensorPosition(pos, mr);
         // Convert velocity into rotations per second.
         final double rotationsPerSecond = toNativeSensorVelocity(vel, mr);
         // Simulated hardware is never inverted, so flip signs accordingly.
