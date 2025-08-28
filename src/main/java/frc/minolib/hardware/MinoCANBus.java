@@ -55,7 +55,7 @@ public class MinoCANBus {
   public MinoCANBus(final String canbusName) {
     this.canbusName = canbusName;
     loggingName = "Inputs/CANBus [" + canbusName + "]";
-    canBus = new CANBus(canbusName);
+    canBus = new CANBus(this.canbusName);
   }
 
   public void updateInputs() {

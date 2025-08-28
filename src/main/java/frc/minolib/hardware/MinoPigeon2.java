@@ -1,7 +1,6 @@
 package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
@@ -9,10 +8,10 @@ import com.ctre.phoenix6.sim.Pigeon2SimState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
-import frc.minolib.interfaces.MinoGyro;
+import frc.minolib.io.GyroInputs;
 import frc.minolib.io.GyroInputsAutoLogged;
-import frc.minolib.io.PhoenixIO;
 import frc.minolib.phoenix.MinoStatusSignal;
+import frc.minolib.phoenix.PhoenixGyro;
 import frc.minolib.phoenix.PhoenixUtility;
 
 import org.littletonrobotics.junction.Logger;
@@ -75,7 +74,7 @@ import org.littletonrobotics.junction.Logger;
  * @see MinoGyro
  */
 
-public class MinoPigeon2 implements PhoenixIO, MinoGyro {
+public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
   private static final double kCANTimeoutS = 0.1; // s
   private final String name;
   private final String loggingName;
@@ -95,7 +94,7 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
 
   private double continuousYawOffset = 0.0;
 
-  private final GyroInputsAutoLogged m_inputs = new GyroInputsAutoLogged();
+  private final GyroInputsAutoLogged inputs = new GyroInputsAutoLogged();
 
   /**
    * Configuration class for MinoPigeon2 that handles mount pose and gyro trim settings. All angle
@@ -262,7 +261,7 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
     //         name + ": optimizeBusUtilization");
 
     // Block until we get valid signals.
-    allSuccess &= PhoenixUtility.retryUntilSuccess(() -> waitForInputs(kCANTimeoutS), name + ": waitForInputs()");
+    allSuccess &= BaseStatusSignal.waitForAll(kCANTimeoutS, allSignals).isOK();
 
     // Check if unlicensed.
     allSuccess &= !pigeon.getStickyFault_UnlicensedFeatureInUse().getValue();
@@ -270,14 +269,8 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
     return allSuccess;
   }
 
-  /**
-   * Updates the Pigeon2 sensor inputs immediately without waiting. This method is equivalent to
-   * calling waitForInputs(0.0).
-   *
-   * @return A StatusCode indicating the success or failure of the update operation
-   */
-  public StatusCode updateInputs() {
-    return waitForInputs(0.0);
+  public void close() {
+    pigeon.close();
   }
 
   /**
@@ -289,22 +282,20 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
    * @return StatusCode indicating the result of waiting for signals: - OK if successful - TIMEOUT
    *     if the wait operation times out - ERROR if there was a communication error
    */
-  public StatusCode waitForInputs(final double timeoutSec) {
-    m_inputs.status = BaseStatusSignal.waitForAll(timeoutSec, allSignals);
+  public void updateInputs() {
+    inputs.isGyroConnected = BaseStatusSignal.isAllGood(allSignals);
 
-    m_inputs.faultField = faultFieldSignal.getRawValue();
-    m_inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
-    m_inputs.roll = rollSignal.getUnitConvertedValue();
-    m_inputs.pitch = pitchSignal.getUnitConvertedValue();
-    m_inputs.yaw = yawSignal.getUnitConvertedValue();
-    m_inputs.latencyCompensatedYaw = MinoStatusSignal.getLatencyCompensatedValue(yawSignal, yawRateSignal);
-    m_inputs.rollRate = rollRateSignal.getUnitConvertedValue();
-    m_inputs.pitchRate = pitchRateSignal.getUnitConvertedValue();
-    m_inputs.yawRate = yawRateSignal.getUnitConvertedValue();
+    inputs.faultField = faultFieldSignal.getRawValue();
+    inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
+    inputs.roll = rollSignal.getUnitConvertedValue();
+    inputs.pitch = pitchSignal.getUnitConvertedValue();
+    inputs.yaw = yawSignal.getUnitConvertedValue();
+    inputs.latencyCompensatedYaw = MinoStatusSignal.getLatencyCompensatedValue(yawSignal, yawRateSignal);
+    inputs.rollRate = rollRateSignal.getUnitConvertedValue();
+    inputs.pitchRate = pitchRateSignal.getUnitConvertedValue();
+    inputs.yawRate = yawRateSignal.getUnitConvertedValue();
 
-    Logger.processInputs(loggingName, m_inputs);
-
-    return m_inputs.status;
+    Logger.processInputs(loggingName, inputs);
   }
 
   /**
@@ -327,31 +318,31 @@ public class MinoPigeon2 implements PhoenixIO, MinoGyro {
   }
 
   public double getRoll() {
-    return m_inputs.roll;
+    return inputs.roll;
   }
 
   public double getPitch() {
-    return m_inputs.pitch;
+    return inputs.pitch;
   }
 
   public double getContinuousYaw() {
-    return m_inputs.yaw;
+    return inputs.yaw;
   }
 
   public double getLatencyCompensatedContinuousYaw() {
-    return m_inputs.latencyCompensatedYaw;
+    return inputs.latencyCompensatedYaw;
   }
 
   public double getRollRate() {
-    return m_inputs.rollRate;
+    return inputs.rollRate;
   }
 
   public double getPitchRate() {
-    return m_inputs.pitchRate;
+    return inputs.pitchRate;
   }
 
   public double getYawRate() {
-    return m_inputs.yawRate;
+    return inputs.yawRate;
   }
 
   public void setSimContinuousYaw(final double rad) {

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
@@ -29,15 +30,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PIDConfiguration;
+import frc.minolib.phoenix.PhoenixMotor;
 import frc.minolib.phoenix.PhoenixUtility;
-import frc.minolib.io.MotorIO;
 import frc.minolib.io.MotorInputsAutoLogged;
 
 import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
-public class MinoTalonFX implements  AutoCloseable, MotorIO {
+public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -52,6 +53,7 @@ public class MinoTalonFX implements  AutoCloseable, MotorIO {
     private final VelocityVoltage velocityControl = new VelocityVoltage(0);
     private final PositionVoltage positionControl = new PositionVoltage(0);
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
+    private final MotionMagicExpoVoltage motionMagicExpoControl = new MotionMagicExpoVoltage(0);
     private final DynamicMotionMagicVoltage dynamicMotionMagicControl = new DynamicMotionMagicVoltage(0, 0, 0, 0);
 
     private final MinoStatusSignal<Integer> faultFieldSignal;
@@ -68,7 +70,7 @@ public class MinoTalonFX implements  AutoCloseable, MotorIO {
     private final MinoStatusSignal<Temperature> temperatureSignal;
     private final BaseStatusSignal[] allSignals;
 
-    private final MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+    private MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
     public static class MinoTalonFXConfiguration {
         private NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
@@ -434,6 +436,17 @@ public class MinoTalonFX implements  AutoCloseable, MotorIO {
         motionMagicControl.Position = toNativeSensorPosition(setpoint);
         motionMagicControl.FeedForward = feedforwardVolts;
         controller.setControl(motionMagicControl);
+    }
+
+    public void setMotionMagicExpoPositionSetpoint(final int slot, final double setpoint) {
+        setMotionMagicExpoPositionSetpoint(slot, setpoint, 0.0);
+    }
+
+    public void setMotionMagicExpoPositionSetpoint(final int slot, final double setpoint, final double feedforwardVolts) {
+        motionMagicExpoControl.Slot = slot;
+        motionMagicExpoControl.Position = toNativeSensorPosition(setpoint);
+        motionMagicExpoControl.FeedForward = feedforwardVolts;
+        controller.setControl(motionMagicExpoControl);
     }
 
     public void setDynamicMotionMagicPositionSetpoint(final int slot, final double setpoint, final double velocity, final double acceleration, final double jerk) {

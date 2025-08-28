@@ -1,7 +1,6 @@
 package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -9,11 +8,10 @@ import com.ctre.phoenix6.sim.CANcoderSimState;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-
+import frc.minolib.io.AbsoluteEncoderInputsAutoLogged;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
-import frc.minolib.interfaces.MinoAbsoluteEncoder;
-import frc.minolib.io.PhoenixIO;
+import frc.minolib.phoenix.PhoenixEncoder;
 import frc.minolib.phoenix.PhoenixUtility;
 
 import org.littletonrobotics.junction.Logger;
@@ -88,7 +86,7 @@ import org.littletonrobotics.junction.Logger;
  * </ul>
  */
 
-public class MinoCANCoder implements PhoenixIO, MinoAbsoluteEncoder {
+public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -103,7 +101,7 @@ public class MinoCANCoder implements PhoenixIO, MinoAbsoluteEncoder {
     private final MinoStatusSignal<AngularVelocity> velocitySignal;
     private final BaseStatusSignal[] allSignals;
 
-    private final frc.minolib.io.CANCoderInputsAutoLogged inputs = new frc.minolib.io.CANCoderInputsAutoLogged();
+    private final AbsoluteEncoderInputsAutoLogged inputs = new AbsoluteEncoderInputsAutoLogged();
 
     public MinoCANCoder(final CANDeviceID canID, final MechanismRatio ratio) {
         name = "CANCoder " + canID.toString();
@@ -187,7 +185,7 @@ public class MinoCANCoder implements PhoenixIO, MinoAbsoluteEncoder {
         );
 
         // Block until we get valid signals.
-        allSuccess &= PhoenixUtility.retryUntilSuccess(() -> waitForInputs(kCANTimeoutS), name + ": waitForInputs()");
+        allSuccess &= BaseStatusSignal.waitForAll(kCANTimeoutS, allSignals).isOK();
 
         // Check if unlicensed.
         allSuccess &= !cancoder.getStickyFault_UnlicensedFeatureInUse().getValue();
@@ -195,12 +193,12 @@ public class MinoCANCoder implements PhoenixIO, MinoAbsoluteEncoder {
         return allSuccess;
     }
 
-    public StatusCode updateInputs() {
-        return waitForInputs(0.0);
+    public void close() {
+        cancoder.close();
     }
 
-    public StatusCode waitForInputs(final double timeoutSec) {
-        inputs.status = BaseStatusSignal.waitForAll(timeoutSec, allSignals);
+    public void updateInputs() {
+        inputs.isEncoderConnected = BaseStatusSignal.isAllGood(allSignals);
 
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
@@ -209,8 +207,6 @@ public class MinoCANCoder implements PhoenixIO, MinoAbsoluteEncoder {
         inputs.velocity = velocitySignal.getUnitConvertedValue();
 
         Logger.processInputs(loggingName, inputs);
-
-        return inputs.status;
     }
 
     public void zero() {
