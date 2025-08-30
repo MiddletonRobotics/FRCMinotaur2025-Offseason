@@ -23,10 +23,10 @@ public interface PhoenixMotor {
     public void setPositionSetpoint(int slot, double setpoint, double feedforwardVolts);
   
     /** Closed-loop velocity mode. Velocity setpoint defined in MechanismRatio units. */
-    public void setVelocitySetpoint(int slot, double setpoint);
+    public void setVelocitySetpoint(boolean foc, int slot, double setpoint);
   
     /** Closed-loop velocity mode with feed-forward. Velocity setpoint defined in MechanismRatio units. */
-    public void setVelocitySetpoint(int slot, double setpoint, double feedforwardVolts);
+    public void setVelocitySetpoint(boolean foc, int slot, double setpoint, double feedforwardVolts);
   
     /** Returns the percent output (-1.0 to 1.0) as reported by the device. */
     public double getPercentOutput();

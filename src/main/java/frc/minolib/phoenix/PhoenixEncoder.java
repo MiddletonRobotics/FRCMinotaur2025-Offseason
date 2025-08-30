@@ -11,7 +11,7 @@ public interface PhoenixEncoder {
     public double getPosition();
 
     /** Returns the sensor absolute position. Uses MechanismRatio units. */
-    public double getAbsPosition();
+    public double getAbsolutePosition();
 
     /** Returns the sensor velocity. Uses MechanismRatio units. */
     public double getVelocity();
