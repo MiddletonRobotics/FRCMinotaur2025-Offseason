@@ -8,17 +8,22 @@ import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -49,11 +54,15 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
     private final DutyCycleOut dutyCycleControl = new DutyCycleOut(0);
     private final VoltageOut voltageControl = new VoltageOut(0);
-    private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0);
     private final VelocityVoltage velocityControl = new VelocityVoltage(0);
     private final PositionVoltage positionControl = new PositionVoltage(0);
     private final MotionMagicVoltage motionMagicControl = new MotionMagicVoltage(0);
     private final MotionMagicExpoVoltage motionMagicExpoControl = new MotionMagicExpoVoltage(0);
+
+    private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0);
+    private final VelocityTorqueCurrentFOC velocityControlFOC = new VelocityTorqueCurrentFOC(0);
+    private final MotionMagicTorqueCurrentFOC motionMagicFOCControl = new MotionMagicTorqueCurrentFOC(0);
+    private final MotionMagicExpoTorqueCurrentFOC motionMagicExpoFOCControl = new MotionMagicExpoTorqueCurrentFOC(0);
     private final DynamicMotionMagicVoltage dynamicMotionMagicControl = new DynamicMotionMagicVoltage(0, 0, 0, 0);
 
     private final MinoStatusSignal<Integer> faultFieldSignal;
@@ -78,20 +87,30 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     public static class MinoTalonFXConfiguration {
         private NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
         private boolean INVERTED = false;
+
         private double SUPPLY_CURRENT_LIMIT = 40.0; // A
         private double STATOR_CURRENT_LIMIT = 40.0; // A
         private double FORWARD_TORQUE_CURRENT = 40.0;
         private double REVERSE_TORQUE_CURRENT = 40.0;
+
         private boolean FWD_SOFT_LIMIT_ENABLED = false;
         private double FWD_SOFT_LIMIT = 0.0; // In MechanismRatio units
         private boolean REV_SOFT_LIMIT_ENABLED = false;
         private double REV_SOFT_LIMIT = 0.0; // In MechanismRatio units
+
         private PIDConfiguration slot0Configuration = new PIDConfiguration();
         private PIDConfiguration slot1Configuration = new PIDConfiguration();
         private PIDConfiguration slot2Configuration = new PIDConfiguration();
+
         private double motionMagicCruiseVelocity = 0.0; // In MechanismRatio units
         private double motionMagicAcceleration = 0.0; // In MechanismRatio units
         private double motionMagicJerk = 0.0; // In MechanismRatio units
+        private double motionMagicExpokA = 0.0;
+        private double motionMagicExpokV = 0.0;
+
+        private CANDeviceID feedbackDeviceID = new CANDeviceID(0);
+        private FeedbackSensorSourceValue feedbackSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        private boolean continuousWrappedEnabled = false;
 
         public MinoTalonFXConfiguration setBrakeMode() {
             NEUTRAL_MODE = NeutralModeValue.Brake;
@@ -157,6 +176,23 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
             motionMagicCruiseVelocity = cruiseVelocity;
             motionMagicAcceleration = acceleration;
             motionMagicJerk = jerk;
+            return this;
+        }
+
+        public MinoTalonFXConfiguration setMotionMagicExpoConfig(final double kA, final double kV) {
+            motionMagicExpokA = kA;
+            motionMagicExpokV = kV;
+            return this;
+        }
+
+        public MinoTalonFXConfiguration setSteerFeedback(final int deviceNumber, final FeedbackSensorSourceValue feedbackSource) {
+            feedbackDeviceID.newDeviceID(deviceNumber);
+            this.feedbackSource = feedbackSource;
+            return this;
+        }
+
+        public MinoTalonFXConfiguration enableContinuousWrapping(boolean enabled) {
+            continuousWrappedEnabled = enabled;
             return this;
         }
 
@@ -233,6 +269,7 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         closedLoopReferenceSignal = new MinoStatusSignal<>(controller.getClosedLoopReference(), this::fromNativeSensorPosition);
         closedLoopReferenceSlopeSignal = new MinoStatusSignal<>(controller.getClosedLoopReferenceSlope(), this::fromNativeSensorVelocity);
         temperatureSignal = new MinoStatusSignal<>(controller.getDeviceTemp());
+
         allSignals = MinoStatusSignal.toBaseStatusSignals(
             faultFieldSignal,
             stickyFaultFieldSignal,
@@ -394,9 +431,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         Logger.processInputs(loggingName, inputs);
     }
 
-    public void setBrakeMode(final boolean on) {
+    public StatusCode setBrakeMode(final boolean on) {
         configuration.NEUTRAL_MODE = on ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-        controller.getConfigurator().apply(configuration.toTalonFXConfiguration(this::toNativeSensorPosition, this::toNativeSensorVelocity).MotorOutput);
+        StatusCode ok = controller.getConfigurator().apply(configuration.toTalonFXConfiguration(this::toNativeSensorPosition, this::toNativeSensorVelocity).MotorOutput);
+
+        return ok;
     }
 
     public void setStatorCurrentLimit(final double amps) {
@@ -416,9 +455,9 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         controller.setControl(voltageControl);
     }
 
-    public void setCurrentOutput(final double current, final double maxAbsDutyCycle) {
+    public void setCurrentOutput(final double current, final double maxAbsoluteDutyCycle) {
         currentControl.Output = current;
-        currentControl.MaxAbsDutyCycle = maxAbsDutyCycle;
+        currentControl.MaxAbsDutyCycle = maxAbsoluteDutyCycle;
         controller.setControl(currentControl);
     }
 
@@ -433,26 +472,40 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         controller.setControl(positionControl);
     }
 
-    public void setMotionMagicPositionSetpoint(final int slot, final double setpoint) {
-        setMotionMagicPositionSetpoint(slot, setpoint, 0.0);
+    public void setMotionMagicPositionSetpoint(final boolean foc, final int slot, final double setpoint) {
+        setMotionMagicPositionSetpoint(foc, slot, setpoint, 0.0);
     }
 
-    public void setMotionMagicPositionSetpoint(final int slot, final double setpoint, final double feedforwardVolts) {
-        motionMagicControl.Slot = slot;
-        motionMagicControl.Position = toNativeSensorPosition(setpoint);
-        motionMagicControl.FeedForward = feedforwardVolts;
-        controller.setControl(motionMagicControl);
+    public void setMotionMagicPositionSetpoint(final boolean foc, final int slot, final double setpoint, final double feedforwardVolts) {
+        if(foc) {
+            motionMagicFOCControl.Slot = slot;
+            motionMagicFOCControl.Position = toNativeSensorPosition(setpoint);
+            motionMagicFOCControl.FeedForward = feedforwardVolts;
+            controller.setControl(motionMagicFOCControl);
+        } else {
+            motionMagicControl.Slot = slot;
+            motionMagicControl.Position = toNativeSensorPosition(setpoint);
+            motionMagicControl.FeedForward = feedforwardVolts;
+            controller.setControl(motionMagicControl);
+        }
     }
 
-    public void setMotionMagicExpoPositionSetpoint(final int slot, final double setpoint) {
-        setMotionMagicExpoPositionSetpoint(slot, setpoint, 0.0);
+    public void setMotionMagicExpoPositionSetpoint(final boolean foc, final int slot, final double setpoint) {
+        setMotionMagicExpoPositionSetpoint(foc, slot, setpoint, 0.0);
     }
 
-    public void setMotionMagicExpoPositionSetpoint(final int slot, final double setpoint, final double feedforwardVolts) {
-        motionMagicExpoControl.Slot = slot;
-        motionMagicExpoControl.Position = toNativeSensorPosition(setpoint);
-        motionMagicExpoControl.FeedForward = feedforwardVolts;
-        controller.setControl(motionMagicExpoControl);
+    public void setMotionMagicExpoPositionSetpoint(final boolean foc, final int slot, final double setpoint, final double feedforwardVolts) {
+        if(foc) {
+            motionMagicExpoFOCControl.Slot = slot;
+            motionMagicExpoFOCControl.Position = toNativeSensorPosition(setpoint);
+            motionMagicExpoFOCControl.FeedForward = feedforwardVolts;
+            controller.setControl(motionMagicExpoFOCControl);
+        } else {
+            motionMagicExpoControl.Slot = slot;
+            motionMagicExpoControl.Position = toNativeSensorPosition(setpoint);
+            motionMagicExpoControl.FeedForward = feedforwardVolts;
+            controller.setControl(motionMagicExpoControl);
+        }
     }
 
     public void setDynamicMotionMagicPositionSetpoint(final int slot, final double setpoint, final double velocity, final double acceleration, final double jerk) {
@@ -469,21 +522,28 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         controller.setControl(dynamicMotionMagicControl);
     }
 
-    public void setVelocitySetpoint(final int slot, final double setpointVelocity) {
-        setVelocitySetpoint(slot, setpointVelocity, 0.0, 0.0);
+    public void setVelocitySetpoint(final boolean foc, final int slot, final double setpointVelocity) {
+        setVelocitySetpoint(foc, slot, setpointVelocity, 0.0, 0.0);
     }
 
-    public void setVelocitySetpoint(
-        final int slot, final double setpointVelocity, final double feedforwardVolts) {
-        setVelocitySetpoint(slot, setpointVelocity, 0.0, feedforwardVolts);
+    public void setVelocitySetpoint(final boolean foc, final int slot, final double setpointVelocity, final double feedforwardVolts) {
+        setVelocitySetpoint(foc, slot, setpointVelocity, 0.0, feedforwardVolts);
     }
 
-    public void setVelocitySetpoint(final int slot, final double setpointVelocity, final double setpointAccel, final double feedforwardVolts) {
-        velocityControl.Slot = slot;
-        velocityControl.Velocity = toNativeSensorVelocity(setpointVelocity);
-        velocityControl.Acceleration = toNativeSensorVelocity(setpointAccel);
-        velocityControl.FeedForward = feedforwardVolts;
-        controller.setControl(velocityControl);
+    public void setVelocitySetpoint(final boolean foc, final int slot, final double setpointVelocity, final double setpointAccel, final double feedforwardVolts) {
+        if(foc) {
+            velocityControlFOC.Slot = slot;
+            velocityControlFOC.Velocity = toNativeSensorVelocity(setpointVelocity);
+            velocityControlFOC.Acceleration = toNativeSensorVelocity(setpointAccel);
+            velocityControlFOC.FeedForward = feedforwardVolts;
+            controller.setControl(velocityControlFOC);
+        } else {
+            velocityControl.Slot = slot;
+            velocityControl.Velocity = toNativeSensorVelocity(setpointVelocity);
+            velocityControl.Acceleration = toNativeSensorVelocity(setpointAccel);
+            velocityControl.FeedForward = feedforwardVolts;
+            controller.setControl(velocityControl);
+        }
     }
 
     public double getPercentOutput() {
