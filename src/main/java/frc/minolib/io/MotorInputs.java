@@ -14,8 +14,11 @@ public class MotorInputs {
     public double closedLoopReference = 0.0;
     public double closedLoopReferenceSlope = 0.0;
     public double rotorPosition = 0.0;
+    public double rotorVelocity = 0.0;
+    public double rotorAcceleration = 0.0;
     public double sensorPosition = 0.0;
-    public double latencyCompensatedSensorPosition = 0.0;
     public double sensorVelocity = 0.0;
+    public double sensorAcceleration = 0.0;
+    public double latencyCompensatedSensorPosition = 0.0;
     public double temperature = 0.0;
 }
