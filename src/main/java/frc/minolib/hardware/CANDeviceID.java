@@ -10,7 +10,7 @@ public class CANDeviceID {
     public static final String kRIOCANbusName = "rio";
   
     /** The device number on the CAN bus */
-    public final int deviceNumber;
+    public int deviceNumber;
   
     /** The name of the CAN bus this device is on */
     public final String CANbusName;
@@ -33,6 +33,10 @@ public class CANDeviceID {
      */
     public CANDeviceID(final int deviceNumber) {
         this(deviceNumber, kRIOCANbusName);
+    }
+
+    public void newDeviceID(final int deviceNumber) {
+        this.deviceNumber = deviceNumber;
     }
   
     /**
