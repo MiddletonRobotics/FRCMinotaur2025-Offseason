@@ -2,17 +2,28 @@ package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.minolib.hardware.MinoTalonFX.MinoTalonFXConfiguration;
 import frc.minolib.io.AbsoluteEncoderInputsAutoLogged;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
+import frc.minolib.phoenix.PIDConfiguration;
 import frc.minolib.phoenix.PhoenixEncoder;
 import frc.minolib.phoenix.PhoenixUtility;
+
+import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -93,6 +104,7 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
     private final CANcoder cancoder;
     private final CANcoderSimState simulationState;
     private final MechanismRatio gearRatio;
+    private final MinoCANCoderConfiguration configuration;
 
     private final MinoStatusSignal<Integer> faultFieldSignal;
     private final MinoStatusSignal<Integer> stickyFaultFieldSignal;
@@ -103,12 +115,43 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
 
     private final AbsoluteEncoderInputsAutoLogged inputs = new AbsoluteEncoderInputsAutoLogged();
 
-    public MinoCANCoder(final CANDeviceID canID, final MechanismRatio ratio) {
+    public static class MinoCANCoderConfiguration {
+        private double magnetOffset = 0.0;
+        private double absoluteSensorDiscontinuityPoint = 1.0;
+        private boolean isInverted;
+
+        public MinoCANCoderConfiguration withMagnetOffset(double magnetOffset) {
+            this.magnetOffset = magnetOffset;
+            return this;
+        }
+
+        public MinoCANCoderConfiguration setInverted(boolean isInverted) {
+            this.isInverted = isInverted;
+            return this;
+        }
+
+        public MinoCANCoderConfiguration withAbsoluteSensorDiscontinuity(double absoluteSensorDiscontinuityPoint) {
+            this.absoluteSensorDiscontinuityPoint = absoluteSensorDiscontinuityPoint;
+            return this;
+        }
+
+        public CANcoderConfiguration toCANCoderConfiguration(final Function<Double, Double> toNativeSensorPosition, final Function<Double, Double> toNativeSensorVelocity) {
+            final CANcoderConfiguration configuration = new CANcoderConfiguration();
+            configuration.MagnetSensor.MagnetOffset = magnetOffset;
+            configuration.MagnetSensor.AbsoluteSensorDiscontinuityPoint = absoluteSensorDiscontinuityPoint;
+            configuration.MagnetSensor.SensorDirection = isInverted ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
+
+            return configuration;
+        }
+    }
+
+    public MinoCANCoder(final CANDeviceID canID, final MechanismRatio ratio, final MinoCANCoderConfiguration configuration) {
         name = "CANCoder " + canID.toString();
         loggingName = "Inputs/" + name;
         cancoder = new CANcoder(canID.deviceNumber, canID.CANbusName);
         simulationState = cancoder.getSimState();
         gearRatio = ratio;
+        this.configuration = configuration;
 
         faultFieldSignal = new MinoStatusSignal<>(cancoder.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(cancoder.getStickyFaultField());
@@ -134,10 +177,7 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         boolean allSuccess = true;
 
         // Set configuration.
-        CANcoderConfiguration config = new CANcoderConfiguration();
-        config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        config.MagnetSensor.MagnetOffset = 0.0;
-        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
+        final CANcoderConfiguration config = configuration.toCANCoderConfiguration(this::toNativeSensorPosition, this::toNativeSensorVelocity);
 
         allSuccess &= PhoenixUtility.retryUntilSuccess(() -> cancoder.getConfigurator().apply(config, kCANTimeoutS), () -> {
             CANcoderConfiguration readConfig = new CANcoderConfiguration();
@@ -193,6 +233,10 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         return allSuccess;
     }
 
+    public static MinoCANCoderConfiguration makeDefaultConfig() {
+        return new MinoCANCoderConfiguration();
+    }
+
     public void close() {
         cancoder.close();
     }
@@ -221,7 +265,7 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         return inputs.position;
     }
 
-    public double getAbsPosition() {
+    public double getAbsolutePosition() {
         return inputs.absolutePosition;
     }
 
