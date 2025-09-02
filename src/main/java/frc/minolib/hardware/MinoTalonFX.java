@@ -91,8 +91,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
         private double SUPPLY_CURRENT_LIMIT = 40.0; // A
         private double STATOR_CURRENT_LIMIT = 40.0; // A
-        private double FORWARD_TORQUE_CURRENT = 40.0;
-        private double REVERSE_TORQUE_CURRENT = 40.0;
 
         private boolean FWD_SOFT_LIMIT_ENABLED = false;
         private double FWD_SOFT_LIMIT = 0.0; // In MechanismRatio units
@@ -130,16 +128,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
         public MinoTalonFXConfiguration setSupplyCurrentLimit(final double amperes) {
             SUPPLY_CURRENT_LIMIT = amperes;
-            return this;
-        }
-
-        public MinoTalonFXConfiguration setForwardTorqueCurrent(final double amperes) {
-            FORWARD_TORQUE_CURRENT = amperes;
-            return this;
-        }
-
-        public MinoTalonFXConfiguration setReverseTorqueCurrent(final double amperes) {
-            REVERSE_TORQUE_CURRENT = amperes;
             return this;
         }
 
@@ -211,8 +199,8 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
             config.CurrentLimits.SupplyCurrentLowerLimit = SUPPLY_CURRENT_LIMIT;
             config.CurrentLimits.SupplyCurrentLowerTime = 0.1; // s
 
-            config.TorqueCurrent.PeakForwardTorqueCurrent = FORWARD_TORQUE_CURRENT;
-            config.TorqueCurrent.PeakReverseTorqueCurrent = REVERSE_TORQUE_CURRENT;
+            config.TorqueCurrent.PeakForwardTorqueCurrent = STATOR_CURRENT_LIMIT;
+            config.TorqueCurrent.PeakReverseTorqueCurrent = -STATOR_CURRENT_LIMIT;
             config.TorqueCurrent.TorqueNeutralDeadband = 0.0;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = FWD_SOFT_LIMIT_ENABLED;
