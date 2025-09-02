@@ -1,10 +1,12 @@
 package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
@@ -284,7 +286,7 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
    */
   public void updateInputs() {
     inputs.isGyroConnected = BaseStatusSignal.isAllGood(allSignals);
-
+    inputs.status = BaseStatusSignal.waitForAll(0.0, allSignals);
     inputs.faultField = faultFieldSignal.getRawValue();
     inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
     inputs.roll = rollSignal.getUnitConvertedValue();
@@ -294,6 +296,7 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
     inputs.rollRate = rollRateSignal.getUnitConvertedValue();
     inputs.pitchRate = pitchRateSignal.getUnitConvertedValue();
     inputs.yawRate = yawRateSignal.getUnitConvertedValue();
+    inputs.rotation3D = pigeon.getRotation3d();
 
     Logger.processInputs(loggingName, inputs);
   }
@@ -315,6 +318,14 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
   public void setContinuousYaw(final double rad) {
     continuousYawOffset += getContinuousYaw() - rad;
     updateInputs();
+  }
+
+  public StatusCode getStatus() {
+    return inputs.status;
+  }
+
+  public BaseStatusSignal[] getStatusSignals() {
+    return allSignals;
   }
 
   public double getRoll() {
@@ -343,6 +354,14 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
 
   public double getYawRate() {
     return inputs.yawRate;
+  }
+
+  public Rotation3d getRotation3d() {
+    return inputs.rotation3D;
+  }
+
+  public Pigeon2SimState getSimulatedState() {
+    return simulationState;
   }
 
   public void setSimContinuousYaw(final double rad) {
