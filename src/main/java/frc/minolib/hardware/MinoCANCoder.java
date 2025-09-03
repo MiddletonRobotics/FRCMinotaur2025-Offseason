@@ -2,24 +2,15 @@ package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.minolib.hardware.MinoTalonFX.MinoTalonFXConfiguration;
 import frc.minolib.io.AbsoluteEncoderInputsAutoLogged;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
-import frc.minolib.phoenix.PIDConfiguration;
 import frc.minolib.phoenix.PhoenixEncoder;
 import frc.minolib.phoenix.PhoenixUtility;
 
@@ -288,6 +279,10 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
 
     private double fromNativeSensorVelocity(final double vel) {
         return vel / toNativeSensorVelocity(1.0);
+    }
+
+    public CANcoderSimState getSimulatedState() {
+        return simulationState;
     }
 
     public void setSimSensorVelocity(final double vel, final double dt) {
