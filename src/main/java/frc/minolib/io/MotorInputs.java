@@ -2,9 +2,12 @@ package frc.minolib.io;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.StatusCode;
+
 @AutoLog
 public class MotorInputs {
     public boolean isMotorConnected = false;
+    public StatusCode status = StatusCode.OK;
     public int faultField = 0;
     public int stickyFaultField = 0;
     public double percentOutput = 0.0;

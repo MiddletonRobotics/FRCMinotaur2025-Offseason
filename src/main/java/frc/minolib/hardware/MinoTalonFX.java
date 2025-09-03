@@ -81,7 +81,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     private final MinoStatusSignal<Double> closedLoopReferenceSlopeSignal;
     private final MinoStatusSignal<Temperature> temperatureSignal;
     private final BaseStatusSignal[] allSignals;
-    private final BaseStatusSignal[] importantSignals;
 
     private MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
 
@@ -277,17 +276,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
             temperatureSignal
         );
 
-        BaseStatusSignal.setUpdateFrequencyForAll(50, allSignals);
-
-        importantSignals = MinoStatusSignal.toBaseStatusSignals(
-            rotorPositionSignal,
-            rotorVelocitySignal,
-            sensorPositionSignal,
-            sensorVelocitySignal
-        );
-
-        BaseStatusSignal.setUpdateFrequencyForAll(250, importantSignals);
-
         // Clear reset flag and sticky faults.
         controller.hasResetOccurred();
         controller.clearStickyFaults();
@@ -385,8 +373,7 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         allSuccess &= PhoenixUtility.retryUntilSuccess(() -> controller.optimizeBusUtilization(0.0, kCANTimeoutS), name + ": optimizeBusUtilization");
 
         // Block until we get valid signals.
-        allSuccess &= BaseStatusSignal.waitForAll(kCANTimeoutS, importantSignals).isOK();
-        allSuccess &= BaseStatusSignal.waitForAll(kCANTimeoutS, allSignals).isOK();
+        allSuccess &= PhoenixUtility.retryUntilSuccess(() -> waitForInputs(kCANTimeoutS), name + ": waitForInputs()");
 
         // Check if unlicensed.
         allSuccess &= !controller.getStickyFault_UnlicensedFeatureInUse().getValue();
@@ -412,9 +399,12 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         return controller.getDeviceID();
     }
 
-    @Override
-    public void updateInputs() {
-        inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals) && BaseStatusSignal.isAllGood(importantSignals);
+    public StatusCode updateInputs() {
+        return waitForInputs(0.0);
+    }
+
+    public StatusCode waitForInputs(final double timeoutSeconds) {
+        inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals);
         inputs.status = BaseStatusSignal.waitForAll(0.0, allSignals);
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
@@ -434,6 +424,7 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         inputs.temperature = temperatureSignal.getUnitConvertedValue();
 
         Logger.processInputs(loggingName, inputs);
+        return inputs.status;
     }
 
     public StatusCode setBrakeMode(final boolean on) {
@@ -557,10 +548,6 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
     public BaseStatusSignal[] getOtherSignals() {
         return allSignals;
-    }
-
-    public BaseStatusSignal[] getImportantSignals() {
-        return importantSignals;
     }
 
     public double getPercentOutput() {
