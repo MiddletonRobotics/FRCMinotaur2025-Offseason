@@ -1,11 +1,16 @@
 package frc.minolib.phoenix;
 
+import com.ctre.phoenix6.StatusCode;
+
 public interface PhoenixMotor {
     /** Returns the CAN ID of the device. */
     public int getDeviceID();
 
-    /** Updates inputs for logging. Should be called periodically. */
-    public void updateInputs();
+    /** Performs a non-blocking update on the inputs. */
+    public StatusCode updateInputs();
+
+    /** Performs a blocking update on the inputs. */
+    public StatusCode waitForInputs(final double timeoutSeconds);
   
     /** Configures the motor. Should be called on construction or when recovering from power loss or fault. Returns true if the configuration was set successfully. */
     public boolean setConfiguration();
