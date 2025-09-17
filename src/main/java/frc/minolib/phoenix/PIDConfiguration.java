@@ -85,4 +85,22 @@ public class PIDConfiguration {
         conf.kG = kG;
         return conf;
     }
+
+    public Slot0Configs fillSlot0() {
+        return new Slot0Configs()
+            .withKP(kP).withKI(kI).withKD(kD)
+            .withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    }
+
+    public Slot1Configs fillSlot1() {
+        return new Slot1Configs()
+            .withKP(kP).withKI(kI).withKD(kD)
+            .withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    }
+
+    public Slot2Configs fillSlot2() {
+        return new Slot2Configs()
+            .withKP(kP).withKI(kI).withKD(kD)
+            .withKS(kS).withKV(kV).withKA(kA).withKG(kG);
+    }
 }
