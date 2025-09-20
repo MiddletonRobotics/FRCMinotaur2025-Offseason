@@ -4,13 +4,19 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.minolib.hardware.CANDeviceID;
 
 public class GlobalConstants {
+  public static final double kLowBatteryVoltage = 10.0;
+  public static final double kLowBatteryDisabledTime = 1.5;
+  public static final double kCANErrorTimeThreshold = 0.5; // Seconds to disable alert
+  public static final double kCANivoreTimeThreshold = 0.5;
+
   public static final boolean isReplay = false;
   public static final boolean resimWithTiming = false;
-  public static final boolean simLocalization = false;
+  public static final boolean simLocalization = true;
 
   public static final String kCanivoreName = "*";
 
-  public static final boolean kTuningMode = true;
+  public static final boolean kTuningMode = false;
+  public static final boolean kDemoMode = false;
 
   public static final Mode kRealMode = Mode.REAL;
   public static final Mode kSimMode = Mode.SIM;
@@ -21,6 +27,8 @@ public class GlobalConstants {
 
   public static final boolean kUseComponents = true;
   public static final boolean kUseAlerts = true && kCurrentMode != Mode.SIM;
+
+  public static final double kLoopPeriodSeconds = 0.02;
 
 
   public static enum Mode {
