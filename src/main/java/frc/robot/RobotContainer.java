@@ -4,80 +4,45 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.DriveCommands;
-import frc.robot.io.DriverButtonBindings;
-import frc.robot.io.TestingButtonBindings;
-import frc.robot.subsystems.drivetrain.Drivetrain;
-import frc.robot.subsystems.drivetrain.GyroIOPigeon2;
-import frc.robot.subsystems.drivetrain.GyroIOReplay;
-import frc.robot.subsystems.drivetrain.ModuleIOReplay;
-import frc.robot.subsystems.drivetrain.ModuleIOSim;
-import frc.robot.subsystems.drivetrain.ModuleIOTalonFX;
-import frc.robot.utilities.constants.DrivetrainConstants;
-import frc.robot.utilities.constants.GlobalConstants;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.minolib.RobotConfiguration;
+import frc.robot.commands.TeleopSwerve;
+import frc.robot.constants.DefaultRobotConfiguration;
+import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class RobotContainer {
-  private Drivetrain drivetrain;
+  private RobotConfiguration robotConfiguration;
+  private DrivetrainSubsystem drivetrain;
+  private TeleopSwerve driveCommand;
 
-  private DriverButtonBindings driverController;
-  private TestingButtonBindings testingController;
+  private CommandXboxController driverController;
 
   public RobotContainer() {
-    configureSubsystems();
+    robotConfiguration = new DefaultRobotConfiguration();
+
     configureControllers();
+    configureSubsystems();
     configureBindings();
   }
 
   private void configureSubsystems() {
-    switch(GlobalConstants.kCurrentMode) {
-      case REAL:
-        drivetrain = new Drivetrain(
-          new GyroIOPigeon2(), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[0]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[1]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[2]), 
-          new ModuleIOTalonFX(DrivetrainConstants.kCompetitionModuleConfiguration[3])
-        );
+    drivetrain = new DrivetrainSubsystem(new DrivetrainIOCTRE());
 
-        break;
-      case SIM:
-        drivetrain = new Drivetrain(
-          new GyroIOPigeon2(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim(), 
-          new ModuleIOSim()
-        );
-
-        break;
-      case REPLAY:
-        drivetrain = new Drivetrain(
-          new GyroIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay(), 
-          new ModuleIOReplay()
-        );
-
-        break;
-    }
+    driveCommand = new TeleopSwerve(drivetrain, driverController::getLeftY, driverController::getLeftX, driverController::getRightX);
   }
 
   private void configureControllers() {
-    driverController = new DriverButtonBindings(0);
-    testingController = new TestingButtonBindings(2);
+    driverController = new CommandXboxController(0);
   }
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(DriveCommands.teleopDrive(
-      drivetrain, 
-      driverController::getForward, 
-      driverController::getStrafe, 
-      driverController::getTurn, 
-      () -> false
-    ));
+    drivetrain.setDefaultCommand(driveCommand);
+
+    driverController.a().onTrue(driveCommand.toggleFieldCentric());
   }
 
   public Command getAutonomousCommand() {

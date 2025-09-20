@@ -1,0 +1,140 @@
+# Details
+
+Date : 2025-09-02 22:31:55
+
+Directory d:\\ultimate-hecker\\Websites-and-Coding-Projects\\MiddletonRobotics\\FRCMinotaur2025-Offseason
+
+Total : 125 files,  11559 codes, 5719 comments, 2502 blanks, all 19780 lines
+
+[Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
+
+## Files
+| filename | language | code | comment | blank | total |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| [.wpilib/wpilib\_preferences.json](/.wpilib/wpilib_preferences.json) | JSON | 6 | 0 | 0 | 6 |
+| [README.md](/README.md) | Markdown | 1 | 0 | 0 | 1 |
+| [WPILib-License.md](/WPILib-License.md) | Markdown | 22 | 0 | 3 | 25 |
+| [build.gradle](/build.gradle) | Groovy | 90 | 20 | 28 | 138 |
+| [gradle/wrapper/gradle-wrapper.properties](/gradle/wrapper/gradle-wrapper.properties) | Java Properties | 7 | 0 | 1 | 8 |
+| [gradlew.bat](/gradlew.bat) | Batch | 41 | 32 | 22 | 95 |
+| [networktables.json](/networktables.json) | JSON | 1 | 0 | 1 | 2 |
+| [settings.gradle](/settings.gradle) | Groovy | 28 | 0 | 3 | 31 |
+| [simgui-ds.json](/simgui-ds.json) | JSON | 97 | 0 | 1 | 98 |
+| [simgui.json](/simgui.json) | JSON | 16 | 0 | 1 | 17 |
+| [src/main/java/frc/minolib/advantagekit/AlertManager.java](/src/main/java/frc/minolib/advantagekit/AlertManager.java) | Java | 18 | 14 | 7 | 39 |
+| [src/main/java/frc/minolib/advantagekit/LoggedTracer.java](/src/main/java/frc/minolib/advantagekit/LoggedTracer.java) | Java | 15 | 9 | 5 | 29 |
+| [src/main/java/frc/minolib/advantagekit/LoggedTunableNumber.java](/src/main/java/frc/minolib/advantagekit/LoggedTunableNumber.java) | Java | 60 | 50 | 22 | 132 |
+| [src/main/java/frc/minolib/advantagekit/LoggerHelper.java](/src/main/java/frc/minolib/advantagekit/LoggerHelper.java) | Java | 17 | 7 | 3 | 27 |
+| [src/main/java/frc/minolib/advantagekit/NTManager.java](/src/main/java/frc/minolib/advantagekit/NTManager.java) | Java | 78 | 62 | 16 | 156 |
+| [src/main/java/frc/minolib/hardware/CANDeviceID.java](/src/main/java/frc/minolib/hardware/CANDeviceID.java) | Java | 20 | 21 | 8 | 49 |
+| [src/main/java/frc/minolib/hardware/MinoCANBus.java](/src/main/java/frc/minolib/hardware/MinoCANBus.java) | Java | 30 | 33 | 9 | 72 |
+| [src/main/java/frc/minolib/hardware/MinoCANCoder.java](/src/main/java/frc/minolib/hardware/MinoCANCoder.java) | Java | 180 | 76 | 47 | 303 |
+| [src/main/java/frc/minolib/hardware/MinoPigeon2.java](/src/main/java/frc/minolib/hardware/MinoPigeon2.java) | Java | 200 | 121 | 53 | 374 |
+| [src/main/java/frc/minolib/hardware/MinoSparkMax.java](/src/main/java/frc/minolib/hardware/MinoSparkMax.java) | Java | 297 | 18 | 73 | 388 |
+| [src/main/java/frc/minolib/hardware/MinoTalonFX.java](/src/main/java/frc/minolib/hardware/MinoTalonFX.java) | Java | 542 | 20 | 115 | 677 |
+| [src/main/java/frc/minolib/io/AbsoluteEncoderInputs.java](/src/main/java/frc/minolib/io/AbsoluteEncoderInputs.java) | Java | 12 | 0 | 4 | 16 |
+| [src/main/java/frc/minolib/io/CANBusIO.java](/src/main/java/frc/minolib/io/CANBusIO.java) | Java | 15 | 0 | 4 | 19 |
+| [src/main/java/frc/minolib/io/CANRangeIO.java](/src/main/java/frc/minolib/io/CANRangeIO.java) | Java | 22 | 8 | 12 | 42 |
+| [src/main/java/frc/minolib/io/DigitalDeviceInputs.java](/src/main/java/frc/minolib/io/DigitalDeviceInputs.java) | Java | 6 | 0 | 3 | 9 |
+| [src/main/java/frc/minolib/io/GyroInputs.java](/src/main/java/frc/minolib/io/GyroInputs.java) | Java | 19 | 0 | 5 | 24 |
+| [src/main/java/frc/minolib/io/MotorInputs.java](/src/main/java/frc/minolib/io/MotorInputs.java) | Java | 24 | 0 | 4 | 28 |
+| [src/main/java/frc/minolib/localization/Measurement.java](/src/main/java/frc/minolib/localization/Measurement.java) | Java | 55 | 52 | 12 | 119 |
+| [src/main/java/frc/minolib/localization/MinoSwerveLocalizer.java](/src/main/java/frc/minolib/localization/MinoSwerveLocalizer.java) | Java | 284 | 101 | 52 | 437 |
+| [src/main/java/frc/minolib/localization/SwerveDriveOdometryMeasurement.java](/src/main/java/frc/minolib/localization/SwerveDriveOdometryMeasurement.java) | Java | 17 | 5 | 5 | 27 |
+| [src/main/java/frc/minolib/math/DoubleInterpolatableTreeMap.java](/src/main/java/frc/minolib/math/DoubleInterpolatableTreeMap.java) | Java | 38 | 2 | 14 | 54 |
+| [src/main/java/frc/minolib/math/EqualsUtility.java](/src/main/java/frc/minolib/math/EqualsUtility.java) | Java | 23 | 1 | 5 | 29 |
+| [src/main/java/frc/minolib/math/FieldSpeeds.java](/src/main/java/frc/minolib/math/FieldSpeeds.java) | Java | 18 | 11 | 6 | 35 |
+| [src/main/java/frc/minolib/math/GeometryUtility.java](/src/main/java/frc/minolib/math/GeometryUtility.java) | Java | 77 | 94 | 23 | 194 |
+| [src/main/java/frc/minolib/math/Interpolatable.java](/src/main/java/frc/minolib/math/Interpolatable.java) | Java | 45 | 5 | 8 | 58 |
+| [src/main/java/frc/minolib/math/InterpolateableChassisSpeeds.java](/src/main/java/frc/minolib/math/InterpolateableChassisSpeeds.java) | Java | 24 | 0 | 5 | 29 |
+| [src/main/java/frc/minolib/math/MathUtility.java](/src/main/java/frc/minolib/math/MathUtility.java) | Java | 91 | 69 | 24 | 184 |
+| [src/main/java/frc/minolib/phoenix/MechanismRatio.java](/src/main/java/frc/minolib/phoenix/MechanismRatio.java) | Java | 31 | 45 | 10 | 86 |
+| [src/main/java/frc/minolib/phoenix/MinoStatusSignal.java](/src/main/java/frc/minolib/phoenix/MinoStatusSignal.java) | Java | 48 | 6 | 15 | 69 |
+| [src/main/java/frc/minolib/phoenix/PIDConfiguration.java](/src/main/java/frc/minolib/phoenix/PIDConfiguration.java) | Java | 73 | 22 | 11 | 106 |
+| [src/main/java/frc/minolib/phoenix/PhoenixEncoder.java](/src/main/java/frc/minolib/phoenix/PhoenixEncoder.java) | Java | 9 | 6 | 6 | 21 |
+| [src/main/java/frc/minolib/phoenix/PhoenixGyro.java](/src/main/java/frc/minolib/phoenix/PhoenixGyro.java) | Java | 12 | 9 | 10 | 31 |
+| [src/main/java/frc/minolib/phoenix/PhoenixMotor.java](/src/main/java/frc/minolib/phoenix/PhoenixMotor.java) | Java | 29 | 25 | 27 | 81 |
+| [src/main/java/frc/minolib/phoenix/PhoenixUtility.java](/src/main/java/frc/minolib/phoenix/PhoenixUtility.java) | Java | 281 | 79 | 48 | 408 |
+| [src/main/java/frc/minolib/rev/ClosedLoopConfiguration.java](/src/main/java/frc/minolib/rev/ClosedLoopConfiguration.java) | Java | 37 | 0 | 9 | 46 |
+| [src/main/java/frc/minolib/rev/REVAboluteEncoder.java](/src/main/java/frc/minolib/rev/REVAboluteEncoder.java) | Java | 3 | 0 | 3 | 6 |
+| [src/main/java/frc/minolib/rev/REVAbsoluteEncoder.java](/src/main/java/frc/minolib/rev/REVAbsoluteEncoder.java) | Java | 8 | 5 | 5 | 18 |
+| [src/main/java/frc/minolib/rev/REVMotorController.java](/src/main/java/frc/minolib/rev/REVMotorController.java) | Java | 28 | 23 | 26 | 77 |
+| [src/main/java/frc/minolib/swerve/SimulatedSwerveDrivetrain.java](/src/main/java/frc/minolib/swerve/SimulatedSwerveDrivetrain.java) | Java | 91 | 50 | 20 | 161 |
+| [src/main/java/frc/minolib/swerve/SwerveDrivetrain.java](/src/main/java/frc/minolib/swerve/SwerveDrivetrain.java) | Java | 324 | 320 | 75 | 719 |
+| [src/main/java/frc/minolib/swerve/SwerveDrivetrainConstants.java](/src/main/java/frc/minolib/swerve/SwerveDrivetrainConstants.java) | Java | 14 | 37 | 4 | 55 |
+| [src/main/java/frc/minolib/swerve/SwerveModule.java](/src/main/java/frc/minolib/swerve/SwerveModule.java) | Java | 251 | 165 | 54 | 470 |
+| [src/main/java/frc/minolib/swerve/SwerveModuleConstants.java](/src/main/java/frc/minolib/swerve/SwerveModuleConstants.java) | Java | 152 | 382 | 40 | 574 |
+| [src/main/java/frc/minolib/swerve/SwerveModuleConstantsFactory.java](/src/main/java/frc/minolib/swerve/SwerveModuleConstantsFactory.java) | Java | 150 | 338 | 33 | 521 |
+| [src/main/java/frc/minolib/swerve/SwerveRequest.java](/src/main/java/frc/minolib/swerve/SwerveRequest.java) | Java | 355 | 516 | 94 | 965 |
+| [src/main/java/frc/minolib/swerve/SysIdSwerveSteerGains\_Torque.java](/src/main/java/frc/minolib/swerve/SysIdSwerveSteerGains_Torque.java) | Java | 29 | 19 | 6 | 54 |
+| [src/main/java/frc/minolib/swerve/SysIdSwerveTranslation\_Torque.java](/src/main/java/frc/minolib/swerve/SysIdSwerveTranslation_Torque.java) | Java | 30 | 21 | 6 | 57 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerve.java](/src/main/java/frc/minolib/swerve/old/MinoSwerve.java) | Java | 403 | 76 | 65 | 544 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveController.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveController.java) | Java | 51 | 43 | 11 | 105 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveDriveSimulation.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveDriveSimulation.java) | Java | 70 | 31 | 21 | 122 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveModule.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveModule.java) | Java | 147 | 10 | 32 | 189 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveModuleFactory.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveModuleFactory.java) | Java | 39 | 0 | 6 | 45 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveModuleSetpointGenerator.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveModuleSetpointGenerator.java) | Java | 111 | 30 | 26 | 167 |
+| [src/main/java/frc/minolib/swerve/old/MinoSwerveTeleopControl.java](/src/main/java/frc/minolib/swerve/old/MinoSwerveTeleopControl.java) | Java | 71 | 31 | 16 | 118 |
+| [src/main/java/frc/minolib/swerve/old/SwerveSetpoint.java](/src/main/java/frc/minolib/swerve/old/SwerveSetpoint.java) | Java | 19 | 0 | 5 | 24 |
+| [src/main/java/frc/minolib/swerve/old/SwerveSetpointGenerator.java](/src/main/java/frc/minolib/swerve/old/SwerveSetpointGenerator.java) | Java | 191 | 107 | 42 | 340 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoAutoBuilder.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoAutoBuilder.java) | Java | 52 | 39 | 12 | 103 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoFollowPathCommand.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoFollowPathCommand.java) | Java | 99 | 13 | 26 | 138 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoFollowPathHolonomic.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoFollowPathHolonomic.java) | Java | 83 | 79 | 4 | 166 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoHolonomicDriveController.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoHolonomicDriveController.java) | Java | 142 | 94 | 34 | 270 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoHolonomicPathFollowerConfiguration.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoHolonomicPathFollowerConfiguration.java) | Java | 44 | 64 | 8 | 116 |
+| [src/main/java/frc/minolib/swerve/pathplanner/MinoPathFollowingController.java](/src/main/java/frc/minolib/swerve/pathplanner/MinoPathFollowingController.java) | Java | 13 | 27 | 6 | 46 |
+| [src/main/java/frc/minolib/vision/CameraInfo.java](/src/main/java/frc/minolib/vision/CameraInfo.java) | Java | 28 | 33 | 8 | 69 |
+| [src/main/java/frc/minolib/vision/CameraInfoStruct.java](/src/main/java/frc/minolib/vision/CameraInfoStruct.java) | Java | 106 | 47 | 11 | 164 |
+| [src/main/java/frc/minolib/vision/MinoPoseEstimator.java](/src/main/java/frc/minolib/vision/MinoPoseEstimator.java) | Java | 13 | 39 | 10 | 62 |
+| [src/main/java/frc/minolib/vision/MinoRobotOdometry.java](/src/main/java/frc/minolib/vision/MinoRobotOdometry.java) | Java | 74 | 78 | 25 | 177 |
+| [src/main/java/frc/minolib/vision/MinoVisionCamera.java](/src/main/java/frc/minolib/vision/MinoVisionCamera.java) | Java | 20 | 6 | 12 | 38 |
+| [src/main/java/frc/minolib/vision/MinoVisionSimulation.java](/src/main/java/frc/minolib/vision/MinoVisionSimulation.java) | Java | 40 | 0 | 9 | 49 |
+| [src/main/java/frc/minolib/vision/PhotonVisionCamera.java](/src/main/java/frc/minolib/vision/PhotonVisionCamera.java) | Java | 120 | 5 | 28 | 153 |
+| [src/main/java/frc/minolib/vision/PipelineConfiguration.java](/src/main/java/frc/minolib/vision/PipelineConfiguration.java) | Java | 20 | 1 | 3 | 24 |
+| [src/main/java/frc/minolib/vision/PipelineVisionPacket.java](/src/main/java/frc/minolib/vision/PipelineVisionPacket.java) | Java | 27 | 21 | 7 | 55 |
+| [src/main/java/frc/minolib/wpilib/Fiducial.java](/src/main/java/frc/minolib/wpilib/Fiducial.java) | Java | 56 | 2 | 18 | 76 |
+| [src/main/java/frc/minolib/wpilib/FiducialStruct.java](/src/main/java/frc/minolib/wpilib/FiducialStruct.java) | Java | 46 | 0 | 12 | 58 |
+| [src/main/java/frc/minolib/wpilib/PIDVController.java](/src/main/java/frc/minolib/wpilib/PIDVController.java) | Java | 200 | 195 | 57 | 452 |
+| [src/main/java/frc/minolib/wpilib/PoseEstimate.java](/src/main/java/frc/minolib/wpilib/PoseEstimate.java) | Java | 29 | 6 | 9 | 44 |
+| [src/main/java/frc/minolib/wpilib/PoseEstimateStruct.java](/src/main/java/frc/minolib/wpilib/PoseEstimateStruct.java) | Java | 43 | 22 | 11 | 76 |
+| [src/main/java/frc/minolib/wpilib/ProfiledPIDVController.java](/src/main/java/frc/minolib/wpilib/ProfiledPIDVController.java) | Java | 164 | 248 | 44 | 456 |
+| [src/main/java/frc/minolib/wpilib/RobotTime.java](/src/main/java/frc/minolib/wpilib/RobotTime.java) | Java | 8 | 0 | 2 | 10 |
+| [src/main/java/frc/minolib/wpilib/SysIDRoutineChooser.java](/src/main/java/frc/minolib/wpilib/SysIDRoutineChooser.java) | Java | 55 | 0 | 15 | 70 |
+| [src/main/java/frc/minolib/wpilib/VisionResult.java](/src/main/java/frc/minolib/wpilib/VisionResult.java) | Java | 24 | 0 | 6 | 30 |
+| [src/main/java/frc/robot/Main.java](/src/main/java/frc/robot/Main.java) | Java | 8 | 3 | 5 | 16 |
+| [src/main/java/frc/robot/Robot.java](/src/main/java/frc/robot/Robot.java) | Java | 125 | 9 | 29 | 163 |
+| [src/main/java/frc/robot/RobotContainer.java](/src/main/java/frc/robot/RobotContainer.java) | Java | 54 | 3 | 17 | 74 |
+| [src/main/java/frc/robot/command\_factories/DriveFactory.java](/src/main/java/frc/robot/command_factories/DriveFactory.java) | Java | 75 | 6 | 14 | 95 |
+| [src/main/java/frc/robot/constants/DrivetrainConstants.java](/src/main/java/frc/robot/constants/DrivetrainConstants.java) | Java | 33 | 0 | 10 | 43 |
+| [src/main/java/frc/robot/constants/ElevatorConstants.java](/src/main/java/frc/robot/constants/ElevatorConstants.java) | Java | 53 | 1 | 12 | 66 |
+| [src/main/java/frc/robot/constants/FieldConstants.java](/src/main/java/frc/robot/constants/FieldConstants.java) | Java | 142 | 14 | 16 | 172 |
+| [src/main/java/frc/robot/constants/GlobalConstants.java](/src/main/java/frc/robot/constants/GlobalConstants.java) | Java | 24 | 3 | 12 | 39 |
+| [src/main/java/frc/robot/constants/VisionConstants.java](/src/main/java/frc/robot/constants/VisionConstants.java) | Java | 85 | 0 | 6 | 91 |
+| [src/main/java/frc/robot/subsystems/LEDSubsystem.java](/src/main/java/frc/robot/subsystems/LEDSubsystem.java) | Java | 3 | 0 | 3 | 6 |
+| [src/main/java/frc/robot/subsystems/drive/CommandSwerveDrivetrain.java](/src/main/java/frc/robot/subsystems/drive/CommandSwerveDrivetrain.java) | Java | 17 | 11 | 6 | 34 |
+| [src/main/java/frc/robot/subsystems/drive/DriveIO.java](/src/main/java/frc/robot/subsystems/drive/DriveIO.java) | Java | 46 | 0 | 20 | 66 |
+| [src/main/java/frc/robot/subsystems/drive/DriveIOHardware.java](/src/main/java/frc/robot/subsystems/drive/DriveIOHardware.java) | Java | 110 | 7 | 26 | 143 |
+| [src/main/java/frc/robot/subsystems/drive/DriveIOSim.java](/src/main/java/frc/robot/subsystems/drive/DriveIOSim.java) | Java | 41 | 5 | 13 | 59 |
+| [src/main/java/frc/robot/subsystems/drive/DriveSubsystem.java](/src/main/java/frc/robot/subsystems/drive/DriveSubsystem.java) | Java | 106 | 2 | 27 | 135 |
+| [src/main/java/frc/robot/subsystems/drive/DrivetrainVisualizer.java](/src/main/java/frc/robot/subsystems/drive/DrivetrainVisualizer.java) | Java | 68 | 14 | 16 | 98 |
+| [src/main/java/frc/robot/subsystems/drive/TunerConstants.java](/src/main/java/frc/robot/subsystems/drive/TunerConstants.java) | Java | 127 | 22 | 24 | 173 |
+| [src/main/java/frc/robot/subsystems/drivetrain/DrivetrainConfiguration.java](/src/main/java/frc/robot/subsystems/drivetrain/DrivetrainConfiguration.java) | Java | 260 | 484 | 87 | 831 |
+| [src/main/java/frc/robot/subsystems/drivetrain/DrivetrainIO.java](/src/main/java/frc/robot/subsystems/drivetrain/DrivetrainIO.java) | Java | 91 | 113 | 29 | 233 |
+| [src/main/java/frc/robot/subsystems/drivetrain/DrivetrainIOCTRE.java](/src/main/java/frc/robot/subsystems/drivetrain/DrivetrainIOCTRE.java) | Java | 564 | 47 | 89 | 700 |
+| [src/main/java/frc/robot/subsystems/drivetrain/DrivetrainSubsystem.java](/src/main/java/frc/robot/subsystems/drivetrain/DrivetrainSubsystem.java) | Java | 543 | 527 | 125 | 1,195 |
+| [src/main/java/frc/robot/subsystems/drivetrain/SwerveModuleConfiguration.java](/src/main/java/frc/robot/subsystems/drivetrain/SwerveModuleConfiguration.java) | Java | 183 | 8 | 49 | 240 |
+| [src/main/java/frc/robot/utilities/AlignmentState.java](/src/main/java/frc/robot/utilities/AlignmentState.java) | Java | 34 | 0 | 10 | 44 |
+| [src/main/java/frc/robot/utilities/AlignmentUtilities.java](/src/main/java/frc/robot/utilities/AlignmentUtilities.java) | Java | 55 | 2 | 18 | 75 |
+| [src/main/java/frc/robot/utilities/Fiducials.java](/src/main/java/frc/robot/utilities/Fiducials.java) | Java | 213 | 1 | 5 | 219 |
+| [src/main/java/frc/robot/utilities/Field2d.java](/src/main/java/frc/robot/utilities/Field2d.java) | Java | 461 | 146 | 112 | 719 |
+| [src/main/java/frc/robot/utilities/Region2d.java](/src/main/java/frc/robot/utilities/Region2d.java) | Java | 62 | 45 | 14 | 121 |
+| [vendordeps/AdvantageKit.json](/vendordeps/AdvantageKit.json) | JSON | 35 | 0 | 0 | 35 |
+| [vendordeps/PathplannerLib-2025.2.7.json](/vendordeps/PathplannerLib-2025.2.7.json) | JSON | 38 | 0 | 0 | 38 |
+| [vendordeps/Phoenix6-replay-frc2025-latest.json](/vendordeps/Phoenix6-replay-frc2025-latest.json) | JSON | 527 | 0 | 0 | 527 |
+| [vendordeps/REVLib.json](/vendordeps/REVLib.json) | JSON | 71 | 0 | 0 | 71 |
+| [vendordeps/Studica-2025.0.1.json](/vendordeps/Studica-2025.0.1.json) | JSON | 71 | 0 | 0 | 71 |
+| [vendordeps/WPILibNewCommands.json](/vendordeps/WPILibNewCommands.json) | JSON | 38 | 0 | 1 | 39 |
+| [vendordeps/maple-sim.json](/vendordeps/maple-sim.json) | JSON | 26 | 0 | 0 | 26 |
+| [vendordeps/photonlib.json](/vendordeps/photonlib.json) | JSON | 71 | 0 | 0 | 71 |
+
+[Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)

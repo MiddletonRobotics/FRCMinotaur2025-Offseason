@@ -89,6 +89,10 @@ dependencies {
 	testCompileOnly("org.projectlombok:lombok:1.18.38")
 	testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
+    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    implementation group: 'org.json', name: 'json', version: '20220924'
+    implementation group: 'org.dyn4j', name: 'dyn4j', version: '5.0.2'
+
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
@@ -96,7 +100,7 @@ dependencies {
 project.compileJava.dependsOn(createVersionFile)
 gversion {
   srcDir       = "src/main/java/"
-  classPackage = "frc.robot.utilities.constants"
+  classPackage = "frc.robot.constants"
   className    = "BuildConstants"
   dateFormat   = "yyyy-MM-dd HH:mm:ss z"
   timeZone     = "America/New_York" // Use preferred time zone
