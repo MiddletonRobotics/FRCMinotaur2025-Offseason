@@ -34,7 +34,7 @@ public class CameraConfiguration {
     }
 
     public CameraConfiguration() {
-        this("photonvision");
+        this("le");
     }
 
     public String getName() {

@@ -11,6 +11,7 @@ public interface VisionIO {
     @AutoLog
     public class VisionIOInputs {
         public boolean isCameraConnected = false;
+        public String cameraName = "";
         public PhotonFiducialResult[] visionPacket = new PhotonFiducialResult[0];
     }
 

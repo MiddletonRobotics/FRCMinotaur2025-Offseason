@@ -33,6 +33,7 @@ public class VisionIOPhotonVision implements VisionIO {
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         inputs.isCameraConnected = camera.isConnected();
+        inputs.cameraName = getCameraName();
         visionResults.clear();
 
         for(PhotonPipelineResult result : camera.getAllUnreadResults()) {

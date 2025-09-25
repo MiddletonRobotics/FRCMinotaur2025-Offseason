@@ -99,6 +99,7 @@ public class VisionSubsystem extends SubsystemBase {
    *     single single PhotonPipelineResult. There is a one-to-one relationship between each
    *     VisionIO object and each co-processor (e.g., Raspberry Pi) running PhotonVision.
    */
+  
   public VisionSubsystem(VisionIO[] visionIOs) {
     this.visionIOs = visionIOs;
     this.lastTimestamps = new double[visionIOs.length];
@@ -116,7 +117,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     for (int i = 0; i < visionIOs.length; i++) {
       this.inputs[i] = new VisionIOInputsAutoLogged();
-      this.disconnectedAlerts[i] = new Alert("camera" + i + " is disconnected", AlertType.kError);
+      this.disconnectedAlerts[i] = new Alert("Camera" + i + " is disconnected", AlertType.kError);
       this.camerasToConsider.add(i);
 
       tagPoses.add(new ArrayList<>());
@@ -288,12 +289,8 @@ public class VisionSubsystem extends SubsystemBase {
       Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/TagPoses", tagPoses.get(cameraIndex).toArray(Pose3d[]::new));
       Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/CameraPoses", cameraPoses.get(cameraIndex).toArray(new Pose3d[cameraPoses.get(cameraIndex).size()]));
       Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/RobotPoses", robotPoses.get(cameraIndex).toArray(new Pose3d[robotPoses.get(cameraIndex).size()]));
-      Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/RobotPosesAccepted",
-          robotPosesAccepted.get(cameraIndex).toArray(new Pose3d[robotPosesAccepted.get(cameraIndex).size()]));
-
-      Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/RobotPosesRejected",
-          robotPosesRejected.get(cameraIndex).toArray(new Pose3d[robotPosesRejected.get(cameraIndex).size()]));
-
+      Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/RobotPosesAccepted", robotPosesAccepted.get(cameraIndex).toArray(new Pose3d[robotPosesAccepted.get(cameraIndex).size()]));
+      Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/RobotPosesRejected", robotPosesRejected.get(cameraIndex).toArray(new Pose3d[robotPosesRejected.get(cameraIndex).size()]));
       Logger.recordOutput(VisionConstants.kSubsystemName + "/" + cameraIndex + "/CameraAxes", new Pose3d(MinoRobotOdometry.getInstance().getEstimatedPose()).plus(RobotConfiguration.getInstance().getRobotToCameraTransforms()[cameraIndex]));
 
       if (!VisionConstants.kDetailedLoggnig) {
@@ -343,7 +340,7 @@ public class VisionSubsystem extends SubsystemBase {
     Logger.recordOutput(VisionConstants.kSubsystemName + "/CamerasToConsider", camerasToConsider.toString());
 
     // Record cycle time
-    LoggedTracer.record("Vision");
+    LoggedTracer.record("VisionSubsystem");
   }
 
   public void specifyCamerasToConsider(List<Integer> cameraIndices) {
