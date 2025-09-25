@@ -157,7 +157,6 @@ public class VisionSubsystem extends SubsystemBase {
     robotPosesForCalibration[0] =
       new Pose3d(FieldConstants.Reef.centerFaces[0].transformBy(
         new Transform2d(RobotConfiguration.getInstance().getRobotLengthWithBumpers().in(Meters) / 2.0, 0, Rotation2d.fromDegrees(180))));
-    robotPosesForCalibration[2] = robotPosesForCalibration[0];
 
     // the BR camera is calibrated based on an offset AprilTag on the robot-to-camera transform
     // calibration jig
@@ -165,17 +164,6 @@ public class VisionSubsystem extends SubsystemBase {
       new Transform3d(
         RobotConfiguration.getInstance().getRobotLengthWithBumpers().in(Meters) / 2.0,
         Units.inchesToMeters(14.0),
-        -Units.inchesToMeters(1.0),
-        new Rotation3d()
-      )
-    );
-
-    // the BL camera is calibrated based on an offset AprilTag on the robot-to-camera transform
-    // calibration jig
-    robotPosesForCalibration[3] = new Pose3d(FieldConstants.Reef.centerFaces[0]).transformBy(
-      new Transform3d(
-        RobotConfiguration.getInstance().getRobotLengthWithBumpers().in(Meters) / 2.0,
-        -Units.inchesToMeters(14.0),
         -Units.inchesToMeters(1.0),
         new Rotation3d()
       )

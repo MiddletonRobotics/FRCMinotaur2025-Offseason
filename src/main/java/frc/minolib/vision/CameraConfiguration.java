@@ -20,7 +20,7 @@ public class CameraConfiguration {
         NONE
     }
 
-    private final String cameraName;
+    private String cameraName;
     public double cameraMountingRollRadians = 0;
     public double cameraMountingYawRadians = 0;
     public double cameraMountingPitchRadians = 0;
@@ -39,6 +39,11 @@ public class CameraConfiguration {
 
     public String getName() {
         return cameraName;
+    }
+
+    public CameraConfiguration withCameraName(String name) {
+        this.cameraName = name;
+        return this;
     }
 
     public CameraConfiguration withMountingRoll(double rollRadians) {

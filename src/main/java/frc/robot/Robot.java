@@ -44,7 +44,6 @@ import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.phoenix.PhoenixUtility;
 
 public class Robot extends LoggedRobot {
-
   private Command autonomousCommand;
   private final RobotContainer robotContainer;
   private double autoStart;
@@ -137,7 +136,6 @@ public class Robot extends LoggedRobot {
     canivoreErrorTimer.restart();
     disabledTimer.restart();
 
-
     if (!GlobalConstants.kTuningMode) {
       try {
         Field watchdogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
@@ -222,6 +220,7 @@ public class Robot extends LoggedRobot {
             String.format("*** Auto finished in %.2f secs ***", Timer.getTimestamp() - autoStart));
       } else {
         System.out.println(
+           
             String.format("*** Auto cancelled in %.2f secs ***", Timer.getTimestamp() - autoStart));
       }
 

@@ -96,7 +96,8 @@ public class VisionConstants {
 
     public static final String kSubsystemName = "VisionSubsystem";
 
-    public static final CameraConfiguration frontLeftCameraConfiguration = new CameraConfiguration("le")
+    public static final CameraConfiguration frontLeftCameraConfiguration = new CameraConfiguration()
+        .withCameraName("le")
         .withHeightOffset(0)
         .withLengthOffset(0)
         .withWidthOffset(0)
@@ -106,6 +107,7 @@ public class VisionConstants {
         .withCameraLocation(CameraLocation.FRONT_LEFT);
 
     public static final CameraConfiguration frontRightCameraConfiguration = new CameraConfiguration("re")
+        .withCameraName("re")
         .withHeightOffset(0)
         .withLengthOffset(0)
         .withWidthOffset(0)

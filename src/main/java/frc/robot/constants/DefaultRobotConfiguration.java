@@ -92,8 +92,6 @@ public class DefaultRobotConfiguration extends RobotConfiguration {
   private static final String CAMERA_NAME = "OV2311";
 
   // FIXME: update this with the actual transform from the robot to the camera
-  private static final Transform3d ROBOT_TO_CAMERA =
-      new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0));
 
   // FIXME: specify the configuration for pneumatics
   private static final int PNEUMATICS_HUB_ID = 20;
@@ -280,7 +278,10 @@ public class DefaultRobotConfiguration extends RobotConfiguration {
 
   @Override
   public Transform3d[] getRobotToCameraTransforms() {
-    return new Transform3d[] {ROBOT_TO_CAMERA};
+    return new Transform3d[] {
+      VisionConstants.frontLeftCameraConfiguration.getTransformOffset(),
+      VisionConstants.frontRightCameraConfiguration.getTransformOffset()
+    };
   }
 
   @Override
