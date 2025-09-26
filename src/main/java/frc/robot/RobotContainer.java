@@ -31,7 +31,6 @@ import frc.robot.subsystems.vision.VisionIOSimulation;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
-  private AprilTagFieldLayout layout;
   private RobotConfiguration robotConfiguration;
   private DrivetrainSubsystem drivetrain;
   private TeleopSwerve driveCommand;
@@ -56,17 +55,18 @@ public class RobotContainer {
   }
 
   private VisionSubsystem buildVision() {
+    AprilTagFieldLayout layout;
+
+    try {
+      layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
+    } catch (IOException e) {
+      layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
+      layoutFileMissingAlert.setText(LAYOUT_FILE_MISSING + ": " + VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
+      layoutFileMissingAlert.set(true);
+    }
+
     if (RobotBase.isSimulation()) {
         VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
-        AprilTagFieldLayout layout;
-
-        try {
-          layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-        } catch (IOException e) {
-          layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
-          layoutFileMissingAlert.setText(LAYOUT_FILE_MISSING + ": " + VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-          layoutFileMissingAlert.set(true);
-        }
 
         for (int i = 0; i < visionIOs.length; i++) {
           visionIOs[i] = new VisionIOSimulation(VisionConstants.cameraConfigurations[i], layout, drivetrain::getPose);
@@ -75,15 +75,6 @@ public class RobotContainer {
         return new VisionSubsystem(visionIOs);
       } else {
         VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
-        AprilTagFieldLayout layout;
-
-        try {
-          layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-        } catch (IOException e) {
-          layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
-          layoutFileMissingAlert.setText(LAYOUT_FILE_MISSING + ": " + VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-          layoutFileMissingAlert.set(true);
-        }
 
         for (int i = 0; i < visionIOs.length; i++) {
           visionIOs[i] = new VisionIOPhotonVision(VisionConstants.cameraConfigurations[i], layout);
