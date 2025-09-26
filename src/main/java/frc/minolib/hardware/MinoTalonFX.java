@@ -248,10 +248,10 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         this.gearRatio = gearRatio;
         this.configuration = configuration;
 
-        disconnectedAlerts = new Alert("", AlertType.kError);
-        overCurrentAlert = new Alert("", AlertType.kWarning);
-        overTempuratureAlert = new Alert("", AlertType.kWarning);
-        stallingAlert = new Alert("", AlertType.kInfo);
+        disconnectedAlerts = new Alert("TalonFX " + canID.toString() + " is currently disconnected. Mechanism may not function as wanted", AlertType.kError);
+        overCurrentAlert = new Alert("TalonFX " + canID.toString() + " is getting supplied too much power", AlertType.kWarning);
+        overTempuratureAlert = new Alert("TalonFX " + canID.toString() + " is overheating, consider turning off the robot", AlertType.kWarning);
+        stallingAlert = new Alert("TalonFX " + canID.toString() + " is currently stalling", AlertType.kInfo);
 
         faultFieldSignal = new MinoStatusSignal<>(controller.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(controller.getStickyFaultField());
@@ -411,21 +411,10 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     }
 
     public StatusCode updateInputs() {
-        if(!inputs.isMotorConnected) {
-            disconnectedAlerts.set(true);
-        }
-
-        if(inputs.temperature > 95) {
-            overTempuratureAlert.set(true);
-        }
-
-        if(inputs.supplyCurrent > inputs.statorCurrent) {
-            overCurrentAlert.set(true);
-        }
-
-        if(inputs.rotorVelocity < 10 && inputs.supplyCurrent > (inputs.statorCurrent / 2)) {
-            stallingAlert.set(true);
-        }
+        disconnectedAlerts.set(!inputs.isMotorConnected);
+        overTempuratureAlert.set(inputs.temperature > 95);
+        overCurrentAlert.set(inputs.supplyCurrent > inputs.statorCurrent);
+        stallingAlert.set(inputs.rotorVelocity < 10 && inputs.supplyCurrent > (inputs.statorCurrent / 2));
         
         return waitForInputs(0.0);
     }
