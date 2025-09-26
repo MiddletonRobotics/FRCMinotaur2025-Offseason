@@ -30,8 +30,9 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PIDConfiguration;
@@ -83,6 +84,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     private final BaseStatusSignal[] allSignals;
 
     private MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+
+    private Alert disconnectedAlerts;
+    private Alert overTempuratureAlert;
+    private Alert overCurrentAlert;
+    private Alert stallingAlert;
 
     public static class MinoTalonFXConfiguration {
         private NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
@@ -242,6 +248,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         this.gearRatio = gearRatio;
         this.configuration = configuration;
 
+        disconnectedAlerts = new Alert("", AlertType.kError);
+        overCurrentAlert = new Alert("", AlertType.kWarning);
+        overTempuratureAlert = new Alert("", AlertType.kWarning);
+        stallingAlert = new Alert("", AlertType.kInfo);
+
         faultFieldSignal = new MinoStatusSignal<>(controller.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(controller.getStickyFaultField());
         percentOutputSignal = new MinoStatusSignal<>(controller.getDutyCycle());
@@ -400,6 +411,22 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     }
 
     public StatusCode updateInputs() {
+        if(!inputs.isMotorConnected) {
+            disconnectedAlerts.set(true);
+        }
+
+        if(inputs.temperature > 95) {
+            overTempuratureAlert.set(true);
+        }
+
+        if(inputs.supplyCurrent > inputs.statorCurrent) {
+            overCurrentAlert.set(true);
+        }
+
+        if(inputs.rotorVelocity < 10 && inputs.supplyCurrent > (inputs.statorCurrent / 2)) {
+            stallingAlert.set(true);
+        }
+        
         return waitForInputs(0.0);
     }
 
