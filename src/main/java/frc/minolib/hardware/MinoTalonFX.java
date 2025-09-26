@@ -44,7 +44,7 @@ import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
-public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
+public class MinoTalonFX implements AutoCloseable, PhoenixMotor {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -421,7 +421,7 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
 
     public StatusCode waitForInputs(final double timeoutSeconds) {
         inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals);
-        inputs.status = BaseStatusSignal.waitForAll(0.0, allSignals);
+        inputs.status = BaseStatusSignal.waitForAll(timeoutSeconds, allSignals);
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
         inputs.percentOutput = percentOutputSignal.getUnitConvertedValue();
