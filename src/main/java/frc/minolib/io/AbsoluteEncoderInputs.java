@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusCode;
 @AutoLog
 public class AbsoluteEncoderInputs {
     public boolean isEncoderConnected = false;
+    public StatusCode status = StatusCode.OK;
     public int faultField = 0;
     public int stickyFaultField = 0;
     public double position = 0.0;

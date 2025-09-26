@@ -1,6 +1,14 @@
 package frc.minolib.phoenix;
 
+import com.ctre.phoenix6.StatusCode;
+
 public interface PhoenixEncoder {
+    /** Performs a non-blocking update on the inputs. */
+    public StatusCode updateInputs();
+
+    /** Performs a blocking update on the inputs. */
+    public StatusCode waitForInputs(final double timeoutSeconds);
+
     /** Sets the sensor zero-point to the current position. */
     public void zero();
 

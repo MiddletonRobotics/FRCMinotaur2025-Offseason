@@ -1,18 +1,24 @@
 package frc.minolib.hardware;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.io.AbsoluteEncoderInputsAutoLogged;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PhoenixEncoder;
 import frc.minolib.phoenix.PhoenixUtility;
+
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Function;
 
@@ -106,6 +112,10 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
 
     private final AbsoluteEncoderInputsAutoLogged inputs = new AbsoluteEncoderInputsAutoLogged();
 
+    public final Alert disconnectedAlert;
+    public final Alert unoptimizedMagnetAlert; // TODO: Fix the uptmoized magnet to split into unuable and unoptimized
+    public final Alert supplyVoltageAlert;
+
     public static class MinoCANCoderConfiguration {
         private double magnetOffset = 0.0;
         private double absoluteSensorDiscontinuityPoint = 1.0;
@@ -143,6 +153,10 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         simulationState = cancoder.getSimState();
         gearRatio = ratio;
         this.configuration = configuration;
+
+        disconnectedAlert = new Alert("CANcoder [" + canID.toString() + "] is currently disconnected. Mechanism may not function as wanted", AlertType.kError);
+        unoptimizedMagnetAlert = new Alert("CANcoder [" + canID.toString() + "] magnet is unoptimal. Magnet is either too close or too far", AlertType.kError);
+        supplyVoltageAlert = new Alert("CANcoder [" + canID.toString() + "] is underpowered. Device might be permentally damaged", AlertType.kWarning);
 
         faultFieldSignal = new MinoStatusSignal<>(cancoder.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(cancoder.getStickyFaultField());
@@ -232,8 +246,16 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         cancoder.close();
     }
 
-    public void updateInputs() {
+    public StatusCode updateInputs() {
+        disconnectedAlert.set(inputs.isEncoderConnected);
+        unoptimizedMagnetAlert.set(!cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Green));
+        supplyVoltageAlert.set(cancoder.getSupplyVoltage().getValue().in(Volts) < 11.5);
+        return waitForInputs(0.0);
+    }
+
+    public StatusCode waitForInputs(final double timeoutSeconds) {
         inputs.isEncoderConnected = BaseStatusSignal.isAllGood(allSignals);
+        inputs.status = BaseStatusSignal.waitForAll(timeoutSeconds, allSignals);
 
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
@@ -242,6 +264,8 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         inputs.velocity = velocitySignal.getUnitConvertedValue();
 
         Logger.processInputs(loggingName, inputs);
+
+        return inputs.status;
     }
 
     public void zero() {
