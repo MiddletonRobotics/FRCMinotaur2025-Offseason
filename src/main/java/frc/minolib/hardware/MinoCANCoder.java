@@ -253,6 +253,7 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         unoptimizedMagnetAlert.set(cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Orange));
         unusableMagnetAlert.set(!cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Green) && unoptimizedMagnetAlert.get());
         supplyVoltageAlert.set(cancoder.getSupplyVoltage().getValue().in(Volts) < 11.5);
+        
         return waitForInputs(0.0);
     }
 
