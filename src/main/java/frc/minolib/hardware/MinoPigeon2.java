@@ -5,16 +5,21 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
+import com.fasterxml.jackson.databind.type.ClassKey;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.io.GyroInputs;
 import frc.minolib.io.GyroInputsAutoLogged;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PhoenixGyro;
 import frc.minolib.phoenix.PhoenixUtility;
+
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -98,6 +103,10 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
 
   private final GyroInputsAutoLogged inputs = new GyroInputsAutoLogged();
 
+  private Alert disconnectedAlert;
+  private Alert overTempuratureAlert;
+  private Alert supplyVoltageAlert;
+
   /**
    * Configuration class for MinoPigeon2 that handles mount pose and gyro trim settings. All angle
    * measurements are in radians internally but converted to degrees when creating the
@@ -161,6 +170,10 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
     pigeon = new Pigeon2(canID.deviceNumber, canID.CANbusName);
     simulationState = pigeon.getSimState();
     configuration = config;
+
+    disconnectedAlert = new Alert("Pigeon [" + canID.toString() + "] is currently disconnected. Mechanism may not function as wanted", AlertType.kError);
+    overTempuratureAlert = new Alert("Pigeon [" + canID.toString() + "] is overheating, consider turning off the robot", AlertType.kWarning);
+    supplyVoltageAlert = new Alert("CANcoder [" + canID.toString() + "] is underpowered. Device might be permentally damaged", AlertType.kWarning);
 
     faultFieldSignal = new MinoStatusSignal<>(pigeon.getFaultField());
     stickyFaultFieldSignal = new MinoStatusSignal<>(pigeon.getStickyFaultField());
@@ -275,6 +288,14 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
     pigeon.close();
   }
 
+  public StatusCode updateInputs() {
+    disconnectedAlert.set(inputs.isGyroConnected);
+    overTempuratureAlert.set(pigeon.getTemperature().getValue().in(Celsius) > 95);
+    supplyVoltageAlert.set(pigeon.getSupplyVoltage().getValue().in(Volts) < 11.5);
+    
+    return waitForInputs(0.0);
+  }
+
   /**
    * Waits for all status signals from the Pigeon2 and updates input values. This method collects
    * data for roll, pitch, yaw, and their respective rates, as well as fault information from the
@@ -284,7 +305,7 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
    * @return StatusCode indicating the result of waiting for signals: - OK if successful - TIMEOUT
    *     if the wait operation times out - ERROR if there was a communication error
    */
-  public void updateInputs() {
+  public StatusCode waitForInputs(final double timeoutSeconds) {
     inputs.isGyroConnected = BaseStatusSignal.isAllGood(allSignals);
     inputs.status = BaseStatusSignal.waitForAll(0.0, allSignals);
     inputs.faultField = faultFieldSignal.getRawValue();
@@ -299,6 +320,7 @@ public class MinoPigeon2 implements AutoCloseable, PhoenixGyro {
     inputs.rotation3D = pigeon.getRotation3d();
 
     Logger.processInputs(loggingName, inputs);
+    return inputs.status;
   }
 
   /**
