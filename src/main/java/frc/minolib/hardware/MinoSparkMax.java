@@ -1,25 +1,5 @@
 package frc.minolib.hardware;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
-import com.ctre.phoenix6.configs.Slot2Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.revrobotics.REVLibError;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -31,22 +11,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.MAXMotionConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.phoenix.MechanismRatio;
-import frc.minolib.phoenix.MinoStatusSignal;
-import frc.minolib.phoenix.PIDConfiguration;
-import frc.minolib.phoenix.PhoenixMotor;
-import frc.minolib.phoenix.PhoenixUtility;
 import frc.minolib.rev.ClosedLoopConfiguration;
 import frc.minolib.rev.REVMotorController;
 import frc.minolib.io.MotorInputsAutoLogged;
@@ -64,7 +36,14 @@ public class MinoSparkMax implements  AutoCloseable, REVMotorController {
     private final MechanismRatio gearRatio;
     private final MinoSparkMaxConfiguration configuration;
 
+    private final Debouncer connectedDebounce = new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+
     private MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+
+    private Alert disconnectedAlert;
+    private Alert overTempuratureAlert;
+    private Alert overCurrentAlert;
+    private Alert stallingAlert;
 
     public static class MinoSparkMaxConfiguration {
         private IdleMode IDLE_MODE = IdleMode.kCoast;
@@ -183,19 +162,24 @@ public class MinoSparkMax implements  AutoCloseable, REVMotorController {
     }
 
     /** Follower constructor */
-    public MinoSparkMax(final CANDeviceID canID, final MinoTalonFX leader, final MinoSparkMaxConfiguration config) {
-        this(canID, leader.getMechanismRatio(), config);
+    public MinoSparkMax(final CANDeviceID canID, final MinoSparkMax leader, final MinoSparkMaxConfiguration configuration) {
+        this(canID, leader.getMechanismRatio(), configuration);
         //controller.setControl(new StrictFollower(leader.getDeviceID()));
     }
 
     /** Constructor with full configuration */
-    public MinoSparkMax(final CANDeviceID canID, final MechanismRatio ratio, final MinoSparkMaxConfiguration config) {
-        name = "TalonFX " + canID.toString();
+    public MinoSparkMax(final CANDeviceID canID, final MechanismRatio gearRatio, final MinoSparkMaxConfiguration configuration) {
+        name = "SparkMax " + canID.toString();
         loggingName = "Inputs/" + name;
         controller = new SparkMax(canID.deviceNumber, MotorType.kBrushless);
         simulationState = new SparkMaxSim(controller, DCMotor.getNEO(1));
-        gearRatio = ratio;
-        configuration = config;
+        this.gearRatio = gearRatio;
+        this.configuration = configuration;
+
+        disconnectedAlert = new Alert("SparkMax [" + canID.toString() + "] is current disconnected. Mechanism may not funciton as wanted", AlertType.kError);
+        overCurrentAlert = new Alert("SparkMax " + canID.toString() + " is getting supplied too much power", AlertType.kWarning);
+        overTempuratureAlert = new Alert("SparkMax " + canID.toString() + " is overheating, consider turning off the robot", AlertType.kWarning);
+        stallingAlert = new Alert("SparkMax " + canID.toString() + " is currently stalling", AlertType.kInfo);
 
         // Clear reset flag and sticky faults.
         controller.hasActiveFault();
@@ -239,7 +223,6 @@ public class MinoSparkMax implements  AutoCloseable, REVMotorController {
         return controller.getDeviceId();
     }
 
-
     @Override
     public void updateInputs() {
         inputs.isMotorConnected = !controller.getFaults().can && !controller.getFaults().sensor && !controller.getFaults().temperature;
@@ -251,6 +234,11 @@ public class MinoSparkMax implements  AutoCloseable, REVMotorController {
         inputs.rotorPosition = controller.getEncoder().getPosition();
         inputs.sensorPosition = toNativeSensorPosition(controller.getEncoder().getPosition());
         inputs.sensorVelocity = toNativeSensorVelocity(controller.getEncoder().getVelocity());
+
+        disconnectedAlert.set(controller.hasStickyFault());
+        overTempuratureAlert.set(controller.getMotorTemperature() > 90);
+        overCurrentAlert.set(controller.getStickyWarnings().overcurrent);
+        stallingAlert.set(toNativeSensorVelocity(controller.getEncoder().getVelocity()) < 10 && controller.getOutputCurrent() > 20); // TODO: Needs some work
 
         Logger.processInputs(loggingName, inputs);
     }
