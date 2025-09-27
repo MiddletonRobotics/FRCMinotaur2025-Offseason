@@ -4,7 +4,11 @@ package frc.minolib.hardware;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.CANBus.CANBusStatus;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import frc.minolib.io.CANBusInputsAutoLogged;
+import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -48,6 +52,9 @@ public class MinoCANBus {
 
   private final CANBusInputsAutoLogged inputs = new CANBusInputsAutoLogged();
 
+  private final Timer canivoreErrorTimer = new Timer();
+  private final Alert canivoreErrorAlert = new Alert("CANivore error detected, robot may not be controllable.", AlertType.kError);
+
   public MinoCANBus() {
     this("rio");
   }
@@ -68,5 +75,11 @@ public class MinoCANBus {
     inputs.TEC = status.TEC;
     inputs.isNetworkFD = canBus.isNetworkFD();
     Logger.processInputs(loggingName, inputs);
+
+    if (!status.Status.isOK() || status.REC > 0 || status.TEC > 0) {
+      canivoreErrorTimer.restart();
+    }
+
+    canivoreErrorAlert.set(!canivoreErrorTimer.hasElapsed(GlobalConstants.kCANivoreTimeThreshold));
   }
 }

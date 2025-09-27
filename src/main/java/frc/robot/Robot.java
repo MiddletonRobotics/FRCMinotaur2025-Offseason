@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -41,6 +42,7 @@ import frc.robot.constants.GlobalConstants;
 import frc.minolib.RobotConfiguration;
 import frc.minolib.advantagekit.LocalADStarAK;
 import frc.minolib.advantagekit.LoggedTracer;
+import frc.minolib.hardware.MinoCANBus;
 import frc.minolib.phoenix.PhoenixUtility;
 
 public class Robot extends LoggedRobot {
@@ -48,7 +50,7 @@ public class Robot extends LoggedRobot {
   private final RobotContainer robotContainer;
   private double autoStart;
   private boolean autoMessagePrinted;
-  private CANBus canivoreBus;
+  private MinoCANBus canivoreBus;
 
   //private WPILOGWriter writer = new WPILOGWriter();
   //private Alert writerAlert = new Alert("WPILOGWriter Failed to start", AlertType.kError);
@@ -59,11 +61,9 @@ public class Robot extends LoggedRobot {
   private final Timer canivoreErrorTimer = new Timer();
 
   private final Alert canErrorAlert = new Alert("CAN errors detected, robot may not be controllable.", AlertType.kError);
-  private final Alert canivoreErrorAlert = new Alert("CANivore error detected, robot may not be controllable.", AlertType.kError);
   private final Alert logReceiverQueueAlert = new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.kError);
   private final Alert lowBatteryAlert = new Alert("Battery voltage is very low, consider turning off the robot or replacing the battery.", AlertType.kWarning);
   private final Alert gitAlert = new Alert("Please wait to enable, JITing in progress.", AlertType.kWarning);
-
   private final Alert noAutoSelectedAlert = new Alert("No auto selected: please select an auto", AlertType.kWarning);
 
   public Robot() {
@@ -102,6 +102,8 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
         break;
     }
+
+    Logger.registerURCL(URCL.startExternal()); // Start Unoffical REV Compatable Logger
 
     // Start AdvantageKit logger
     Logger.start();
@@ -148,7 +150,7 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer = new RobotContainer();
-    canivoreBus = new CANBus(RobotConfiguration.getInstance().getCANBusName());
+    canivoreBus = new MinoCANBus(RobotConfiguration.getInstance().getCANBusName());
 
     PathfindingCommand.warmupCommand().schedule();
 
@@ -181,25 +183,7 @@ public class Robot extends LoggedRobot {
 
     canErrorAlert.set(!canErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold) && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANErrorTimeThreshold));
 
-    // Log CANivore status
-    if (GlobalConstants.kCurrentMode == GlobalConstants.Mode.REAL) {
-      var canivoreStatus = this.canivoreBus.getStatus();
-      Logger.recordOutput("CANivoreStatus/Status", canivoreStatus.Status.getName());
-      Logger.recordOutput("CANivoreStatus/Utilization", canivoreStatus.BusUtilization);
-      Logger.recordOutput("CANivoreStatus/OffCount", canivoreStatus.BusOffCount);
-      Logger.recordOutput("CANivoreStatus/TxFullCount", canivoreStatus.TxFullCount);
-      Logger.recordOutput("CANivoreStatus/ReceiveErrorCount", canivoreStatus.REC);
-      Logger.recordOutput("CANivoreStatus/TransmitErrorCount", canivoreStatus.TEC);
-
-      if (!canivoreStatus.Status.isOK() || canivoreStatus.REC > 0 || canivoreStatus.TEC > 0) {
-        canivoreErrorTimer.restart();
-      }
-
-      canivoreErrorAlert.set(!canivoreErrorTimer.hasElapsed(GlobalConstants.kCANivoreTimeThreshold) && canInitialErrorTimer.hasElapsed(GlobalConstants.kCANivoreTimeThreshold));
-    }
-
-    // Log NT client list
-    //NTClientLogger.log();
+    canivoreBus.updateInputs();
 
     // Update low battery alert
     if (DriverStation.isEnabled()) {

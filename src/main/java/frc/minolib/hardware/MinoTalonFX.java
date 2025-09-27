@@ -30,8 +30,9 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
-
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.minolib.phoenix.MechanismRatio;
 import frc.minolib.phoenix.MinoStatusSignal;
 import frc.minolib.phoenix.PIDConfiguration;
@@ -43,7 +44,7 @@ import java.util.function.Function;
 
 import org.littletonrobotics.junction.Logger;
 
-public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
+public class MinoTalonFX implements AutoCloseable, PhoenixMotor {
     private static final double kCANTimeoutS = 0.1; // s
     private final String name;
     private final String loggingName;
@@ -83,6 +84,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     private final BaseStatusSignal[] allSignals;
 
     private MotorInputsAutoLogged inputs = new MotorInputsAutoLogged();
+
+    private Alert disconnectedAlerts;
+    private Alert overTempuratureAlert;
+    private Alert overCurrentAlert;
+    private Alert stallingAlert;
 
     public static class MinoTalonFXConfiguration {
         private NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
@@ -242,6 +248,11 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
         this.gearRatio = gearRatio;
         this.configuration = configuration;
 
+        disconnectedAlerts = new Alert("TalonFX " + canID.toString() + " is currently disconnected. Mechanism may not function as wanted", AlertType.kError);
+        overCurrentAlert = new Alert("TalonFX " + canID.toString() + " is getting supplied too much power", AlertType.kWarning);
+        overTempuratureAlert = new Alert("TalonFX " + canID.toString() + " is overheating, consider turning off the robot", AlertType.kWarning);
+        stallingAlert = new Alert("TalonFX " + canID.toString() + " is currently stalling", AlertType.kInfo);
+
         faultFieldSignal = new MinoStatusSignal<>(controller.getFaultField());
         stickyFaultFieldSignal = new MinoStatusSignal<>(controller.getStickyFaultField());
         percentOutputSignal = new MinoStatusSignal<>(controller.getDutyCycle());
@@ -400,12 +411,17 @@ public class MinoTalonFX implements  AutoCloseable, PhoenixMotor {
     }
 
     public StatusCode updateInputs() {
+        disconnectedAlerts.set(!inputs.isMotorConnected);
+        overTempuratureAlert.set(inputs.temperature > 95);
+        overCurrentAlert.set(inputs.supplyCurrent > inputs.statorCurrent);
+        stallingAlert.set(inputs.rotorVelocity < 10 && inputs.supplyCurrent > (inputs.statorCurrent / 2));
+        
         return waitForInputs(0.0);
     }
 
     public StatusCode waitForInputs(final double timeoutSeconds) {
         inputs.isMotorConnected = BaseStatusSignal.isAllGood(allSignals);
-        inputs.status = BaseStatusSignal.waitForAll(0.0, allSignals);
+        inputs.status = BaseStatusSignal.waitForAll(timeoutSeconds, allSignals);
         inputs.faultField = faultFieldSignal.getRawValue();
         inputs.stickyFaultField = stickyFaultFieldSignal.getRawValue();
         inputs.percentOutput = percentOutputSignal.getUnitConvertedValue();
