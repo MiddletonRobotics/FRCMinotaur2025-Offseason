@@ -114,6 +114,7 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
 
     public final Alert disconnectedAlert;
     public final Alert unoptimizedMagnetAlert; // TODO: Fix the uptmoized magnet to split into unuable and unoptimized
+    public final Alert unusableMagnetAlert;
     public final Alert supplyVoltageAlert;
 
     public static class MinoCANCoderConfiguration {
@@ -155,7 +156,8 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
         this.configuration = configuration;
 
         disconnectedAlert = new Alert("CANcoder [" + canID.toString() + "] is currently disconnected. Mechanism may not function as wanted", AlertType.kError);
-        unoptimizedMagnetAlert = new Alert("CANcoder [" + canID.toString() + "] magnet is unoptimal. Magnet is either too close or too far", AlertType.kError);
+        unoptimizedMagnetAlert = new Alert("CANcoder [" + canID.toString() + "] magnet is unoptimal. Reduced reading accuracy is guarenteed", AlertType.kWarning);
+        unusableMagnetAlert = new Alert("CANcoder [" + canID.toString() + "] magnet is unusable. Mechanism may not function as wanted", AlertType.kError);
         supplyVoltageAlert = new Alert("CANcoder [" + canID.toString() + "] is underpowered. Device might be permentally damaged", AlertType.kWarning);
 
         faultFieldSignal = new MinoStatusSignal<>(cancoder.getFaultField());
@@ -248,7 +250,8 @@ public class MinoCANCoder implements AutoCloseable, PhoenixEncoder {
 
     public StatusCode updateInputs() {
         disconnectedAlert.set(inputs.isEncoderConnected);
-        unoptimizedMagnetAlert.set(!cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Green));
+        unoptimizedMagnetAlert.set(cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Orange));
+        unusableMagnetAlert.set(!cancoder.getMagnetHealth().getValue().equals(MagnetHealthValue.Magnet_Green) && unoptimizedMagnetAlert.get());
         supplyVoltageAlert.set(cancoder.getSupplyVoltage().getValue().in(Volts) < 11.5);
         return waitForInputs(0.0);
     }
