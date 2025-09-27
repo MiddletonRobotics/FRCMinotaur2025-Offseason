@@ -14,11 +14,13 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.minolib.RobotConfiguration;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.constants.DefaultRobotConfiguration;
@@ -111,6 +113,22 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(driveCommand);
 
     driverController.a().onTrue(driveCommand.toggleFieldCentric());
+
+
+    /* 
+
+    new Trigger(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() > 0.0 && DriverStation.getMatchTime() <= Math.round(endgameAlert1.get())).onTrue(
+      Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(1));
+
+    new Trigger(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() > 0.0 && DriverStation.getMatchTime() <= Math.round(endgameAlert2.get())).onTrue(
+      Commands.sequence(
+        Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(0.5),
+        Commands.waitSeconds(0.25),
+        Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(0.5)
+      )
+    );
+
+    */
   }
 
   public Command getAutonomousCommand() {
