@@ -17,11 +17,9 @@ public interface DriverControllerIO {
 
     Trigger getWantToAutoAlign();
 
-    Trigger scoreCoral();
+    Trigger score();
 
     Trigger scoreBarge();
-
-    Trigger scoreProcessor();
 
     Trigger stow();
 
@@ -29,13 +27,13 @@ public interface DriverControllerIO {
 
     Trigger exhaust();
 
-    Trigger extendStage1();
+    Trigger stageL1();
 
-    Trigger extendStage2();
+    Trigger stageL2();
 
-    Trigger extendStage3();
+    Trigger stageL3();
 
-    Trigger extendStage4();
+    Trigger stageL4();
 
     Trigger getCoralMode();
 
@@ -72,6 +70,10 @@ public interface DriverControllerIO {
     Trigger povLeft();
 
     Trigger povRight();
+
+    Trigger setDefaultRobotWide();
+
+    Trigger setDefaultRobotTight();
 
     void rumble(boolean intensity);
 }
