@@ -25,6 +25,7 @@ import frc.minolib.RobotConfiguration;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.constants.DefaultRobotConfiguration;
 import frc.robot.constants.VisionConstants;
+import frc.robot.oi.Controlboard;
 import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionIO;
@@ -39,7 +40,8 @@ public class RobotContainer {
   private VisionSubsystem vision;
 
   private CommandXboxController driverController;
-
+  private Controlboard controlboard;
+  
   private final LoggedNetworkNumber endgameAlert1 = new LoggedNetworkNumber("/Tuning/Endgame Alert #1", 20.0);
   private final LoggedNetworkNumber endgameAlert2 = new LoggedNetworkNumber("/Tuning/Endgame Alert #2", 10.0);
 
@@ -68,27 +70,35 @@ public class RobotContainer {
     }
 
     if (RobotBase.isSimulation()) {
-        VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
+      VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
 
-        for (int i = 0; i < visionIOs.length; i++) {
-          visionIOs[i] = new VisionIOSimulation(VisionConstants.cameraConfigurations[i], layout, drivetrain::getPose);
-        }
-
-        return new VisionSubsystem(visionIOs);
-      } else {
-        VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
-
-        for (int i = 0; i < visionIOs.length; i++) {
-          visionIOs[i] = new VisionIOPhotonVision(VisionConstants.cameraConfigurations[i], layout);
-        }
-
-        return new VisionSubsystem(visionIOs);
+      for (int i = 0; i < visionIOs.length; i++) {
+        visionIOs[i] = new VisionIOSimulation(VisionConstants.cameraConfigurations[i], layout, drivetrain::getPose);
       }
-    }
 
-    public VisionSubsystem getVisionSubsystem() {
-      return vision;
+      return new VisionSubsystem(visionIOs);
+    } else {
+      VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
+
+      for (int i = 0; i < visionIOs.length; i++) {
+        visionIOs[i] = new VisionIOPhotonVision(VisionConstants.cameraConfigurations[i], layout);
+      }
+
+      return new VisionSubsystem(visionIOs);
     }
+  }
+
+  public VisionSubsystem getVisionSubsystem() {
+    return vision;
+  }
+
+  public Controlboard buildControlboad() {
+    return Controlboard.getInstance();
+  }
+
+  public Controlboard getControlboard() {
+    return controlboard;
+  }
 
   public RobotContainer() {
     robotConfiguration = new DefaultRobotConfiguration();
@@ -98,15 +108,15 @@ public class RobotContainer {
     configureBindings();
   }
 
+  private void configureControllers() {
+    controlboard = buildControlboad();
+  }
+
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
     vision = buildVision();
 
-    driveCommand = new TeleopSwerve(drivetrain, driverController::getLeftY, driverController::getLeftX, driverController::getRightX);
-  }
-
-  private void configureControllers() {
-    driverController = new CommandXboxController(0);
+    driveCommand = new TeleopSwerve(drivetrain, controlboard::getThrottle, controlboard::getStrafe, controlboard::getRotation);
   }
 
   private void configureBindings() {
