@@ -156,7 +156,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
             .withCouplingGearRatio(COUPLE_RATIO); // Every 1 rotation of the azimuth results in couple ratio drive turns
 
     private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> backModulesConstantCreator =
-        new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
+        new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>() 
             .withDriveMotorInitialConfigs(new TalonFXConfiguration()
                 .withCurrentLimits(new CurrentLimitsConfigs()
                     .withSupplyCurrentLimit(SwerveModuleConfiguration.DRIVE_PEAK_CURRENT_LIMIT)
@@ -319,10 +319,6 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
         //FaultReporter.getInstance().registerHardware(SUBSYSTEM_NAME, "BR Drive", this.getModule(3).getDriveMotor());
         //FaultReporter.getInstance().registerHardware(SUBSYSTEM_NAME, "BR Steer", this.getModule(3).getSteerMotor());
         //FaultReporter.getInstance().registerHardware(SUBSYSTEM_NAME, "BR Encoder", this.getModule(3).getEncoder());
-
-        if (GlobalConstants.kCurrentMode == Mode.SIM) {
-            startSimThread();
-        }
     }
 
   private void updateTelemetry(SwerveDriveState state) {
@@ -654,23 +650,5 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     } else {
       return ClosedLoopOutputType.Voltage;
     }
-  }
-
-  @SuppressWarnings("resource")
-  private void startSimThread() {
-    lastSimTime = Utils.getCurrentTimeSeconds();
-
-    /* Run simulation at a faster rate so PID gains behave more reasonably */
-    Notifier simNotifier =
-        new Notifier(
-            () -> {
-              final double currentTime = Utils.getCurrentTimeSeconds();
-              double deltaTime = currentTime - lastSimTime;
-              lastSimTime = currentTime;
-
-              /* use the measured time delta, get battery voltage from WPILib */
-              updateSimState(deltaTime, RobotController.getBatteryVoltage());
-            });
-    simNotifier.startPeriodic(SIM_LOOP_PERIOD);
   }
 }
