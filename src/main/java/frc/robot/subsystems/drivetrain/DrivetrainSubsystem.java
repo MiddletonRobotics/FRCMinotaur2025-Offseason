@@ -2,7 +2,9 @@ package frc.robot.subsystems.drivetrain;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -23,11 +25,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.minolib.RobotConfiguration;
@@ -40,6 +45,7 @@ import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.DrivetrainConstants.SysIDCharacterizationMode;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.GlobalConstants;
+import frc.robot.utilities.Conversions;
 import frc.robot.utilities.Field2d;
 
 import java.util.List;
@@ -889,6 +895,29 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
     this.drive(xVelocity, yVelocity, 0.0, false, false);
   }
+
+  public void sendWidget(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule rearLeft, SwerveModule rearRight, PigeonIMU gyro) {
+        SmartDashboard.putData("Swerve Drive", new Sendable() {
+            @Override
+            public void initSendable(SendableBuilder builder) {
+                builder.setSmartDashboardType("SwerveDrive");
+
+                builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getCurrentState().angle.getRadians(), null);
+                builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getCurrentState().speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Front Right Angle", () -> frontRight.getCurrentState().angle.getRadians(), null);
+                builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getCurrentState().speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Left Angle", () -> rearLeft.getCurrentState().angle.getRadians(), null);
+                builder.addDoubleProperty("Back Left Velocity", () -> rearLeft.getCurrentState().speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Right Angle", () -> rearRight.getCurrentState().angle.getRadians(), null);
+                builder.addDoubleProperty("Back Right Velocity", () -> rearRight.getCurrentState().speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Robot Angle", () -> Conversions.degreesToRadians(gyro.getFusedHeading()), null);
+            }
+        });
+    }
 
   // method to convert swerve module number to location
   private String getSwerveLocation(int swerveModuleNumber) {
