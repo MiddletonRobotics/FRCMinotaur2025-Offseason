@@ -23,6 +23,7 @@ import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.advantagekit.LoggedTunableNumber;
 import frc.minolib.localization.MinoRobotOdometry;
 import frc.minolib.vision.PhotonFiducialResult;
+import frc.robot.RobotContainer;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
@@ -341,6 +342,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Record cycle time
     LoggedTracer.record("VisionSubsystem");
+
+    //new RobotContainer().getDrivetrainSubsystem().addVisionMeasurement(getBestRobotPose().toPose2d(), Timer.getFPGATimestamp(), VecBuilder.fill(0.7,0.7,0.7));
   }
 
   public void specifyCamerasToConsider(List<Integer> cameraIndices) {

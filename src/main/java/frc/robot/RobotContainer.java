@@ -24,10 +24,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.minolib.RobotConfiguration;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.constants.DefaultRobotConfiguration;
+import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.VisionConstants;
+import frc.robot.constants.GlobalConstants.Mode;
 import frc.robot.oi.Controlboard;
 import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.leds.LedIOCANdle;
+import frc.robot.subsystems.leds.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOSimulation;
@@ -38,6 +42,7 @@ public class RobotContainer {
   private DrivetrainSubsystem drivetrain;
   private TeleopSwerve driveCommand;
   private VisionSubsystem vision;
+  private LedSubsystem ledSubsystem;
 
   private CommandXboxController driverController;
   private Controlboard controlboard;
@@ -51,7 +56,7 @@ public class RobotContainer {
   private Alert tuningAlert = new Alert("Tuning mode enabled", AlertType.kInfo);
 
   private DrivetrainSubsystem buildDrivetrain() {
-    return new DrivetrainSubsystem(new DrivetrainIOCTRE());
+      return new DrivetrainSubsystem(new DrivetrainIOCTRE());
   }
 
   public DrivetrainSubsystem getDrivetrainSubsystem() {
@@ -69,7 +74,7 @@ public class RobotContainer {
       layoutFileMissingAlert.set(true);
     }
 
-    if (RobotBase.isSimulation()) {
+    if (GlobalConstants.kCurrentMode == Mode.SIM) {
       VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
 
       for (int i = 0; i < visionIOs.length; i++) {
@@ -90,6 +95,14 @@ public class RobotContainer {
 
   public VisionSubsystem getVisionSubsystem() {
     return vision;
+  }
+
+  public LedSubsystem buildLedSubsystem() {
+    return new LedSubsystem(new LedIOCANdle());
+  }
+
+  public LedSubsystem getLedSubsystem() {
+    return ledSubsystem;
   }
 
   public Controlboard buildControlboad() {
@@ -114,7 +127,8 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
-    vision = buildVision();
+    //vision = buildVision();
+    ledSubsystem = buildLedSubsystem();
 
     driveCommand = new TeleopSwerve(drivetrain, controlboard::getThrottle, controlboard::getStrafe, controlboard::getRotation);
   }
@@ -122,7 +136,7 @@ public class RobotContainer {
   private void configureBindings() {
     drivetrain.setDefaultCommand(driveCommand);
 
-    driverController.a().onTrue(driveCommand.toggleFieldCentric());
+    controlboard.getWantToAutoAlign().onTrue(driveCommand.toggleFieldCentric());
 
 
     /* 

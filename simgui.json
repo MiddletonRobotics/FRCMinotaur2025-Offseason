@@ -10,7 +10,9 @@
       "/SmartDashboard/PathPlanner": "Alerts",
       "/SmartDashboard/PhotonAlerts": "Alerts",
       "/SmartDashboard/SysIdRoutineChooser": "String Chooser",
-      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d"
+      "/SmartDashboard/VisionSystemSim-le/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/VisionSystemSim-re/Sim Field": "Field2d"
     }
   },
   "NetworkTables Info": {
