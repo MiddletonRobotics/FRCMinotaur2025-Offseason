@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
 import frc.minolib.RobotConfiguration;
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.advantagekit.LoggedTunableNumber;
@@ -57,9 +58,7 @@ import org.littletonrobotics.junction.Logger;
 /**
  * This subsystem models the robot's drivetrain mechanism. It consists of a four swerve modules in
  * the MK4 family, each with two TalonFX motors and a CANcoder. It also consists of a Pigeon which
- * is used to measure the robot's rotation. While other hardware configurations are possible, and
- * 3061-lib supports hardware abstraction via the standard AdvantageKit architecture, 3061-lib only
- * supports CTRE devices at this time.
+ * is used to measure the robot's rotation.
  */
 public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstimator {
 
@@ -67,8 +66,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
   private final DrivetrainIO.DrivetrainIOInputsCollection inputs = new DrivetrainIO.DrivetrainIOInputsCollection();
 
   /*
-  * If TUNING is set to true in Constants.java, the following tunables will be available in
-  * AdvantageScope. This enables efficient tuning of PID coefficients without restarting the code.
+  * If TUNING is set to true in Constants.java, the following tunables will be available in AdvantageScope. This enables efficient tuning of PID coefficients without restarting the code.
   */
 
   private final LoggedTunableNumber autoDriveKp = new LoggedTunableNumber("AutoDrive/DriveKp", RobotConfiguration.getInstance().getAutoDriveKP());
@@ -86,7 +84,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
   private boolean isTranslationSlowMode = false;
   private boolean isRotationSlowMode = false;
 
-  // set to true upon construction to trigger disabling break mode shortly after the code starts
+  // Set to true upon construction to trigger disabling break mode shortly after the code starts
   private boolean brakeMode = true;
   private Timer brakeModeTimer = new Timer();
   private static final double BREAK_MODE_DELAY_SEC = 10.0;
@@ -102,8 +100,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
   private Alert noPoseAlert = new Alert("Attempted to reset pose from vision, but no pose was found.", AlertType.kWarning);
   private Alert pathFileMissingAlert = new Alert("Could not find the specified path file.", AlertType.kError);
-  private static final String SYSTEM_CHECK_PREFIX = "[System Check] Swerve module ";
-  private static final String IS_LITERAL = " is: ";
 
   private DriverStation.Alliance alliance = Field2d.getInstance().getAlliance();
 
@@ -182,7 +178,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
   /**
    * Creates a new Drivetrain subsystem.
-   *
    * @param io the abstracted interface for the drivetrain
    */
 
@@ -228,9 +223,9 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
   /**
    * Returns the robot-relative speeds of the robot.
-   *
    * @return the robot-relative speeds of the robot
    */
+
   public ChassisSpeeds getRobotRelativeSpeeds() {
     return this.inputs.drivetrain.measuredChassisSpeeds;
   }
@@ -242,6 +237,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * @param chassisSpeeds the robot-relative speeds of the robot
    * @param feedforwards the feed forward forces to apply
    */
+
   public void applyRobotSpeeds(ChassisSpeeds chassisSpeeds, DriveFeedforwards feedforwards) {
     this.io.applyRobotSpeeds(chassisSpeeds, feedforwards.robotRelativeForcesX(), feedforwards.robotRelativeForcesY(), false);
   }
@@ -253,6 +249,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * positioned facing away from the driver, ideally aligned to a field wall before this method is
    * invoked.
    */
+
   public void zeroGyroscope() {
     setGyroOffset(0.0);
   }
@@ -263,6 +260,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return the rotation of the robot
    */
+
   public Rotation2d getRotation() {
     return this.odometry.getEstimatedPose().getRotation();
   }
@@ -273,6 +271,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return the raw heading of the drivetrain as reported by the gyro in degrees
    */
+
   public double getYaw() {
     return this.inputs.drivetrain.rawHeadingDeg;
   }
@@ -298,6 +297,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return the pose of the robot
    */
+
   public Pose2d getPose() {
     return this.odometry.getEstimatedPose();
   }
@@ -311,6 +311,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @param pose the specified pose to which is set the odometry
    */
+
   public void resetPose(Pose2d pose) {
     this.odometry.resetPose(Rotation2d.fromDegrees(this.inputs.drivetrain.rawHeadingDeg), this.modulePositions, pose);
     this.prevRobotPose = pose;
@@ -323,6 +324,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @param poseSupplier the supplier of the pose to which set the robot's odometry
    */
+
   public void resetPoseToVision(Supplier<Pose3d> poseSupplier) {
     Pose3d pose = poseSupplier.get();
     if (pose != null) {
@@ -355,6 +357,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * @param isOpenLoop true for open-loop control; false for closed-loop control
    * @param isFieldRelative true to for field-relative motion; false, for robot-relative
    */
+
   public void drive(double xVelocity, double yVelocity, double rotationalVelocity, boolean isOpenLoop, boolean isFieldRelative) {
     // get the slow-mode multiplier from the config
     double slowModeMultiplier = RobotConfiguration.getInstance().getRobotSlowModeMultiplier();
@@ -375,8 +378,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
     // log velocity after filter
     Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/filteredXVelocity", this.xFilter.lastValue());
     Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/filteredYVelocity", this.yFilter.lastValue());
-    // Logger.recordOutput(
-    //     DrivetrainConstants.kSubsystemName + "/filteredRotationalVelocity", this.thetaFilter.lastValue());
+    // Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/filteredRotationalVelocity", this.thetaFilter.lastValue());
 
     if (accelerationLimiting) {
       xVelocity = this.xFilter.lastValue();
@@ -429,10 +431,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @param xVelocity the desired velocity in the x direction (m/s)
    * @param yVelocity the desired velocity in the y direction (m/s)
-   * @param targetDirection the desired direction of the robot's orientation. Zero degrees is
-   *     aligned to the positive x axis and increases in the CCW direction.
+   * @param targetDirection the desired direction of the robot's orientation. Zero degrees is aligned to the positive x axis and increases in the CCW direction.
    * @param isOpenLoop true for open-loop control; false for closed-loop control
    */
+
   public void driveFacingAngle(double xVelocity, double yVelocity, Rotation2d targetDirection, boolean isOpenLoop) {
     // get the slow-mode multiplier from the config
     double slowModeMultiplier = RobotConfiguration.getInstance().getRobotSlowModeMultiplier();
@@ -504,11 +506,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
     // custom pose vs default pose
     Pose2d pose = this.odometry.getEstimatedPose();
     this.customPose = this.inputs.drivetrain.customPose;
+
     Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/Pose", pose);
     Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/CustomPose", this.customPose);
-
-    Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/FRPose",
-        pose.transformBy(new Transform2d(RobotConfiguration.getInstance().getFrontRightCornerPosition(), new Rotation2d())));
+    Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/FRPose", pose.transformBy(new Transform2d(RobotConfiguration.getInstance().getFrontRightCornerPosition(), new Rotation2d())));
 
     // check for teleportation
     if (DrivetrainConstants.kEnableTeleportDetection && pose.minus(prevRobotPose).getTranslation().getNorm() > DrivetrainConstants.kTeleportDetectionThresholdMeters) {
@@ -546,20 +547,23 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
     // update tunables
     LoggedTunableNumber.ifChanged(
-        hashCode(),
-        pid -> {
-          autoXController.setPID(pid[0], pid[1], pid[2]);
-          autoYController.setPID(pid[0], pid[1], pid[2]);
-        },
-        autoDriveKp,
-        autoDriveKi,
-        autoDriveKd);
+      hashCode(),
+      pid -> {
+        autoXController.setPID(pid[0], pid[1], pid[2]);
+        autoYController.setPID(pid[0], pid[1], pid[2]);
+      },
+      autoDriveKp,
+      autoDriveKi,
+      autoDriveKd
+    );
+
     LoggedTunableNumber.ifChanged(
-        hashCode(),
-        pid -> autoThetaController.setPID(pid[0], pid[1], pid[2]),
-        autoTurnKp,
-        autoTurnKi,
-        autoTurnKd);
+      hashCode(),
+      pid -> autoThetaController.setPID(pid[0], pid[1], pid[2]),
+      autoTurnKp,
+      autoTurnKi,
+      autoTurnKd
+    );
 
     // Record cycle time
     LoggedTracer.record("Drivetrain");
@@ -570,6 +574,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return true if field relative mode is enabled
    */
+
   public boolean getFieldRelative() {
     return isFieldRelative;
   }
@@ -578,6 +583,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Enables field-relative mode. When enabled, the joystick inputs specify the velocity of the
    * robot in the frame of reference of the field.
    */
+
   public void enableFieldRelative() {
     this.isFieldRelative = true;
   }
@@ -586,6 +592,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Disables field-relative mode. When disabled, the joystick inputs specify the velocity of the
    * robot in the frame of reference of the robot.
    */
+
   public void disableFieldRelative() {
     this.isFieldRelative = false;
   }
@@ -594,6 +601,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Enables slow mode for translation. When enabled, the robot's translational velocities will be
    * scaled down.
    */
+
   public void enableTranslationSlowMode() {
     this.isTranslationSlowMode = true;
   }
@@ -602,6 +610,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Disables slow mode for translation. When disabled, the robot's translational velocities will
    * not be scaled.
    */
+
   public void disableTranslationSlowMode() {
     this.isTranslationSlowMode = false;
   }
@@ -610,6 +619,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Enables slow mode for rotation. When enabled, the robot's rotational velocity will be scaled
    * down.
    */
+
   public void enableRotationSlowMode() {
     this.isRotationSlowMode = true;
   }
@@ -618,6 +628,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Disables slow mode for rotation. When disabled, the robot's rotational velocity will not be
    * scaled.
    */
+
   public void disableRotationSlowMode() {
     this.isRotationSlowMode = false;
   }
@@ -629,6 +640,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * @param x the x coordinate of the robot's center of rotation (in meters)
    * @param y the y coordinate of the robot's center of rotation (in meters)
    */
+
   public void setCenterOfRotation(double x, double y) {
     io.setCenterOfRotation(new Translation2d(x, y));
   }
@@ -643,6 +655,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return the average current of the swerve module drive motors in amps
    */
+
   public double getAverageDriveCurrent() {
     return this.inputs.drivetrain.averageDriveCurrent;
   }
@@ -652,13 +665,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return the position of all drive wheels in radians
    */
+
   public double[] getWheelRadiusCharacterizationPosition() {
     double[] positions = new double[inputs.swerve.length];
     for (int i = 0; i < inputs.swerve.length; i++) {
-      positions[i] =
-          inputs.drivetrain.swerveModulePositions[i].distanceMeters
-              / (RobotConfiguration.getInstance().getWheelRadius().in(Meters));
+      positions[i] = inputs.drivetrain.swerveModulePositions[i].distanceMeters / (RobotConfiguration.getInstance().getWheelRadius().in(Meters));
     }
+
     return positions;
   }
 
@@ -668,6 +681,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @param state true to enable, false to disable
    */
+
   public void enableMoveToPose(boolean state) {
     this.isMoveToPoseEnabled = state;
   }
@@ -677,6 +691,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return true if the move-to-pose feature is enabled; false otherwise
    */
+
   public boolean isMoveToPoseEnabled() {
     return this.isMoveToPoseEnabled;
   }
@@ -685,6 +700,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * Captures the initial positions of the drive wheels. This method is intended to be invoked at
    * the start of an autonomous path to measure the distance traveled by the robot.
    */
+
   public void captureInitialConditions() {
     for (int i = 0; i < this.inputs.swerve.length; i++) {
       this.initialDistance[i] = inputs.drivetrain.swerveModulePositions[i].distanceMeters;
@@ -701,6 +717,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * @param autoName the name of the autonomous path
    * @param measureDistance true to measure the distance traveled by the robot; false otherwise
    */
+
   public void captureFinalConditions(String autoName, boolean measureDistance) {
     try {
       List<Pose2d> pathPoses = PathPlannerPath.fromPathFile(autoName).getPathPoses();
@@ -710,10 +727,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
       if (measureDistance) {
         double distance = 0.0;
         for (int i = 0; i < this.inputs.swerve.length; i++) {
-          distance +=
-              Math.abs(
-                  inputs.drivetrain.swerveModulePositions[i].distanceMeters
-                      - this.initialDistance[i]);
+          distance += Math.abs(inputs.drivetrain.swerveModulePositions[i].distanceMeters - this.initialDistance[i]);
         }
 
         distance /= this.inputs.swerve.length;
@@ -733,6 +747,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @param newAlliance the new alliance color
    */
+
   public void updateAlliance(DriverStation.Alliance newAlliance) {
     this.alliance = newAlliance;
   }
@@ -743,6 +758,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    *
    * @return true if the auto path should be flipped to the red alliance side of the field
    */
+
   public boolean shouldFlipAutoPath() {
     return this.alliance == Alliance.Red;
   }
@@ -751,21 +767,20 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    * If the robot is enabled and brake mode is not enabled, enable it. If the robot is disabled, has
    * stopped moving for the specified period of time, and brake mode is enabled; disable it.
    */
+
   private void updateBrakeMode() {
     if (DriverStation.isEnabled()) {
       if (!brakeMode) {
         brakeMode = true;
         setBrakeMode(true);
       }
+
       brakeModeTimer.restart();
 
     } else if (!DriverStation.isEnabled()) {
       boolean stillMoving = false;
-      double velocityLimit =
-          RobotConfiguration.getInstance().getRobotMaxCoastVelocity().in(MetersPerSecond);
-      if (Math.abs(this.inputs.drivetrain.measuredChassisSpeeds.vxMetersPerSecond) > velocityLimit
-          || Math.abs(this.inputs.drivetrain.measuredChassisSpeeds.vyMetersPerSecond)
-              > velocityLimit) {
+      double velocityLimit = RobotConfiguration.getInstance().getRobotMaxCoastVelocity().in(MetersPerSecond);
+      if (Math.abs(this.inputs.drivetrain.measuredChassisSpeeds.vxMetersPerSecond) > velocityLimit || Math.abs(this.inputs.drivetrain.measuredChassisSpeeds.vyMetersPerSecond) > velocityLimit) {
         stillMoving = true;
         brakeModeTimer.restart();
       }
@@ -790,8 +805,9 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
   }
 
   /*
-   * enable and disable acceleration limiting
+   * Enable and disable acceleration limiting
    */
+
   public void enableAccelerationLimiting() {
     this.accelerationLimiting = true;
   }
@@ -807,22 +823,20 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
       Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/rotationOverride", targetRotation);
       return Optional.of(targetRotation);
     } else {
-      // return an empty optional when we don't want to override the path's rotation
+      // Return an empty optional when we don't want to override the path's rotation
       return Optional.empty();
     }
   }
 
-  public Pose2d getFutureRobotPose(
-      double translationSecondsInFuture, double rotationSecondsInFuture) {
+  public Pose2d getFutureRobotPose(double translationSecondsInFuture, double rotationSecondsInFuture) {
     // project the robot pose into the future based on the current translational velocity; don't
     // project the current rotational velocity as that will adversely affect the control loop
     // attempting to reach the rotational setpoint.
-    return this.getPose()
-        .exp(
-            new Twist2d(
-                this.getRobotRelativeSpeeds().vxMetersPerSecond * translationSecondsInFuture,
-                this.getRobotRelativeSpeeds().vyMetersPerSecond * translationSecondsInFuture,
-                this.getRobotRelativeSpeeds().omegaRadiansPerSecond * rotationSecondsInFuture));
+    return this.getPose().exp(new Twist2d(
+      this.getRobotRelativeSpeeds().vxMetersPerSecond * translationSecondsInFuture,
+      this.getRobotRelativeSpeeds().vyMetersPerSecond * translationSecondsInFuture,
+      this.getRobotRelativeSpeeds().omegaRadiansPerSecond * rotationSecondsInFuture
+    ));
   }
 
   public Pose2d getCustomEstimatedPose() {
@@ -837,33 +851,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
     return this.io.samplePoseAt(timestamp);
   }
 
-  public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
+  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
     this.io.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   private void applySysIdCharacterization(SysIDCharacterizationMode mode, double value) {
     this.io.applySysIdCharacterization(mode, value);
   }
-
-  /* 
-  public Command getSystemCheckCommand() {
-    return Commands.sequence(
-            Commands.runOnce(this::disableFieldRelative, this),
-            Commands.runOnce(() -> FaultReporter.getInstance().clearFaults(DrivetrainConstants.kSubsystemName)),
-            getSwerveCheckCommand(SwerveCheckTypes.LEFT),
-            getSwerveCheckCommand(SwerveCheckTypes.RIGHT),
-            getSwerveCheckCommand(SwerveCheckTypes.FORWARD),
-            getSwerveCheckCommand(SwerveCheckTypes.BACKWARD),
-            getSwerveCheckCommand(SwerveCheckTypes.CLOCKWISE),
-            getSwerveCheckCommand(SwerveCheckTypes.COUNTERCLOCKWISE))
-        .until(() -> !FaultReporter.getInstance().getFaults(DrivetrainConstants.kSubsystemName).isEmpty())
-        .andThen(Commands.runOnce(() -> this.drive(0, 0, 0, true, false), this))
-        .withName(DrivetrainConstants.kSubsystemName + "SystemCheck");
-  }
-        */
 
   public void setDriveToPoseCanceled(boolean canceled) {
     this.driveToPoseCanceled = canceled;
@@ -875,10 +869,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
   public boolean isTilted() {
     boolean isTilted = Math.abs(this.inputs.drivetrain.rollDeg) > DrivetrainConstants.kTiltThresholdDegrees || Math.abs(this.inputs.drivetrain.pitchDeg) > DrivetrainConstants.kTiltThresholdDegrees;
-    //if (isTilted) {
-    //  LEDs.getInstance().requestState(LEDs.States.UNTILTING_ROBOT);
-    //}
-
     return isTilted;
   }
 
@@ -897,267 +887,25 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
   }
 
   public void sendWidget(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule rearLeft, SwerveModule rearRight, PigeonIMU gyro) {
-        SmartDashboard.putData("Swerve Drive", new Sendable() {
-            @Override
-            public void initSendable(SendableBuilder builder) {
-                builder.setSmartDashboardType("SwerveDrive");
+    SmartDashboard.putData("Swerve Drive", new Sendable() {
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            builder.setSmartDashboardType("SwerveDrive");
 
-                builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getCurrentState().angle.getRadians(), null);
-                builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getCurrentState().speedMetersPerSecond, null);
+            builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getCurrentState().angle.getRadians(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getCurrentState().speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Front Right Angle", () -> frontRight.getCurrentState().angle.getRadians(), null);
-                builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getCurrentState().speedMetersPerSecond, null);
+            builder.addDoubleProperty("Front Right Angle", () -> frontRight.getCurrentState().angle.getRadians(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getCurrentState().speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Back Left Angle", () -> rearLeft.getCurrentState().angle.getRadians(), null);
-                builder.addDoubleProperty("Back Left Velocity", () -> rearLeft.getCurrentState().speedMetersPerSecond, null);
+            builder.addDoubleProperty("Back Left Angle", () -> rearLeft.getCurrentState().angle.getRadians(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> rearLeft.getCurrentState().speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Back Right Angle", () -> rearRight.getCurrentState().angle.getRadians(), null);
-                builder.addDoubleProperty("Back Right Velocity", () -> rearRight.getCurrentState().speedMetersPerSecond, null);
+            builder.addDoubleProperty("Back Right Angle", () -> rearRight.getCurrentState().angle.getRadians(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> rearRight.getCurrentState().speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Robot Angle", () -> Conversions.degreesToRadians(gyro.getFusedHeading()), null);
-            }
-        });
-    }
-
-  // method to convert swerve module number to location
-  private String getSwerveLocation(int swerveModuleNumber) {
-    switch (swerveModuleNumber) {
-      case 0:
-        return "FL";
-      case 1:
-        return "FR";
-      case 2:
-        return "BL";
-      case 3:
-        return "BR";
-      default:
-        return "UNKNOWN";
-    }
-  }
-
-  /**
-   * Checks the swerve module to see if its velocity and rotation are within the specified tolerance
-   * of the specified values.
-   *
-   * @param swerveModuleNumber the swerve module number to check
-   * @param angleTarget the target angle of the swerve module
-   * @param angleTolerance the tolerance of the angle
-   * @param velocityTarget the target velocity of the swerve module
-   * @param velocityTolerance the tolerance of the velocity
-   */
-
-   /* 
-  private void checkSwerveModule(
-      int swerveModuleNumber,
-      double angleTarget,
-      double angleTolerance,
-      double velocityTarget,
-      double velocityTolerance) {
-
-    boolean isOffset = false;
-
-    if (Math.abs(
-            this.inputs.swerve[swerveModuleNumber].steerAbsolutePositionDeg - (angleTarget - 180))
-        < angleTolerance) {
-      isOffset = true;
-    } else if (Math.abs(
-            this.inputs.swerve[swerveModuleNumber].steerAbsolutePositionDeg - (angleTarget + 180))
-        < angleTolerance) {
-      isOffset = true;
-    }
-    else if (Math.abs(this.inputs.swerve[swerveModuleNumber].steerAbsolutePositionDeg - angleTarget)
-        > angleTolerance) {
-      FaultReporter.getInstance()
-          .addFault(
-              DrivetrainConstants.kSubsystemName,
-              SYSTEM_CHECK_PREFIX
-                  + getSwerveLocation(swerveModuleNumber)
-                  + " not rotating in the threshold as expected. Should be: "
-                  + angleTarget
-                  + IS_LITERAL
-                  + inputs.swerve[swerveModuleNumber].steerAbsolutePositionDeg);
-    }
-
-
-    if (!isOffset) {
-      if (Math.abs(
-              inputs.drivetrain.swerveMeasuredStates[swerveModuleNumber].speedMetersPerSecond
-                  - velocityTarget)
-          > velocityTolerance) {
-        FaultReporter.getInstance()
-            .addFault(
-                DrivetrainConstants.kSubsystemName,
-                SYSTEM_CHECK_PREFIX
-                    + getSwerveLocation(swerveModuleNumber)
-                    + " not moving as fast as expected. Should be: "
-                    + velocityTarget
-                    + IS_LITERAL
-                    + inputs
-                        .drivetrain
-                        .swerveMeasuredStates[swerveModuleNumber]
-                        .speedMetersPerSecond);
-      }
-    } else { 
-      if (Math.abs(
-              inputs.drivetrain.swerveMeasuredStates[swerveModuleNumber].speedMetersPerSecond
-                  + velocityTarget)
-          > velocityTolerance) {
-        FaultReporter.getInstance()
-            .addFault(
-                DrivetrainConstants.kSubsystemName,
-                SYSTEM_CHECK_PREFIX
-                    + getSwerveLocation(swerveModuleNumber)
-                    + " not moving as fast as expected. REVERSED Should be: "
-                    + velocityTarget
-                    + IS_LITERAL
-                    + inputs
-                        .drivetrain
-                        .swerveMeasuredStates[swerveModuleNumber]
-                        .speedMetersPerSecond);
-      }
-    }
-  }
-
-  private Command getSwerveCheckCommand(SwerveCheckTypes type) {
-
-    double xVelocity;
-    double yVelocity;
-    double rotationalVelocity;
-
-    double angleTarget;
-    double velocityTarget;
-
-    switch (type) {
-      case LEFT:
-        xVelocity = 0;
-        yVelocity = 1;
-        rotationalVelocity = 0;
-        velocityTarget = 1;
-        angleTarget = 90;
-        break;
-      case RIGHT:
-        xVelocity = 0;
-        yVelocity = -1;
-        rotationalVelocity = 0;
-        velocityTarget = -1;
-        angleTarget = 90;
-        break;
-      case FORWARD:
-        xVelocity = 1;
-        yVelocity = 0;
-        rotationalVelocity = 0;
-        velocityTarget = 1;
-        angleTarget = 0;
-        break;
-      case BACKWARD:
-        xVelocity = -1;
-        yVelocity = 0;
-        rotationalVelocity = 0;
-        velocityTarget = -1;
-        angleTarget = 0;
-        break;
-      case CLOCKWISE:
-        return Commands.parallel(
-                Commands.run(() -> this.drive(0, 0, -Math.PI, false, false), this),
-                Commands.waitSeconds(1)
-                    .andThen(
-                        Commands.runOnce(
-                            () -> {
-                              checkSwerveModule(
-                                  0,
-                                  135,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  -0.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  1,
-                                  45,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  -0.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  2,
-                                  45,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  0.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  3,
-                                  135,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  0.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                            })))
-            .withTimeout(1);
-      case COUNTERCLOCKWISE:
-        return Commands.parallel(
-                Commands.run(() -> this.drive(0, 0, Math.PI, false, false), this),
-                Commands.waitSeconds(1)
-                    .andThen(
-                        Commands.runOnce(
-                            () -> {
-                              checkSwerveModule(
-                                  0,
-                                  135,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  .38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  1,
-                                  45,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  .38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  2,
-                                  45,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  -.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                              checkSwerveModule(
-                                  3,
-                                  135,
-                                  SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                  -.38 * Math.PI,
-                                  SYSTEM_TEST_VELOCITY_TOLERANCE);
-                            })))
-            .withTimeout(1);
-      default:
-        xVelocity = 0;
-        yVelocity = 0;
-        rotationalVelocity = 0;
-        angleTarget = 0;
-        velocityTarget = 0;
-        break;
-    }
-
-    return Commands.parallel(
-            Commands.run(
-                () -> this.drive(xVelocity, yVelocity, rotationalVelocity, false, false), this),
-            Commands.waitSeconds(1)
-                .andThen(
-                    Commands.runOnce(
-                        () -> {
-                          for (int i = 0; i < this.inputs.swerve.length; i++) {
-                            checkSwerveModule(
-                                i,
-                                angleTarget,
-                                SYSTEM_TEST_ANGLE_TOLERANCE_DEG,
-                                velocityTarget,
-                                SYSTEM_TEST_VELOCITY_TOLERANCE);
-                          }
-                        })))
-        .withTimeout(2);
-  }
-
-  */
-
-  private enum SwerveCheckTypes {
-    LEFT,
-    RIGHT,
-    FORWARD,
-    BACKWARD,
-    CLOCKWISE,
-    COUNTERCLOCKWISE
+            builder.addDoubleProperty("Robot Angle", () -> Conversions.degreesToRadians(gyro.getFusedHeading()), null);
+        }
+    });
   }
 }
