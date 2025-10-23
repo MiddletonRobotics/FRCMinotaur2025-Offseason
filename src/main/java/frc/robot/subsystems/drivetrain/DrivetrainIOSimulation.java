@@ -85,6 +85,7 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
         return mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
+    @Override
     public void resetPose(Pose2d pose) {
         if (this.mapleSimSwerveDrivetrain != null) mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
         
