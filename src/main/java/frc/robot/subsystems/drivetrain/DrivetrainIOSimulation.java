@@ -62,14 +62,14 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
         mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
             Seconds.of(kSimLoopPeriod),
             Pounds.of(115), // robot weight
-            Inches.of(30), // bumper length
-            Inches.of(30), // bumper width
+            Inches.of(34), // bumper length
+            Inches.of(34), // bumper width
             DCMotor.getKrakenX60Foc(1), // drive motor type
             DCMotor.getKrakenX60Foc(1), // steer motor type
-            1.916, // wheel COF, Vex Grip V2
-            getModuleLocations(),
-            getPigeon2(),
-            getModules(),
+            1.2, // wheel COF
+            super.getModuleLocations(),
+            super.getPigeon2(),
+            super.getModules(),
             CompetitionTunerConstants.FrontLeft,
             CompetitionTunerConstants.FrontRight,
             CompetitionTunerConstants.BackLeft,
