@@ -86,11 +86,9 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
     }
 
     public void resetPose(Pose2d pose) {
-        if (this.mapleSimSwerveDrivetrain != null) {
-            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-            Timer.delay(0.5); // Wait for simulation to update
-        }
-
+        if (this.mapleSimSwerveDrivetrain != null) mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+        
+        Timer.delay(0.1); // wait for simulation to update
         super.resetPose(pose);
     }
 }
