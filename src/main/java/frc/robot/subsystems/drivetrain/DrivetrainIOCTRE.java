@@ -23,6 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -67,7 +68,6 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
       this.kS = kS;
     }
   }
-
   /*
   * If TUNING is set to true in Constants.java, the following tunables will be available in
   * AdvantageScope. This enables efficient tuning of PID coefficients without restarting the code.
@@ -117,11 +117,6 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
   private static final Voltage STEER_FRICTION_VOLTAGE = Volts.of(0.2);
   private static final Voltage DRIVE_FRICTION_VOLTAGE = Volts.of(0.2);
   Distance h = Inches.of(kNumConfigAttempts);
-
-  private static final SwerveDrivetrainConstants drivetrainConstants = new SwerveDrivetrainConstants()
-    .withPigeon2Id(RobotConfiguration.getInstance().getGyroCANID())
-    .withCANBusName(RobotConfiguration.getInstance().getCANBusName())
-    .withPigeon2Configs(RobotConfiguration.getInstance().getPigeonConfigForSwerveDrivetrain());
 
   private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontModulesConstantCreator =
     new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
@@ -279,7 +274,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
   private double lastSimTime;
 
   /** Creates a new Drivetrain subsystem. */
-  public DrivetrainIOCTRE() {
+  public DrivetrainIOCTRE(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
     super(TalonFX::new, TalonFX::new, CANcoder::new, drivetrainConstants, RobotConfiguration.getInstance().getOdometryUpdateFrequency(), frontLeft, frontRight, backLeft, backRight);
 
     this.centerOfRotation = new Translation2d(); // default to (0,0)
@@ -618,5 +613,10 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     } else {
       return ClosedLoopOutputType.Voltage;
     }
+  }
+
+  @Override
+  public Pose2d getPose() {
+    return getState().Pose; 
   }
 }

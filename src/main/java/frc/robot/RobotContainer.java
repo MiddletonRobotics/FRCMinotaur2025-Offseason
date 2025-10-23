@@ -4,35 +4,22 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.pathplanner.lib.config.RobotConfig;
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.minolib.RobotConfiguration;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.constants.DefaultRobotConfiguration;
-import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.VisionConstants;
-import frc.robot.constants.GlobalConstants.Mode;
 import frc.robot.oi.Controlboard;
-import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
+import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainIOSimulation;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.leds.LedIOCANdle;
 import frc.robot.subsystems.leds.LedSubsystem;
-import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOSimulation;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -50,13 +37,12 @@ public class RobotContainer {
   private final LoggedNetworkNumber endgameAlert1 = new LoggedNetworkNumber("/Tuning/Endgame Alert #1", 20.0);
   private final LoggedNetworkNumber endgameAlert2 = new LoggedNetworkNumber("/Tuning/Endgame Alert #2", 10.0);
 
-  private static final String LAYOUT_FILE_MISSING = "Could not find the specified AprilTags layout file";
-  private Alert layoutFileMissingAlert = new Alert(LAYOUT_FILE_MISSING, AlertType.kError);
-
-  private Alert tuningAlert = new Alert("Tuning mode enabled", AlertType.kInfo);
-
   private DrivetrainSubsystem buildDrivetrain() {
-      return new DrivetrainSubsystem(new DrivetrainIOCTRE());
+    if(Robot.isSimulation()) {
+      return new DrivetrainSubsystem(new DrivetrainIOSimulation(CompetitionTunerConstants.DrivetrainConstants, CompetitionTunerConstants.FrontLeft, CompetitionTunerConstants.FrontRight, CompetitionTunerConstants.BackLeft, CompetitionTunerConstants.BackRight));
+    } else {
+      return new DrivetrainSubsystem(CompetitionTunerConstants.createDrivetrain());
+    }
   }
 
   public DrivetrainSubsystem getDrivetrainSubsystem() {
@@ -64,32 +50,18 @@ public class RobotContainer {
   }
 
   private VisionSubsystem buildVision() {
-    AprilTagFieldLayout layout;
-
-    try {
-      layout = new AprilTagFieldLayout(VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-    } catch (IOException e) {
-      layout = new AprilTagFieldLayout(new ArrayList<>(), 16.4592, 8.2296);
-      layoutFileMissingAlert.setText(LAYOUT_FILE_MISSING + ": " + VisionConstants.APRILTAG_FIELD_LAYOUT_PATH);
-      layoutFileMissingAlert.set(true);
-    }
-
-    if (GlobalConstants.kCurrentMode == Mode.SIM) {
-      VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
-
-      for (int i = 0; i < visionIOs.length; i++) {
-        visionIOs[i] = new VisionIOSimulation(VisionConstants.cameraConfigurations[i], layout, drivetrain::getPose);
-      }
-
-      return new VisionSubsystem(visionIOs);
+    if(Robot.isSimulation()) {
+      return new VisionSubsystem(
+        drivetrain, 
+        new VisionIOSimulation(VisionConstants.frontLeftCameraConfiguration.getName(), VisionConstants.frontLeftCameraConfiguration.getTransformOffset(), drivetrain::getPose),
+        new VisionIOSimulation(VisionConstants.frontRightCameraConfiguration.getName(), VisionConstants.frontRightCameraConfiguration.getTransformOffset(), drivetrain::getPose)
+      );
     } else {
-      VisionIO[] visionIOs = new VisionIO[VisionConstants.cameraConfigurations.length];
-
-      for (int i = 0; i < visionIOs.length; i++) {
-        visionIOs[i] = new VisionIOPhotonVision(VisionConstants.cameraConfigurations[i], layout);
-      }
-
-      return new VisionSubsystem(visionIOs);
+      return new VisionSubsystem(
+        drivetrain,
+        new VisionIOPhotonVision(VisionConstants.frontLeftCameraConfiguration.getName(), VisionConstants.frontLeftCameraConfiguration.getTransformOffset()),
+        new VisionIOPhotonVision(VisionConstants.frontRightCameraConfiguration.getName(), VisionConstants.frontRightCameraConfiguration.getTransformOffset())
+      );
     }
   }
 
@@ -127,7 +99,7 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
-    //vision = buildVision();
+    vision = buildVision();
     ledSubsystem = buildLedSubsystem();
 
     driveCommand = new TeleopSwerve(drivetrain, controlboard::getThrottle, controlboard::getStrafe, controlboard::getRotation);
@@ -135,24 +107,6 @@ public class RobotContainer {
 
   private void configureBindings() {
     drivetrain.setDefaultCommand(driveCommand);
-
-    controlboard.getWantToAutoAlign().onTrue(driveCommand.toggleFieldCentric());
-
-
-    /* 
-
-    new Trigger(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() > 0.0 && DriverStation.getMatchTime() <= Math.round(endgameAlert1.get())).onTrue(
-      Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(1));
-
-    new Trigger(() -> DriverStation.isTeleopEnabled() && DriverStation.getMatchTime() > 0.0 && DriverStation.getMatchTime() <= Math.round(endgameAlert2.get())).onTrue(
-      Commands.sequence(
-        Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(0.5),
-        Commands.waitSeconds(0.25),
-        Commands.run(() -> LEDs.getInstance().requestState(LEDs.States.ENDGAME_ALERT)).withTimeout(0.5)
-      )
-    );
-
-    */
   }
 
   public Command getAutonomousCommand() {

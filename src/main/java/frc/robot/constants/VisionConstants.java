@@ -3,6 +3,8 @@ package frc.robot.constants;
 import java.io.File;
 import java.nio.file.Path;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -43,33 +45,19 @@ public class VisionConstants {
         frontRightCameraConfiguration
     };
 
-    public static final boolean kDetailedLoggnig = true;
-    public static final boolean kCalibrateCameraTranformation = false;
-    
-    public static final double kBestPoseThreshold = 0.5;
-    public static final double kTagLogThreshold = 0.1;
-    public static final double kPoseStalenessThreshold = 0.1;
-    
-    public static final double kAmbiguityThreshold = 0.5;
-    public static final double kRotationThreshold = 10.0;
-    public static final double kReprojectionErrorThreshold = 5.0;
-    
-    public static final double maxZErrorMeters = 0.25;
-    public static final double kFieldBorderMarginError = 0.5;
-    
-    public static final double kAmbiguityScaleFactor = 5.0;
-    public static final double kReprojectionErrorScaleFactor = 3.33;
-    
-    // the coefficient from which the standard deviation for the x and y components is initiated
-    public static final double linearStandardDeviation = 0.08;
-    public static final double thetaStandardDeviation = 0.1;
-    
-    // the average error in pixels for the simulated camera
-    public static final double SIM_AVERAGE_ERROR_PIXELS = 0.1;
-    public static final double SIM_ERROR_STD_DEV_PIXELS = 0.05;
+    public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-    public static final Path APRILTAG_FIELD_LAYOUT_PATH = new File(Filesystem.getDeployDirectory(), "2025-reefscape.json").toPath();
-    public static final Path OFFICIAL_APRILTAG_FIELD_LAYOUT_PATH = new File(Filesystem.getDeployDirectory(), "2025-reefscape.json").toPath();
-    public static final int MAX_NUMBER_TAGS = 30;
+    public static double[] cameraStdDevFactors = new double[] {
+        1.0, // Camera 0
+        1.0 // Camera 1
+    };
 
+    public static final double maxAmbiguity = 0.3;
+    public static final double maxErrorZ = 0.75;
+
+    public static double linearStdDevBaseline = 0.02; // Meters
+    public static double angularStdDevBaseline = 0.06; // Radians
+
+    public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
+    public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
 }

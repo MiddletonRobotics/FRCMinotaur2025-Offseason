@@ -4,36 +4,30 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import org.littletonrobotics.junction.Logger;
+
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import frc.minolib.swerve.MapleSimSwerveDrivetrain;
-import frc.robot.constants.GlobalConstants;
 
-public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
-    private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain;
+public class DrivetrainIOSimulation extends DrivetrainIOCTRE implements Subsystem {
+    private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier simulatioNotifier = null;
-    private double lastSimulationTime;
     
     public DrivetrainIOSimulation(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
-        mapleSimSwerveDrivetrain = null;
     
-        if(GlobalConstants.kUseMapleSim) {
-            startMapleSimThread();
-        } else {
-            startCTRESimThread();
-        }
+        startSimThread();
 
     }
 
@@ -41,24 +35,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
         return mapleSimSwerveDrivetrain.mapleSimDrive;
     }
 
-    private void startCTRESimThread() {
-        lastSimulationTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        simulatioNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - lastSimulationTime;
-            lastSimulationTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-
-        simulatioNotifier.startPeriodic(kSimLoopPeriod);
-    }
-
     @SuppressWarnings("unchecked")
-    private void startMapleSimThread() {
+    private void startSimThread() {
         mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
             Seconds.of(kSimLoopPeriod),
             Pounds.of(115), // robot weight
@@ -81,6 +59,7 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
         simulatioNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    @Override
     public Pose2d getPose() {
         return mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }

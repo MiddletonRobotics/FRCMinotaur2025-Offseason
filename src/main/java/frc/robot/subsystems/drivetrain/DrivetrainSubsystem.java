@@ -299,7 +299,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    */
 
   public Pose2d getPose() {
-    return this.odometry.getEstimatedPose();
+    return io.getPose();
   }
 
   /**
@@ -888,24 +888,44 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
 
   public void sendWidget(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule rearLeft, SwerveModule rearRight, PigeonIMU gyro) {
     SmartDashboard.putData("Swerve Drive", new Sendable() {
-        @Override
-        public void initSendable(SendableBuilder builder) {
-            builder.setSmartDashboardType("SwerveDrive");
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
 
-            builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getCurrentState().angle.getRadians(), null);
-            builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getCurrentState().speedMetersPerSecond, null);
+        builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getCurrentState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getCurrentState().speedMetersPerSecond, null);
 
-            builder.addDoubleProperty("Front Right Angle", () -> frontRight.getCurrentState().angle.getRadians(), null);
-            builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getCurrentState().speedMetersPerSecond, null);
+        builder.addDoubleProperty("Front Right Angle", () -> frontRight.getCurrentState().angle.getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getCurrentState().speedMetersPerSecond, null);
 
-            builder.addDoubleProperty("Back Left Angle", () -> rearLeft.getCurrentState().angle.getRadians(), null);
-            builder.addDoubleProperty("Back Left Velocity", () -> rearLeft.getCurrentState().speedMetersPerSecond, null);
+        builder.addDoubleProperty("Back Left Angle", () -> rearLeft.getCurrentState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> rearLeft.getCurrentState().speedMetersPerSecond, null);
 
-            builder.addDoubleProperty("Back Right Angle", () -> rearRight.getCurrentState().angle.getRadians(), null);
-            builder.addDoubleProperty("Back Right Velocity", () -> rearRight.getCurrentState().speedMetersPerSecond, null);
+        builder.addDoubleProperty("Back Right Angle", () -> rearRight.getCurrentState().angle.getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> rearRight.getCurrentState().speedMetersPerSecond, null);
 
-            builder.addDoubleProperty("Robot Angle", () -> Conversions.degreesToRadians(gyro.getFusedHeading()), null);
-        }
+        builder.addDoubleProperty("Robot Angle", () -> Conversions.degreesToRadians(gyro.getFusedHeading()), null);
+      }
     });
+  }
+
+  private enum WantedState {
+    SYS_ID,
+    PATHPLANNER_PATH,
+    TELEOP_FIELD_CENTRIC,
+    TELEOP_ROBOT_CENTRIC,
+    ROTATION_LOCK,
+    DRIVE_TO_POINT,
+    IDLE
+  }
+
+  private enum SystemState {
+    SYS_ID,
+    PATHPLANNER_PATH,
+    TELEOP_FIELD_CENTRIC,
+    TELEOP_ROBOT_CENTRIC,
+    ROTATION_LOCK,
+    DRIVE_TO_POINT,
+    IDLE
   }
 }
