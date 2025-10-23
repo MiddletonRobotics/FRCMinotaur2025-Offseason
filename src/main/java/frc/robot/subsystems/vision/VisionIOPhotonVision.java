@@ -1,8 +1,11 @@
 package frc.robot.subsystems.vision;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -11,72 +14,116 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.minolib.vision.CameraConfiguration;
 import frc.minolib.vision.PhotonFiducialResult;
 import frc.minolib.vision.CameraConfiguration.CameraLocation;
+import frc.robot.constants.VisionConstants;
 
 public class VisionIOPhotonVision implements VisionIO {
     protected final PhotonCamera camera;
-    protected PhotonPoseEstimator poseEstimator;
-    private CameraLocation cameraLocation;
-    private final List<PhotonFiducialResult> visionResults = new ArrayList<>();
+    protected final Transform3d robotToCamera;
 
-    public VisionIOPhotonVision(CameraConfiguration cameraConfiguration, AprilTagFieldLayout fieldLayout) {
-        camera = new PhotonCamera(cameraConfiguration.getCameraName());
-        cameraLocation = cameraConfiguration.getLocation();
-        poseEstimator = new PhotonPoseEstimator(fieldLayout, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS, cameraConfiguration.getTransformOffset());
-
-        this.camera.getAllUnreadResults();
+    /**
+     * Creates a new VisionIOPhotonVision.
+     *
+     * @param name The configured name of the camera.
+     * @param rotationSupplier The 3D position of the camera relative to the robot.
+     */
+    public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
+        camera = new PhotonCamera(name);
+        this.robotToCamera = robotToCamera;
     }
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
-        inputs.isCameraConnected = camera.isConnected();
-        inputs.cameraName = getCameraName();
-        visionResults.clear();
+        inputs.connected = camera.isConnected();
 
-        for(PhotonPipelineResult result : camera.getAllUnreadResults()) {
-            Optional<EstimatedRobotPose> estimatedPose = poseEstimator.update(result);
+        // Read new camera observations
+        Set<Short> tagIds = new HashSet<>();
+        List<PoseObservation> poseObservations = new LinkedList<>();
+        for (var result : camera.getAllUnreadResults()) {
+            // Update latest target observation
+            if (result.hasTargets()) {
+                inputs.latestTargetObservation = new TargetObservation(
+                    Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
+                    Rotation2d.fromDegrees(result.getBestTarget().getPitch())
+                );
+            } else {
+                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+            }
 
-            estimatedPose.ifPresent(estimate -> {
-                long tagsSeenBitMap = 0;
-                double averageAmbiguity = 0.0;
-                double averageTagDistance = 0.0;
+            // Add pose observation
+            if (result.multitagResult.isPresent()) { // Multitag result
+                var multitagResult = result.multitagResult.get();
 
-                for(int i = 0; i < estimate.targetsUsed.size(); i++) {
-                    tagsSeenBitMap |= 1L << estimate.targetsUsed.get(i).getFiducialId();
-                    averageAmbiguity += estimate.targetsUsed.get(i).getPoseAmbiguity();
-                    averageTagDistance += estimate.targetsUsed.get(i).getBestCameraToTarget().getTranslation().getNorm();
+                // Calculate robot pose
+                Transform3d fieldToCamera = multitagResult.estimatedPose.best;
+                Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
+                Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+
+                // Calculate average tag distance
+                double totalTagDistance = 0.0;
+                for (var target : result.targets) {
+                    totalTagDistance += target.bestCameraToTarget.getTranslation().getNorm();
                 }
 
-                averageAmbiguity /= estimate.targetsUsed.size();
-                averageTagDistance /= estimate.targetsUsed.size();
+                // Add tag IDs
+                tagIds.addAll(multitagResult.fiducialIDsUsed);
 
-                visionResults.add(new PhotonFiducialResult(
-                    result.getTargets().size(),
-                    averageAmbiguity, 
-                    estimate.estimatedPose, 
-                    averageTagDistance,
-                    result.multitagResult.isPresent() ? result.multitagResult.get().estimatedPose.bestReprojErr : 0.0,
-                    tagsSeenBitMap,
-                    result.getTimestampSeconds(),
-                    Timer.getFPGATimestamp() - result.getTimestampSeconds(),
-                    estimate.strategy == PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR ? PoseObservationType.MULTI_TAG : PoseObservationType.SINGLE_TAG
-                ));
-            });
+                // Add observation
+                poseObservations.add(new PoseObservation(
+                    result.getTimestampSeconds(), // Timestamp
+                    robotPose, // 3D pose estimate
+                    multitagResult.estimatedPose.ambiguity, // Ambiguity
+                    multitagResult.fiducialIDsUsed.size(), // Tag count
+                    totalTagDistance / result.targets.size(), // Average tag distance
+                    PoseObservationType.PHOTONVISION) // Observation type
+                );
+
+            } else if (!result.targets.isEmpty()) { // Single tag result
+                var target = result.targets.get(0);
+
+                // Calculate robot pose
+                var tagPose = VisionConstants.aprilTagLayout.getTagPose(target.fiducialId);
+                if (tagPose.isPresent()) {
+                    Transform3d fieldToTarget = new Transform3d(tagPose.get().getTranslation(), tagPose.get().getRotation());
+                    Transform3d cameraToTarget = target.bestCameraToTarget;
+                    Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
+                    Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
+                    Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+
+                    // Add tag ID
+                    tagIds.add((short) target.fiducialId);
+
+                    // Add observation
+                    poseObservations.add(new PoseObservation(
+                        result.getTimestampSeconds(), // Timestamp
+                        robotPose, // 3D pose estimate
+                        target.poseAmbiguity, // Ambiguity
+                        1, // Tag count
+                        cameraToTarget.getTranslation().getNorm(), // Average tag distance
+                        PoseObservationType.PHOTONVISION) // Observation type
+                    );
+                }
+            }
         }
 
-        inputs.visionPacket = visionResults.toArray(new PhotonFiducialResult[0]);
-    }
+        // Save pose observations to inputs object
+        inputs.poseObservations = new PoseObservation[poseObservations.size()];
+        for (int i = 0; i < poseObservations.size(); i++) {
+            inputs.poseObservations[i] = poseObservations.get(i);
+        }
 
-    @Override
-    public CameraLocation getCameraLocation() {
-        return cameraLocation;
-    }
-
-    @Override
-    public String getCameraName() {
-        return camera.getName();
+        // Save tag IDs to inputs objects
+        inputs.tagIds = new int[tagIds.size()];
+        int i = 0;
+        
+        for (int id : tagIds) {
+            inputs.tagIds[i++] = id;
+        }
     }
 }

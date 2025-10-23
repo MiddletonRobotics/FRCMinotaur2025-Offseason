@@ -3,30 +3,33 @@ package frc.robot.subsystems.vision;
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.minolib.vision.CameraConfiguration;
 import frc.minolib.vision.PhotonFiducialResult;
+import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
+import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.minolib.vision.CameraConfiguration.CameraLocation;
 
 public interface VisionIO {
     @AutoLog
-    public class VisionIOInputs {
-        public boolean isCameraConnected = false;
-        public String cameraName = "";
-        public PhotonFiducialResult[] visionPacket = new PhotonFiducialResult[0];
+    class VisionIOInputs {
+        public boolean connected = false;
+        public TargetObservation latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+        public PoseObservation[] poseObservations = new PoseObservation[0];
+        public int[] tagIds = new int[0];
     }
 
-    public default void updateInputs(VisionIOInputs inputs) {}
+    /** Represents the angle to a simple target, not used for pose estimation. */
+    record TargetObservation(Rotation2d tx, Rotation2d ty) {}
 
-    public default CameraLocation getCameraLocation() {
-        return CameraLocation.NONE;
+    /** Represents a robot pose sample used for pose estimation. */
+    record PoseObservation(double timestamp, Pose3d pose, double ambiguity, int tagCount, double averageTagDistance, PoseObservationType type) {}
+
+    enum PoseObservationType {
+        MEGATAG_1,
+        MEGATAG_2,
+        PHOTONVISION
     }
 
-    public default String getCameraName() {
-        return "";
-    }
-
-    public enum PoseObservationType {
-        SINGLE_TAG,
-        MULTI_TAG
-    }
+    default void updateInputs(VisionIOInputs inputs) {}
 }

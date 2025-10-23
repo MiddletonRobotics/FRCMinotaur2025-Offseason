@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import frc.minolib.vision.CameraConfiguration;
 import frc.robot.constants.VisionConstants;
 
@@ -21,51 +22,37 @@ import org.photonvision.simulation.VisionSystemSim;
  * is being used.
  */
 
-public class VisionIOSimulation extends VisionIOPhotonVision {
-    private static final double DIAGONAL_FOV = 96.0; // FOV in degrees
-    private static final int IMG_WIDTH = 1600; // image width in px
-    private static final int IMG_HEIGHT = 1200; // image heigh in px
+ public class VisionIOSimulation extends VisionIOPhotonVision {
+    private static VisionSystemSim visionSim;
 
-    private Supplier<Pose2d> poseSupplier;
-    private VisionSystemSim visionSim;
-    private PhotonCameraSim cameraSim;
+    private final Supplier<Pose2d> poseSupplier;
+    private final PhotonCameraSim cameraSim;
 
     /**
-     * Creates a new VisionIOSim object.
+     * Creates a new VisionIOPhotonVisionSim.
      *
-     * @param layout the AprilTag field layout
-     * @param poseSupplier a Pose2d supplier that returns the robot's pose based on its odometry
-     * @param robotToCamera the transform from the robot's center to the simulated camera
+     * @param name The name of the camera.
+     * @param poseSupplier Supplier for the robot pose to use in simulation.
      */
-
-    public VisionIOSimulation(CameraConfiguration cameraConfiguration, AprilTagFieldLayout layout, Supplier<Pose2d> poseSupplier) {
-        super(cameraConfiguration, layout);
-
+    public VisionIOSimulation(String name, Transform3d robotToCamera, Supplier<Pose2d> poseSupplier) {
+        super(name, robotToCamera);
         this.poseSupplier = poseSupplier;
 
-        this.visionSim = new VisionSystemSim(cameraConfiguration.getCameraName());
-        this.visionSim.addAprilTags(layout);
-        SimCameraProperties cameraProp = new SimCameraProperties();
-        cameraProp.setCalibration(IMG_WIDTH, IMG_HEIGHT, Rotation2d.fromDegrees(DIAGONAL_FOV));
-        cameraProp.setCalibError(VisionConstants.SIM_AVERAGE_ERROR_PIXELS, VisionConstants.SIM_ERROR_STD_DEV_PIXELS);
-        cameraProp.setFPS(15);
-        cameraProp.setAvgLatencyMs(100);
-        cameraProp.setLatencyStdDevMs(30);
+        // Initialize vision sim
+        if (visionSim == null) {
+            visionSim = new VisionSystemSim("main");
+            visionSim.addAprilTags(VisionConstants.aprilTagLayout);
+        }
 
-        this.cameraSim = new PhotonCameraSim(camera, cameraProp, layout);
-
-        visionSim.addCamera(cameraSim, cameraConfiguration.getTransformOffset());
+        // Add sim camera
+        var cameraProperties = new SimCameraProperties();
+        cameraSim = new PhotonCameraSim(camera, cameraProperties);
+        visionSim.addCamera(cameraSim, robotToCamera);
     }
-
-    /**
-     * Updates the specified VisionIOInputs object with the latest data from the camera.
-     *
-     * @param inputs the VisionIOInputs object to update with the latest data from the camera
-     */
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
-        this.visionSim.update(poseSupplier.get());
+        visionSim.update(poseSupplier.get());
         super.updateInputs(inputs);
     }
 }
