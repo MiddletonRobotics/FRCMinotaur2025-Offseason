@@ -31,6 +31,16 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE implements Subsyste
 
     }
 
+    @Override
+    public void updateInputs(DrivetrainIOInputsCollection inputs) {
+        super.updateInputs(inputs);
+
+        var pose = getPose();
+        if (pose != null) {
+            Logger.recordOutput("Drive/Viz/SimPose", getPose());
+        }
+    }
+
     public SwerveDriveSimulation getDrivetrainSimulation() {
         return mapleSimSwerveDrivetrain.mapleSimDrive;
     }
@@ -59,7 +69,6 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE implements Subsyste
         simulatioNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    @Override
     public Pose2d getPose() {
         return mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }

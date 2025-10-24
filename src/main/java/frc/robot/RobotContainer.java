@@ -16,6 +16,7 @@ import frc.robot.constants.DefaultRobotConfiguration;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
 import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
 import frc.robot.subsystems.drivetrain.DrivetrainIOSimulation;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.leds.LedIOCANdle;
@@ -41,7 +42,7 @@ public class RobotContainer {
     if(Robot.isSimulation()) {
       return new DrivetrainSubsystem(new DrivetrainIOSimulation(CompetitionTunerConstants.DrivetrainConstants, CompetitionTunerConstants.FrontLeft, CompetitionTunerConstants.FrontRight, CompetitionTunerConstants.BackLeft, CompetitionTunerConstants.BackRight));
     } else {
-      return new DrivetrainSubsystem(CompetitionTunerConstants.createDrivetrain());
+      return new DrivetrainSubsystem(new DrivetrainIOCTRE(CompetitionTunerConstants.DrivetrainConstants, CompetitionTunerConstants.FrontLeft, CompetitionTunerConstants.FrontRight, CompetitionTunerConstants.BackLeft, CompetitionTunerConstants.BackRight));
     }
   }
 
