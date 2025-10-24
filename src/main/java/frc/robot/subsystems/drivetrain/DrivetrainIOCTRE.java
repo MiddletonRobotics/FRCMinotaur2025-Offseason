@@ -118,6 +118,11 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
   private static final Voltage DRIVE_FRICTION_VOLTAGE = Volts.of(0.2);
   Distance h = Inches.of(kNumConfigAttempts);
 
+  private static final SwerveDrivetrainConstants drivetrainConstants = new SwerveDrivetrainConstants()
+    .withPigeon2Id(RobotConfiguration.getInstance().getGyroCANID())
+    .withCANBusName(RobotConfiguration.getInstance().getCANBusName())
+    .withPigeon2Configs(RobotConfiguration.getInstance().getPigeonConfigForSwerveDrivetrain());
+
   private static final SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> frontModulesConstantCreator =
     new SwerveModuleConstantsFactory<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>()
       .withDriveMotorInitialConfigs(new TalonFXConfiguration()
@@ -275,7 +280,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
 
   /** Creates a new Drivetrain subsystem. */
   public DrivetrainIOCTRE(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
-    super(TalonFX::new, TalonFX::new, CANcoder::new, drivetrainConstants, RobotConfiguration.getInstance().getOdometryUpdateFrequency(), frontLeft, frontRight, backLeft, backRight);
+    super(TalonFX::new, TalonFX::new, CANcoder::new, drivetrainConstants, RobotConfiguration.getInstance().getOdometryUpdateFrequency(), modules);
 
     this.centerOfRotation = new Translation2d(); // default to (0,0)
     this.targetChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
@@ -613,10 +618,5 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     } else {
       return ClosedLoopOutputType.Voltage;
     }
-  }
-
-  @Override
-  public Pose2d getPose() {
-    return getState().Pose; 
   }
 }

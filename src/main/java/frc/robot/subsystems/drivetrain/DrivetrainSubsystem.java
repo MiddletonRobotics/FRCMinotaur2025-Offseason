@@ -299,7 +299,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements MinoPoseEstima
    */
 
   public Pose2d getPose() {
-    return io.getPose();
+    return this.odometry.getEstimatedPose();
   }
 
   /**
