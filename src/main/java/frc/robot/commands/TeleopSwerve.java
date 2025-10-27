@@ -116,7 +116,7 @@ public class TeleopSwerve extends Command {
         if (this.driveFacingAngle) {
             drivetrain.driveFacingAngle(xVelocity, yVelocity, angleSupplier.get(), true);
         } else {
-            drivetrain.drive(xVelocity, yVelocity, rotationalVelocity, true, drivetrain.getFieldRelative());
+            drivetrain.drive(xVelocity, yVelocity, rotationalVelocity, false, drivetrain.getFieldRelative());
         }
     }
 

@@ -156,11 +156,11 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
             // Send vision observation
-            consumer.addVisionMeasurement(
-                observation.pose().toPose2d(),
-                observation.timestamp(),
-                VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev)
-            );
+            //consumer.addVisionMeasurement(
+            //    observation.pose().toPose2d(),
+            //    observation.timestamp(),
+            //    VecBuilder.fill(0.7, 0.7, Double.MAX_VALUE)
+            //);
         }
 
         // Log camera datadata

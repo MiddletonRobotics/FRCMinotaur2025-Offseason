@@ -25,9 +25,9 @@ public class VisionConstants {
         .withHeightOffset(Units.inchesToMeters(8))
         .withLengthOffset(Units.inchesToMeters(11.125))
         .withWidthOffset(Units.inchesToMeters(7.446))
-        .withMountingPitch(0)
+        .withMountingPitch(25) 
         .withMountingRoll(0)
-        .withMountingYaw(0)
+        .withMountingYaw(-0)
         .withCameraLocation(CameraLocation.FRONT_LEFT);
             
     public static final CameraConfiguration frontRightCameraConfiguration = new CameraConfiguration()
@@ -35,7 +35,7 @@ public class VisionConstants {
         .withHeightOffset(Units.inchesToMeters(8))
         .withLengthOffset(Units.inchesToMeters(11.125))
         .withWidthOffset(Units.inchesToMeters(-7.446))
-        .withMountingPitch(0)
+        .withMountingPitch(25)
         .withMountingRoll(0)
         .withMountingYaw(0)
         .withCameraLocation(CameraLocation.FRONT_RIGHT);
