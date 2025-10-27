@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.minolib.hardware.CANDeviceID;
 
@@ -41,5 +42,9 @@ public class GlobalConstants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static boolean isBlueAlliance() {
+      return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
   }
 }
