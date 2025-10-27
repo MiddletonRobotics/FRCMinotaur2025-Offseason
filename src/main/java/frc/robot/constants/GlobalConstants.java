@@ -32,6 +32,8 @@ public class GlobalConstants {
 
   public static final double kLoopPeriodSeconds = 0.02;
 
+  public static final double kControllerDeadband = 0.08;
+
 
   public static enum Mode {
     /** Running on a real robot. */
