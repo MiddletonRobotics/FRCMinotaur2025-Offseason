@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.minolib.RobotConfiguration;
-import frc.robot.commands.TeleopSwerve;
+import frc.robot.command_factories.DrivetrainFactory;
 import frc.robot.constants.DefaultRobotConfiguration;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
@@ -28,7 +28,6 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 public class RobotContainer {
   private RobotConfiguration robotConfiguration;
   private DrivetrainSubsystem drivetrain;
-  private TeleopSwerve driveCommand;
   private VisionSubsystem vision;
   private LedSubsystem ledSubsystem;
 
@@ -102,12 +101,16 @@ public class RobotContainer {
     drivetrain = buildDrivetrain();
     vision = buildVision();
     ledSubsystem = buildLedSubsystem();
-
-    driveCommand = new TeleopSwerve(drivetrain, controlboard::getThrottle, controlboard::getStrafe, controlboard::getRotation);
   }
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(driveCommand);
+    drivetrain.setDefaultCommand(DrivetrainFactory.handleTeleopDrive(
+      drivetrain, 
+      controlboard::getThrottle, 
+      controlboard::getStrafe, 
+      controlboard::getRotation, 
+      true
+    ));
   }
 
   public Command getAutonomousCommand() {
