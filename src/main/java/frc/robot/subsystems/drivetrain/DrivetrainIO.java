@@ -71,9 +71,15 @@ public interface DrivetrainIO extends SubsystemDataProcessor.IODataRefresher {
 
     public void updateModuleInputs(ModuleIOInputs... inputs);
 
+    public void setCenterOfRotation(Translation2d centerOfRotation);
+
+    public Translation2d getCenterOfRotation();
+
     public void setControl(SwerveRequest request);
 
     public void setBrakeMode(boolean enable);
+
+    public void setTargetChassisSpeeds(ChassisSpeeds targetChassisSpeeds);
 
     public default void updateSimulationState() {};
 

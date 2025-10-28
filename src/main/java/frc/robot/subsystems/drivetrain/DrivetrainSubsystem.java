@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
@@ -8,21 +10,32 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.minolib.localization.MinoRobotOdometry;
 import frc.minolib.swerve.MapleSimSwerveDrivetrain;
 import frc.minolib.swerve.PathPlannerLogging;
 import frc.minolib.utilities.SubsystemDataProcessor;
 import frc.minolib.vision.VisionPoseEstimate;
 import frc.minolib.wpilib.RobotTime;
+import frc.robot.constants.DrivetrainConstants;
+import frc.robot.constants.DrivetrainConstants.SysIDCharacterizationMode;
 import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
+
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
@@ -37,7 +50,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     private final Object moduleIOLock = new Object();
 
-    private final ApplyRobotSpeeds stopRequest = new ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private SwerveRequest.RobotCentric driveRobotCentricRequest = new SwerveRequest.RobotCentric();
+    private SwerveRequest.FieldCentric driveFieldCentricRequest = new SwerveRequest.FieldCentric();
+    private SwerveRequest.FieldCentricFacingAngle driveFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle();
+    private SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
+    private SwerveRequest.PointWheelsAt pointRequest = new SwerveRequest.PointWheelsAt();
     private final ApplyRobotSpeeds pathplannerAutoRequest = new ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity).withDesaturateWheelSpeeds(true);
 
     private RobotConfig robotConfiguration;
@@ -52,18 +69,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }, io);
 
         configurePathPlanner();
-    }
-
-    private ChassisSpeeds applyDeadband(ChassisSpeeds input) {
-        if (Math.hypot(input.vxMetersPerSecond, input.vyMetersPerSecond) < 0.05) {
-            input.vxMetersPerSecond = input.vyMetersPerSecond = 0.0;
-        }
-
-        if (Math.abs(input.omegaRadiansPerSecond) < 0.05) {
-            input.omegaRadiansPerSecond = 0.0;
-        }
-        
-        return input;
     }
 
     @Override
@@ -97,8 +102,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
             AutoBuilder.configure(
                 this::getPose,   // Supplier of current robot pose
                 this::resetOdometry,   // Consumer for seeding pose against auto
-                () -> inputs.measuredChassisSpeeds, // Supplier of current robot speeds
-                (speeds, feedforwards) -> applyRequest(() -> pathplannerAutoRequest.withSpeeds(speeds)),
+                this::getRobotRelativeChassisSpeeds, // Supplier of current robot speeds
+                (speeds, feedforwards) -> applyRobotChassisSpeeds(speeds, feedforwards.robotRelativeForcesX(), feedforwards.robotRelativeForcesY(), false),
                 new PPHolonomicDriveController(new PIDConstants(2.5, 0, 0), new PIDConstants(4, 0, 0)), //rotation
                 robotConfiguration,
                 () -> !GlobalConstants.isBlueAlliance(), //path flips for red/blue alliance
@@ -125,6 +130,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
         });
     }
 
+    public Pose2d getPose() {
+        return inputs.Pose;
+    }
+
+    public ChassisSpeeds getRobotRelativeChassisSpeeds() {
+        return inputs.measuredChassisSpeeds;
+    }
+
     public void resetOdometry(Pose2d pose) {
         io.resetOdometry(pose);
     }
@@ -135,6 +148,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return io.applyRequest(requestSupplier, this).withName("Swerve drive request");
+    }
+
+    public void applyRobotChassisSpeeds(ChassisSpeeds speeds, Force[] forcesX, Force[] forcesY, boolean isOpenLoop) {
+        if (isOpenLoop) {
+            this.setControl(this.pathplannerAutoRequest
+                .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+                .withSpeeds(speeds)
+                .withWheelForceFeedforwardsX(forcesX)
+                .withWheelForceFeedforwardsY(forcesY)
+                .withCenterOfRotation(io.getCenterOfRotation())
+            );
+        } else {
+            this.setControl(this.pathplannerAutoRequest
+                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+                .withSpeeds(speeds)
+                .withWheelForceFeedforwardsX(forcesX)
+                .withWheelForceFeedforwardsY(forcesY)
+                .withCenterOfRotation(io.getCenterOfRotation())
+            );
+        }
     }
 
     public void addVisionMeasurement(VisionPoseEstimate visionPoseEstimate) {
@@ -151,10 +186,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public void configureStandardDevsForEnabled() {
         setStateStdDevs(0.3, 0.3, 0.2);
-    }
-
-    public Pose2d getPose() {
-        return inputs.Pose;
     }
 
     public MapleSimSwerveDrivetrain getMapleSimDrive() {

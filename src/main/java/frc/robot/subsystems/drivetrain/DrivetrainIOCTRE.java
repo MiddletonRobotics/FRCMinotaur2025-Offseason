@@ -21,6 +21,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -39,6 +40,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     Map<Integer, HashMap<String, BaseStatusSignal>> signalsMap = new HashMap<>();
     private static final Executor brakeModeExecutor = Executors.newFixedThreadPool(1);
 
+    private Translation2d centerOfRotation;
     private ChassisSpeeds targetChassisSpeeds;
 
     public DrivetrainIOCTRE(SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>... moduleConstants) {
@@ -68,6 +70,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
         }
 
         this.targetChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+        this.centerOfRotation = new Translation2d(0, 0);
     }
 
     @Override
@@ -106,6 +109,11 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     }
 
     @Override
+    public Translation2d getCenterOfRotation() {
+        return centerOfRotation;
+    }
+
+    @Override
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier, Subsystem subsystemRequired) {
         return Commands.run(() -> this.setControl(requestSupplier.get()), subsystemRequired);
     }
@@ -127,6 +135,11 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     }
 
     @Override
+    public void setTargetChassisSpeeds(ChassisSpeeds targetChassisSpeeds) {
+        this.targetChassisSpeeds = targetChassisSpeeds;
+    }
+
+    @Override
     public void addVisionMeasurement(VisionPoseEstimate visionFieldPoseEstimate) {
         if (visionFieldPoseEstimate.getVisionMeasurementStdDevs() == null) {
             this.addVisionMeasurement(visionFieldPoseEstimate.getVisionRobotPoseMeters(), Utils.fpgaToCurrentTime(visionFieldPoseEstimate.getTimestampSeconds()));
@@ -145,6 +158,10 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
         this.setStateStdDevs(stateStdDevs);
     }
 
+    @Override
+    public void setCenterOfRotation(Translation2d centerOfRotation) {
+        this.centerOfRotation = centerOfRotation;
+    }
 
     @Override
     public void resetOdometry(Pose2d pose) {
