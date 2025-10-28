@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.logging.Logger;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -29,14 +31,13 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
     public DrivetrainIOSimulation(SwerveDrivetrainConstants driveTrainConstants, @SuppressWarnings("rawtypes") SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
 
-        // Rewrite the telemetry consumer with a consumer for sim
-        startSimThread();
+        updateSimulationState();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void registerTelemetryFunction(DrivetrainIOInputs inputs) {
-        this.registerTelemetry(state -> {
+        super.registerTelemetry(state -> {
             SwerveDriveState modifiedState = (SwerveDriveState) state;
 
             if(GlobalConstants.kUseMapleSim && mapleSimSwerveDrivetrain != null) {
@@ -48,7 +49,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
     }
 
     @SuppressWarnings("unchecked")
-    public void startSimThread() {
+    @Override
+    public void updateSimulationState() {
         if (GlobalConstants.kUseMapleSim) {
             mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
                 Seconds.of(kSimLoopPeriod),
@@ -58,9 +60,9 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
                 DCMotor.getKrakenX60(1),
                 DCMotor.getKrakenX60(1),
                 1.2,
-                getModuleLocations(),
-                getPigeon2(),
-                getModules(),
+                super.getModuleLocations(),
+                super.getPigeon2(),
+                super.getModules(),
                 CompetitionTunerConstants.FrontLeft,
                 CompetitionTunerConstants.FrontRight,
                 CompetitionTunerConstants.BackLeft,
@@ -91,6 +93,7 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
 
     @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
+        inputs.Pose = getMapleSimDrive().mapleSimDrive.getSimulatedDriveTrainPose();
         super.updateDrivetrainInputs(inputs);
     }
 

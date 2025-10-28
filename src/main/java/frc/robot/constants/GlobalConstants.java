@@ -2,7 +2,6 @@ package frc.robot.constants;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.minolib.hardware.CANDeviceID;
 
 public class GlobalConstants {
   public static final double kLowBatteryVoltage = 10.0;

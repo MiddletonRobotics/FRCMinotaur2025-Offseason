@@ -57,6 +57,30 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private SwerveRequest.PointWheelsAt pointRequest = new SwerveRequest.PointWheelsAt();
     private final ApplyRobotSpeeds pathplannerAutoRequest = new ApplyRobotSpeeds().withDriveRequestType(DriveRequestType.Velocity).withDesaturateWheelSpeeds(true);
 
+    public enum TeleopVelocityCoefficient {
+        NORMAL(1, 0.9),
+        SLOW(0.4, 0.6),
+        ELEVATOR_RAISED(0.2, 0.3);
+
+        private final double translationalVelocityCoefficient;
+        private final double rotationalVelocityCoefficient;
+
+        private TeleopVelocityCoefficient(double translationalVelocityCoefficient, double rotationalVelocityCoefficient) {
+            this.translationalVelocityCoefficient = translationalVelocityCoefficient;
+            this.rotationalVelocityCoefficient = rotationalVelocityCoefficient;
+        }
+
+        public double getTranslationalCoefficient() {
+            return translationalVelocityCoefficient;
+        }
+
+        public double getRotationalCoefficient() {
+            return rotationalVelocityCoefficient;
+        }
+    }
+
+    private TeleopVelocityCoefficient teleopVelocityCoefficient = TeleopVelocityCoefficient.NORMAL;
+
     private RobotConfig robotConfiguration;
 
     public DrivetrainSubsystem(DrivetrainIO io) {
@@ -68,7 +92,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             }
         }, io);
 
-        configurePathPlanner();
+        //configurePathPlanner();
     }
 
     @Override
@@ -92,8 +116,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Drivetrain/LatencyPeriodicSeconds", RobotTime.getTimestampSeconds() - timestamp);
         Logger.recordOutput("Drivetrain/CurrentCommand", (getCurrentCommand() == null) ? "Default" : getCurrentCommand().getName());
-
-        configurePathPlanner();
     }
 
     private void configurePathPlanner() {
@@ -114,19 +136,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-            Logger.recordOutput("PathPlanner/targetPose", pose);
+            Logger.recordOutput("PathPlanner/TargetPose", pose);
         });
 
         PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-            Logger.recordOutput("PathPlanner/currentPose", pose);
+            Logger.recordOutput("PathPlanner/CurrentPose", pose);
         });
 
         PathPlannerLogging.setLogActivePathCallback((activePath) -> {
-            Logger.recordOutput("PathPlanner/activePath", activePath.toArray(new Pose2d[0]));
+            Logger.recordOutput("PathPlanner/ActivePath", activePath.toArray(new Pose2d[0]));
         });
 
         PathPlannerLogging.setLogTargetChassisSpeedsCallback((chassisSpeeds) -> {
-            Logger.recordOutput("PathPlanner/targetChassisSpeeds", chassisSpeeds);
+            Logger.recordOutput("PathPlanner/TargetChassisSpeeds", chassisSpeeds);
         });
     }
 
@@ -140,6 +162,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public void resetOdometry(Pose2d pose) {
         io.resetOdometry(pose);
+    }
+
+    public void setTargetChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        io.setTargetChassisSpeeds(chassisSpeeds);
     }
 
     public void setControl(SwerveRequest request) {
@@ -186,6 +212,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public void configureStandardDevsForEnabled() {
         setStateStdDevs(0.3, 0.3, 0.2);
+    }
+
+    public TeleopVelocityCoefficient getTeleopVelocityCoefficent() {
+        return teleopVelocityCoefficient;
+    }
+
+    public void setTeleopVelocityCoefficient(TeleopVelocityCoefficient teleopVelocityCoefficient) {
+        this.teleopVelocityCoefficient = teleopVelocityCoefficient;
     }
 
     public MapleSimSwerveDrivetrain getMapleSimDrive() {

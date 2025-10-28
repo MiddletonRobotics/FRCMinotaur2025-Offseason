@@ -86,9 +86,8 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
         SwerveDriveState state = this.getStateCopy();
         state.Speeds = ChassisSpeeds.fromRobotRelativeSpeeds(state.Speeds, state.Pose.getRotation());
-        inputs.logState(state);
-
         inputs.referenceChassisSpeeds = new ChassisSpeeds(this.targetChassisSpeeds.vxMetersPerSecond, this.targetChassisSpeeds.vyMetersPerSecond, this.targetChassisSpeeds.omegaRadiansPerSecond);
+        inputs.logState(state);
     }
 
     @Override
@@ -115,7 +114,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
 
     @Override
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier, Subsystem subsystemRequired) {
-        return Commands.run(() -> this.setControl(requestSupplier.get()), subsystemRequired);
+        return Commands.run(() -> super.setControl(requestSupplier.get()), subsystemRequired);
     }
 
     @Override
@@ -127,7 +126,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     public void setBrakeMode(boolean enable) {
         // Change the neutral mode configuration in a separate thread since changing the configuration of a CTRE device may take a significant amount of time (~200 ms).
         brakeModeExecutor.execute(() -> {
-            for (SwerveModule<TalonFX, TalonFX, CANcoder> swerveModule : this.getModules()) {
+            for (SwerveModule<TalonFX, TalonFX, CANcoder> swerveModule : super.getModules()) {
                 swerveModule.getDriveMotor().setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.Coast, 0.25);
                 swerveModule.getSteerMotor().setNeutralMode(enable ? NeutralModeValue.Brake : NeutralModeValue.Coast, 0.25);
             }
