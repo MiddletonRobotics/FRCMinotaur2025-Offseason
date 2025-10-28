@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -17,7 +18,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
-import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.GlobalConstants;
 import frc.minolib.RobotConfiguration;
@@ -204,7 +205,6 @@ public class Robot extends LoggedRobot {
             String.format("*** Auto finished in %.2f secs ***", Timer.getTimestamp() - autoStart));
       } else {
         System.out.println(
-           
             String.format("*** Auto cancelled in %.2f secs ***", Timer.getTimestamp() - autoStart));
       }
 
@@ -281,4 +281,10 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+  @Override
+    public void simulationPeriodic() {
+        Logger.recordOutput("Simulation/CoralPoses", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+        Logger.recordOutput("Simulation/AlgaePoses", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+    }
 }
