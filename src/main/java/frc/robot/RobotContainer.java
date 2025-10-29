@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.command_factories.DrivetrainFactory;
-import frc.robot.constants.DefaultRobotConfiguration;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
 import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
