@@ -70,16 +70,23 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
 
     @Override
     public void resetOdometry(Pose2d pose) {
-        if (GlobalConstants.kUseMapleSim && mapleSimulatedSwerveDrivetrain != null) {
-            mapleSimulatedSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-            Timer.delay(0.05);
+        if (GlobalConstants.kUseMapleSim) {
+            if (mapleSimulatedSwerveDrivetrain != null) {
+                mapleSimulatedSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+                Timer.delay(0.05);
+            }
         }
         super.resetOdometry(pose);
     }
 
     @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
-        inputs.Pose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
+        if(GlobalConstants.kUseMapleSim) {
+            if (mapleSimulatedSwerveDrivetrain != null) {
+                inputs.Pose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
+            }
+        }
+        
         super.updateDrivetrainInputs(inputs);
     }
 
