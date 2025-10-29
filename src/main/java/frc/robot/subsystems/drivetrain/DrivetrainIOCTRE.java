@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.traits.CommonTalon;
@@ -28,10 +30,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.minolib.localization.VisionPoseEstimate;
 
-import frc.minolib.vision.VisionPoseEstimate;
-
-public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
+public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements DrivetrainIO {
     HashMap<String, BaseStatusSignal> frontLeftSignals = new HashMap<>();
     HashMap<String, BaseStatusSignal> frontRightSignals = new HashMap<>();
     HashMap<String, BaseStatusSignal> backLeftSignals = new HashMap<>();
@@ -43,9 +44,8 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     private Translation2d centerOfRotation;
     private ChassisSpeeds targetChassisSpeeds;
 
-    public DrivetrainIOCTRE(SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>... moduleConstants) {
+    public DrivetrainIOCTRE(SwerveDrivetrainConstants constants, @SuppressWarnings("unchecked") SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... moduleConstants) {
         super(TalonFX::new, TalonFX::new, CANcoder::new, constants, moduleConstants);
-        //this.resetRotation(FieldConstants.isBlueAlliance() ? Rotation2d.kZero : Rotation2d.k180deg);
 
         signalsMap.put(0, frontLeftSignals);
         signalsMap.put(1, frontRightSignals);
@@ -74,19 +74,10 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain implements DrivetrainIO {
     }
 
     @Override
-    public void registerTelemetryFunction(DrivetrainIOInputs inputs) {
-        this.registerTelemetry(state -> {
-            SwerveDriveState modifiedState = (SwerveDriveState) state;
-            modifiedState.Speeds = ChassisSpeeds.fromRobotRelativeSpeeds(((SwerveDriveState) state).Speeds, ((SwerveDriveState) state).Pose.getRotation());
-            inputs.logState(modifiedState);
-        });
-    }
-
-    @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
         SwerveDriveState state = this.getStateCopy();
         state.Speeds = ChassisSpeeds.fromRobotRelativeSpeeds(state.Speeds, state.Pose.getRotation());
-        inputs.referenceChassisSpeeds = new ChassisSpeeds(this.targetChassisSpeeds.vxMetersPerSecond, this.targetChassisSpeeds.vyMetersPerSecond, this.targetChassisSpeeds.omegaRadiansPerSecond);
+        inputs.referenceChassisSpeeds = targetChassisSpeeds;
         inputs.logState(state);
     }
 
