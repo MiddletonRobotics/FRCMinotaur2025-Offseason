@@ -40,7 +40,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.GlobalConstants;
-import frc.minolib.RobotConfiguration;
 import frc.minolib.advantagekit.LocalADStarAK;
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.hardware.MinoCANBus;
@@ -151,7 +150,7 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer = new RobotContainer();
-    canivoreBus = new MinoCANBus(RobotConfiguration.getInstance().getCANBusName());
+    canivoreBus = new MinoCANBus(GlobalConstants.kCanivoreName);
 
     PathfindingCommand.warmupCommand().schedule();
 

@@ -1,4 +1,4 @@
-package frc.minolib.vision;
+package frc.minolib.localization;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;

@@ -2,11 +2,19 @@ package frc.robot.command_factories;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.google.flatbuffers.Constants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,7 +30,7 @@ public class DrivetrainFactory {
     public static Command handleTeleopDrive(DrivetrainSubsystem drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier strafeSupplier, DoubleSupplier rotationSupplier, boolean isFieldRelative) {
         return Commands.run(() -> {
             ChassisSpeeds chassisSpeeds = calculateSpeedsBasedOnJoystickInputs(drivetrain, throttleSupplier, strafeSupplier, rotationSupplier);
-            drivetrain.setTargetChassisSpeeds(chassisSpeeds);
+            drivetrain.setTargetChassisSpeeds(chassisSpeeds); // Used only for logging
             
             if(isFieldRelative) {
                 drivetrain.setControl(driveFieldCentricRequest
@@ -51,8 +59,8 @@ public class DrivetrainFactory {
         
         angularMagnitude = Math.copySign(angularMagnitude * angularMagnitude, angularMagnitude);
 
-        double xVelocity = (GlobalConstants.isBlueAlliance() ? -xMagnitude * DrivetrainConstants.kDriveMaxSpeed : xMagnitude * DrivetrainConstants.kDriveMaxSpeed) * drivetrain.getTeleopVelocityCoefficent().getTranslationalCoefficient();
-        double yVelocity = (GlobalConstants.isBlueAlliance() ? -yMagnitude * DrivetrainConstants.kDriveMaxSpeed : yMagnitude * DrivetrainConstants.kDriveMaxSpeed) * drivetrain.getTeleopVelocityCoefficent().getTranslationalCoefficient();
+        double xVelocity = (GlobalConstants.isBlueAlliance() ? xMagnitude * DrivetrainConstants.kDriveMaxSpeed : -xMagnitude * DrivetrainConstants.kDriveMaxSpeed) * drivetrain.getTeleopVelocityCoefficent().getTranslationalCoefficient();
+        double yVelocity = (GlobalConstants.isBlueAlliance() ? yMagnitude * DrivetrainConstants.kDriveMaxSpeed : -yMagnitude * DrivetrainConstants.kDriveMaxSpeed) * drivetrain.getTeleopVelocityCoefficent().getTranslationalCoefficient();
         double angularVelocity = angularMagnitude * DrivetrainConstants.kDriveMaxAngularRate * drivetrain.getTeleopVelocityCoefficent().getRotationalCoefficient();
 
         Rotation2d skewCompensationFactor = Rotation2d.fromRadians(drivetrain.getRobotRelativeChassisSpeeds().omegaRadiansPerSecond * -0.03); //TODO: Some skew comp to be put in constants

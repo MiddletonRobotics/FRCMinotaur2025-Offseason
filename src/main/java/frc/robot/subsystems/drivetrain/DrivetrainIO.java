@@ -18,8 +18,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.minolib.localization.VisionPoseEstimate;
 import frc.minolib.utilities.SubsystemDataProcessor;
-import frc.minolib.vision.VisionPoseEstimate;
 
 public interface DrivetrainIO extends SubsystemDataProcessor.IODataRefresher {
     @AutoLog
@@ -64,8 +64,6 @@ public interface DrivetrainIO extends SubsystemDataProcessor.IODataRefresher {
         public double steerAppliedVoltage = 0.0;
         public double steerTemperatureCelsius = 0.0;
     }
-
-    public void registerTelemetryFunction(DrivetrainIOInputs inputs);
 
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs);
 

@@ -10,9 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-import frc.minolib.RobotConfiguration;
 import frc.robot.command_factories.DrivetrainFactory;
-import frc.robot.constants.DefaultRobotConfiguration;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
 import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
@@ -26,7 +24,6 @@ import frc.robot.subsystems.vision.VisionIOSimulation;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
-  private RobotConfiguration robotConfiguration;
   private DrivetrainSubsystem drivetrain;
   private VisionSubsystem vision;
   private LedSubsystem ledSubsystem;
@@ -86,8 +83,6 @@ public class RobotContainer {
   }
 
   public RobotContainer() {
-    robotConfiguration = new DefaultRobotConfiguration();
-
     configureControllers();
     configureSubsystems();
     configureBindings();

@@ -4,7 +4,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.logging.Logger;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -15,45 +16,30 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-
-import frc.minolib.swerve.MapleSimSwerveDrivetrain;
+import frc.minolib.swerve.MapleSimulatedSwerveDrivetrain;
 import frc.robot.constants.GlobalConstants;
 
 public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
 
-    private static final double kSimLoopPeriod = 0.005; // 5 ms
-    private Notifier simNotifier = null;
-    private double lastSimTime;
-    public MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
+    private static final double kSimulationLoopPeriod = 0.005; // 5 ms
+    private Notifier simulatioNotifier = null;
+    private double lastSimulationTime;
+    public MapleSimulatedSwerveDrivetrain mapleSimulatedSwerveDrivetrain = null;
 
     Pose2d lastConsumedPose = null;
 
-    public DrivetrainIOSimulation(SwerveDrivetrainConstants driveTrainConstants, @SuppressWarnings("rawtypes") SwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
+    public DrivetrainIOSimulation(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
+        super(driveTrainConstants, MapleSimulatedSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
 
         updateSimulationState();
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void registerTelemetryFunction(DrivetrainIOInputs inputs) {
-        super.registerTelemetry(state -> {
-            SwerveDriveState modifiedState = (SwerveDriveState) state;
-
-            if(GlobalConstants.kUseMapleSim && mapleSimSwerveDrivetrain != null) {
-                modifiedState.Pose = getMapleSimDrive().mapleSimDrive.getSimulatedDriveTrainPose();
-            }
-
-            inputs.logState(modifiedState);
-        });
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public void updateSimulationState() {
         if (GlobalConstants.kUseMapleSim) {
-            mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
-                Seconds.of(kSimLoopPeriod),
+            mapleSimulatedSwerveDrivetrain = new MapleSimulatedSwerveDrivetrain(
+                Seconds.of(kSimulationLoopPeriod),
                 Pounds.of(140),
                 Inches.of(34),
                 Inches.of(34),
@@ -69,35 +55,50 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
                 CompetitionTunerConstants.BackRight
             );
 
-            simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
+            simulatioNotifier = new Notifier(mapleSimulatedSwerveDrivetrain::update);
         } else {
-            lastSimTime = Utils.getCurrentTimeSeconds();
-            simNotifier = new Notifier(() -> {
+            lastSimulationTime = Utils.getCurrentTimeSeconds();
+            simulatioNotifier = new Notifier(() -> {
                 final double currentTime = Utils.getCurrentTimeSeconds();
-                double deltaTime = currentTime - lastSimTime;
-                lastSimTime = currentTime;
+                double deltaTime = currentTime - lastSimulationTime;
+                lastSimulationTime = currentTime;
                 updateSimState(deltaTime, RobotController.getBatteryVoltage());
             });
         }
 
-        simNotifier.startPeriodic(kSimLoopPeriod);
+        simulatioNotifier.startPeriodic(kSimulationLoopPeriod);
     }
 
+    @Override
     public void resetOdometry(Pose2d pose) {
-        if (GlobalConstants.kUseMapleSim && mapleSimSwerveDrivetrain != null) {
-            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-            Timer.delay(0.05);
+        if (GlobalConstants.kUseMapleSim) {
+            if (mapleSimulatedSwerveDrivetrain != null) {
+                mapleSimulatedSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+                Timer.delay(0.05);
+            }
         }
+        
         super.resetOdometry(pose);
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimulatedSwerveDrivetrain != null ? lastConsumedPose : null;
     }
 
     @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
-        inputs.Pose = getMapleSimDrive().mapleSimDrive.getSimulatedDriveTrainPose();
+        if(GlobalConstants.kUseMapleSim) {
+            if (mapleSimulatedSwerveDrivetrain != null) {
+                inputs.Pose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
+                lastConsumedPose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
+            }
+        }
+        
         super.updateDrivetrainInputs(inputs);
+        Logger.recordOutput("Drivetrain/SimulatedPose", lastConsumedPose);
     }
 
-    public MapleSimSwerveDrivetrain getMapleSimDrive() {
-        return mapleSimSwerveDrivetrain;
+    public SwerveDriveSimulation getMapleSimulatedDrivetrain() {
+        return mapleSimulatedSwerveDrivetrain.mapleSimDrive;
     }
 }
