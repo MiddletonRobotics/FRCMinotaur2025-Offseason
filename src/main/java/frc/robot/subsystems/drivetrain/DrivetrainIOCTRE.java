@@ -44,7 +44,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     private Translation2d centerOfRotation;
     private ChassisSpeeds targetChassisSpeeds;
 
-    public DrivetrainIOCTRE(SwerveDrivetrainConstants constants, @SuppressWarnings("unchecked") SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... moduleConstants) {
+    public DrivetrainIOCTRE(SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>... moduleConstants) {
         super(TalonFX::new, TalonFX::new, CANcoder::new, constants, moduleConstants);
 
         signalsMap.put(0, frontLeftSignals);

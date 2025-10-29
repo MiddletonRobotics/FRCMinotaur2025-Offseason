@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -27,8 +28,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
 
     Pose2d lastConsumedPose = null;
 
-    public DrivetrainIOSimulation(SwerveDrivetrainConstants driveTrainConstants, @SuppressWarnings("rawtypes") SwerveModuleConstants... modules) {
-        super(driveTrainConstants, modules);
+    public DrivetrainIOSimulation(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
+        super(driveTrainConstants, MapleSimulatedSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
 
         updateSimulationState();
     }
@@ -76,7 +77,12 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
                 Timer.delay(0.05);
             }
         }
+        
         super.resetOdometry(pose);
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimulatedSwerveDrivetrain != null ? lastConsumedPose : null;
     }
 
     @Override
@@ -84,10 +90,12 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
         if(GlobalConstants.kUseMapleSim) {
             if (mapleSimulatedSwerveDrivetrain != null) {
                 inputs.Pose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
+                lastConsumedPose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
             }
         }
         
         super.updateDrivetrainInputs(inputs);
+        Logger.recordOutput("Drivetrain/SimulatedPose", lastConsumedPose);
     }
 
     public SwerveDriveSimulation getMapleSimulatedDrivetrain() {
