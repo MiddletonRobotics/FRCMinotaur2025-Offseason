@@ -19,10 +19,8 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.minolib.RobotConfiguration;
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.advantagekit.LoggedTunableNumber;
-import frc.minolib.localization.MinoRobotOdometry;
 import frc.minolib.vision.PhotonFiducialResult;
 import frc.robot.RobotContainer;
 import frc.robot.constants.FieldConstants;

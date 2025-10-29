@@ -19,11 +19,13 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -42,7 +44,7 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController;
  * <p>It replaces the {@link com.ctre.phoenix6.swerve.SimSwerveDrivetrain} class.
  */
 
-public class MapleSimSwerveDrivetrain {
+public class MapleSimulatedSwerveDrivetrain {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
     public final SwerveDriveSimulation mapleSimDrive;
@@ -63,7 +65,7 @@ public class MapleSimSwerveDrivetrain {
      * @param moduleConstants the constants for the swerve modules
      */
     
-    public MapleSimSwerveDrivetrain(
+    public MapleSimulatedSwerveDrivetrain(
         Time simPeriod,
         Mass robotMassWithBumpers,
         Distance bumperLengthX,
