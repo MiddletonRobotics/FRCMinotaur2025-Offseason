@@ -24,7 +24,7 @@ public class XboxDriverController implements DriverControllerIO {
 
     private XboxDriverController() {
         if(Robot.isSimulation()) {
-            controller = new CommandSimulatedXboxController(ControllerConstants.kDriverControllerPort);
+            controller = new CommandXboxController(ControllerConstants.kDriverControllerPort);
         } else {
             controller = new CommandXboxController(ControllerConstants.kDriverControllerPort);
         }
