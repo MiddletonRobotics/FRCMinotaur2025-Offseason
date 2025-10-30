@@ -17,7 +17,7 @@ public class GlobalConstants {
 
   public static final boolean kTuningMode = false;
   public static final boolean kDemoMode = false;
-  public static final boolean kUseMapleSim = false;
+  public static final boolean kUseMapleSim = true;
 
   public static final Mode kRealMode = Mode.REAL;
   public static final Mode kSimMode = Mode.SIM;
