@@ -58,7 +58,7 @@ public class DrivetrainFactory {
     }
 
     public static Command driveToPoint(DrivetrainSubsystem drivetrain, Pose2d desiredPoseForDriveToPoint, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity) {
-        return Commands.runEnd(() -> {
+        return Commands.run(() -> {
             Translation2d translationToDesiredPoint = desiredPoseForDriveToPoint.getTranslation().minus(drivetrain.getPose().getTranslation());
             double linearDistance = translationToDesiredPoint.getNorm();
             double frictionConstant = 0.0;
@@ -106,9 +106,7 @@ public class DrivetrainFactory {
                     .withMaxAbsRotationalRate(constraintedMaximumAngularVelocity)
                 );
             }
-        }, () -> {
-            
-        }, drivetrain);
+        }, drivetrain).until(() -> drivetrain.isAtDriveToPointSetpoint(desiredPoseForDriveToPoint));
     }
 
 
