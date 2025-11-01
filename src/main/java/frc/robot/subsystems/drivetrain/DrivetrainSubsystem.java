@@ -23,6 +23,7 @@ import frc.minolib.localization.VisionPoseEstimate;
 import frc.minolib.swerve.pathplanner.PathPlannerLogging;
 import frc.minolib.utilities.SubsystemDataProcessor;
 import frc.minolib.wpilib.RobotTime;
+import frc.robot.Robot;
 import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
@@ -78,6 +79,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 io.updateModuleInputs(frontLeftInputs, frontRightInputs, backLeftInputs, backRightInputs);
             }
         }, io);
+
+        if (Robot.isSimulation()) {
+            resetOdometry(new Pose2d(6.77, 4.2, Rotation2d.fromDegrees(0)));
+        }
 
         //configurePathPlanner();
     }
