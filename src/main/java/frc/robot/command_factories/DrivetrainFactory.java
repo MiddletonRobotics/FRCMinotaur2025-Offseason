@@ -24,17 +24,14 @@ import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.ReefConstants;
+import frc.robot.constants.FieldConstants.Reef;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class DrivetrainFactory {
-    private static SwerveRequest.RobotCentric driveRobotCentricRequest = new SwerveRequest.RobotCentric();
-    private static SwerveRequest.FieldCentric driveFieldCentricRequest = new SwerveRequest.FieldCentric();
-    private static SwerveRequest.FieldCentricFacingAngle driveFieldFacingAngle = new SwerveRequest.FieldCentricFacingAngle()
-        .withDriveRequestType(DriveRequestType.Velocity);
-
     private static final PIDController autonomousDriveToPointController = new PIDController(3.0, 0, 0.1);
     private static final PIDController teleopDriveToPointController = new PIDController(3.6, 0, 0.1);
+    private static final PIDController rotationController = new PIDController(6, 0, 0.1);
 
     public static Command handleTeleopDrive(DrivetrainSubsystem drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier strafeSupplier, DoubleSupplier rotationSupplier, boolean isFieldRelative) {
         return Commands.run(() -> {
@@ -42,13 +39,13 @@ public class DrivetrainFactory {
             drivetrain.setTargetChassisSpeeds(chassisSpeeds); // Used only for logging
             
             if(isFieldRelative) {
-                drivetrain.setControl(driveFieldCentricRequest
+                drivetrain.setControl(new SwerveRequest.FieldCentric()
                     .withVelocityX(chassisSpeeds.vxMetersPerSecond)
                     .withVelocityY(chassisSpeeds.vyMetersPerSecond)
                     .withRotationalRate(chassisSpeeds.omegaRadiansPerSecond)
                 );
             } else {
-                drivetrain.setControl(driveRobotCentricRequest
+                drivetrain.setControl(new SwerveRequest.RobotCentric()
                     .withVelocityX(chassisSpeeds.vxMetersPerSecond)
                     .withVelocityY(chassisSpeeds.vyMetersPerSecond)
                     .withRotationalRate(chassisSpeeds.omegaRadiansPerSecond)
@@ -57,7 +54,9 @@ public class DrivetrainFactory {
         }, drivetrain);
     }
 
-    public static Command driveToPoint(DrivetrainSubsystem drivetrain, Pose2d desiredPoseForDriveToPoint, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity) {
+    public static Command driveToPoint(DrivetrainSubsystem drivetrain, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity, boolean isLeft) {
+        Pose2d desiredPoseForDriveToPoint = drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS);
+
         return Commands.run(() -> {
             Translation2d translationToDesiredPoint = desiredPoseForDriveToPoint.getTranslation().minus(drivetrain.getPose().getTranslation());
             double linearDistance = translationToDesiredPoint.getNorm();
@@ -69,6 +68,11 @@ public class DrivetrainFactory {
 
             Rotation2d directionOfTravel = translationToDesiredPoint.getAngle();
             double velocityOutput = 0.0;
+
+            double currentHeading = drivetrain.getPose().getRotation().getRadians();
+            double targetHeading = desiredPoseForDriveToPoint.getRotation().getRadians();
+
+            double angularVelocity = rotationController.calculate(currentHeading, targetHeading);
 
             if (DriverStation.isAutonomous()) {
                 velocityOutput = Math.min(
@@ -93,20 +97,23 @@ public class DrivetrainFactory {
             Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/desiredPoint", desiredPoseForDriveToPoint);
 
             if (Double.isNaN(constraintedMaximumAngularVelocity)) {
-                drivetrain.setControl(driveFieldFacingAngle
+                drivetrain.setControl(new SwerveRequest.FieldCentric()
                     .withVelocityX(xComponent)
                     .withVelocityY(yComponent)
-                    .withTargetDirection(desiredPoseForDriveToPoint.getRotation())
+                    .withRotationalRate(angularVelocity)
+                    .withDriveRequestType(DriveRequestType.Velocity)
                 );
             } else {
-                drivetrain.setControl(driveFieldFacingAngle
+                angularVelocity = MathUtil.clamp(angularVelocity, -constraintedMaximumAngularVelocity, constraintedMaximumAngularVelocity);
+
+                drivetrain.setControl(new SwerveRequest.FieldCentric()
                     .withVelocityX(xComponent)
                     .withVelocityY(yComponent)
-                    .withTargetDirection(desiredPoseForDriveToPoint.getRotation())
-                    .withMaxAbsRotationalRate(constraintedMaximumAngularVelocity)
+                    .withRotationalRate(angularVelocity)
+                    .withDriveRequestType(DriveRequestType.Velocity)
                 );
             }
-        }, drivetrain).until(() -> drivetrain.isAtDriveToPointSetpoint(desiredPoseForDriveToPoint));
+        }, drivetrain).until(() -> MathUtil.isNear(0.0, desiredPoseForDriveToPoint.getTranslation().getNorm(), Units.inchesToMeters(1))).withName("DriveToPoint");
     }
 
 
