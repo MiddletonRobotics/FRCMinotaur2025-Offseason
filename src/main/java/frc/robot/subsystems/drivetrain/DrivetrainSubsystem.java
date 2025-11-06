@@ -12,9 +12,11 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +30,7 @@ import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class DrivetrainSubsystem extends SubsystemBase {
@@ -66,6 +69,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
             return rotationalVelocityCoefficient;
         }
     }
+
+    private Pose2d driveToPointPose = new Pose2d(0,0, Rotation2d.fromDegrees(0));
 
     private TeleopVelocityCoefficient teleopVelocityCoefficient = TeleopVelocityCoefficient.NORMAL;
 
@@ -145,7 +150,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return inputs.Pose;
+        //if(Robot.isSimulation()) {
+        //    return getMapleSimDrive().getSimulatedDriveTrainPose();
+        //} else {
+            return inputs.Pose;
+        //}
+    }
+
+    public Pose2d closestPose(List<Pose2d> poses) {
+        return getPose().nearest(poses);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {

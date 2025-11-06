@@ -134,7 +134,7 @@ public class ReefConstants {
             new Pose2d(3.280, 3.860, Rotation2d.fromDegrees(0)), // 18 Right DONE
             new Pose2d(3.740, 5.000, Rotation2d.fromDegrees(300)), // 19 Right DONE
             new Pose2d(4.950, 5.160, Rotation2d.fromDegrees(240)), // 20 Right DONE
-            new Pose2d(5.700, 4.175, Rotation2d.fromDegrees(180)), // 21 Right DONE
+            new Pose2d(5.80, 4.1, Rotation2d.fromDegrees(180)), // 21 Right DONE
             new Pose2d(5.245, 3.060, Rotation2d.fromDegrees(120)) // 22 Right DONE
         )
     );
