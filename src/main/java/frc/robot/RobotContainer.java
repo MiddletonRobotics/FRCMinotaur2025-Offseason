@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.command_factories.DrivetrainFactory;
+import frc.robot.constants.ReefConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
 import frc.robot.subsystems.drivetrain.DrivetrainIOSimulation;
@@ -26,7 +28,6 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 public class RobotContainer {
   private DrivetrainSubsystem drivetrain;
   private VisionSubsystem vision;
-  private LedSubsystem ledSubsystem;
 
   private CommandXboxController driverController;
   private Controlboard controlboard;
@@ -66,14 +67,6 @@ public class RobotContainer {
     return vision;
   }
 
-  public LedSubsystem buildLedSubsystem() {
-    return new LedSubsystem(new LedIOCANdle());
-  }
-
-  public LedSubsystem getLedSubsystem() {
-    return ledSubsystem;
-  }
-
   public Controlboard buildControlboad() {
     return Controlboard.getInstance();
   }
@@ -95,7 +88,6 @@ public class RobotContainer {
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
     vision = buildVision();
-    ledSubsystem = buildLedSubsystem();
   }
 
   private void configureBindings() {
@@ -106,6 +98,9 @@ public class RobotContainer {
       controlboard::getRotation, 
       true
     ));
+
+    controlboard.scoreBarge().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, true));
+    controlboard.reefIntakeAlgae().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, false));
   }
 
   public Command getAutonomousCommand() {
