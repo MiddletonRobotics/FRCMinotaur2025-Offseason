@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.google.flatbuffers.Constants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -55,6 +56,8 @@ public class DrivetrainFactory {
     }
 
     public static Command driveToPoint(DrivetrainSubsystem drivetrain, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity, boolean isLeft) {
+        rotationController.enableContinuousInput(-Math.PI, Math.PI);
+        
         return Commands.run(() -> {
             Pose2d desiredPoseForDriveToPoint = drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS);
 
