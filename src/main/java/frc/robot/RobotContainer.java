@@ -99,8 +99,8 @@ public class RobotContainer {
       true
     ));
 
-    controlboard.scoreBarge().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, true));
-    controlboard.reefIntakeAlgae().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, false));
+    controlboard.autoAlignLeft().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, true));
+    controlboard.autoAlignRight().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, false));
   }
 
   public Command getAutonomousCommand() {
