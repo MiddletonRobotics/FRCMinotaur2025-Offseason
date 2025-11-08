@@ -43,8 +43,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
             mapleSimulatedSwerveDrivetrain = new MapleSimulatedSwerveDrivetrain(
                 Seconds.of(kSimulationLoopPeriod),
                 Pounds.of(140),
-                Inches.of(34),
-                Inches.of(34),
+                Inches.of(31),
+                Inches.of(31),
                 DCMotor.getKrakenX60(1),
                 DCMotor.getKrakenX60(1),
                 1.2,
@@ -57,7 +57,7 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
                 CompetitionTunerConstants.BackRight
             );
 
-            simulatioNotifier = new Notifier(mapleSimulatedSwerveDrivetrain::update);
+            simulatioNotifier = new Notifier(mapleSimulatedSwerveDrivetrain::update); 
         } else {
             lastSimulationTime = Utils.getCurrentTimeSeconds();
             simulatioNotifier = new Notifier(() -> {

@@ -150,11 +150,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        //if(Robot.isSimulation()) {
-        //    return getMapleSimDrive().getSimulatedDriveTrainPose();
-        //} else {
+        if(Robot.isSimulation()) {
+            return getMapleSimDrive().getSimulatedDriveTrainPose();
+        } else {
             return inputs.Pose;
-        //}
+        }
     }
 
     public Pose2d closestPose(List<Pose2d> poses) {
