@@ -55,9 +55,9 @@ public class DrivetrainFactory {
     }
 
     public static Command driveToPoint(DrivetrainSubsystem drivetrain, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity, boolean isLeft) {
-        Pose2d desiredPoseForDriveToPoint = drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS);
-
         return Commands.run(() -> {
+            Pose2d desiredPoseForDriveToPoint = drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS);
+
             Translation2d translationToDesiredPoint = desiredPoseForDriveToPoint.getTranslation().minus(drivetrain.getPose().getTranslation());
             double linearDistance = translationToDesiredPoint.getNorm();
             double frictionConstant = 0.0;
@@ -113,7 +113,7 @@ public class DrivetrainFactory {
                     .withDriveRequestType(DriveRequestType.Velocity)
                 );
             }
-        }, drivetrain).until(() -> MathUtil.isNear(0.0, desiredPoseForDriveToPoint.getTranslation().getNorm(), Units.inchesToMeters(1))).withName("DriveToPoint");
+        }, drivetrain).until(() -> MathUtil.isNear(0.0, drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS).getTranslation().getNorm() - drivetrain.getPose().getTranslation().getNorm(), Units.inchesToMeters(1))).withName("DriveToPoint");
     }
 
 

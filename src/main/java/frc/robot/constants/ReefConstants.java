@@ -122,9 +122,9 @@ public class ReefConstants {
             new Pose2d(3.740, 3.060, Rotation2d.fromDegrees(60)), // 17 Left / DONE
             new Pose2d(3.280, 4.175, Rotation2d.fromDegrees(0)), // 18 Left DONE
             new Pose2d(4.020, 5.160, Rotation2d.fromDegrees(300)), // 19 Left DONE
-            new Pose2d(5.245, 5.000, Rotation2d.fromDegrees(240)), // 20 Left DONE
-            new Pose2d(5.700, 3.860, Rotation2d.fromDegrees(180)), // 21 Left
-            new Pose2d(4.950, 2.900, Rotation2d.fromDegrees(120)) // 22 Left DONE
+            new Pose2d(4.950, 5.160, Rotation2d.fromDegrees(240)), // 20 Left DONE
+            new Pose2d(5.700, 4.175, Rotation2d.fromDegrees(180)), // 21 Left
+            new Pose2d(5.245, 3.060, Rotation2d.fromDegrees(120)) // 22 Left DONE
         )       
     );
 
@@ -133,9 +133,9 @@ public class ReefConstants {
             new Pose2d(4.020, 2.900, Rotation2d.fromDegrees(60)), // 17 Right DONE
             new Pose2d(3.280, 3.860, Rotation2d.fromDegrees(0)), // 18 Right DONE
             new Pose2d(3.740, 5.000, Rotation2d.fromDegrees(300)), // 19 Right DONE
-            new Pose2d(4.950, 5.160, Rotation2d.fromDegrees(240)), // 20 Right DONE
-            new Pose2d(5.80, 4.1, Rotation2d.fromDegrees(180)), // 21 Right DONE
-            new Pose2d(5.245, 3.060, Rotation2d.fromDegrees(120)) // 22 Right DONE
+            new Pose2d(5.245, 5.000, Rotation2d.fromDegrees(240)), // 20 Right DONE
+            new Pose2d(5.700, 3.860, Rotation2d.fromDegrees(180)), // 21 Right DONE
+            new Pose2d(4.950, 2.900, Rotation2d.fromDegrees(120)) // 22 Right DONE
         )
     );
 }
