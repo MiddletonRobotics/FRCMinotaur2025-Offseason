@@ -99,8 +99,8 @@ public class RobotContainer {
       true
     ));
 
-    controlboard.autoAlignLeft().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, true));
-    controlboard.autoAlignRight().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 2.5, Double.NaN, false));
+    controlboard.autoAlignLeft().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 3, 6, true));
+    controlboard.autoAlignRight().onTrue(DrivetrainFactory.driveToPoint(drivetrain, 3, 6, false));
   }
 
   public Command getAutonomousCommand() {

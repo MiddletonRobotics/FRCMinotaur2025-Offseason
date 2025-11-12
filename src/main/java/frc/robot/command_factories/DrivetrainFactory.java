@@ -30,8 +30,8 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class DrivetrainFactory {
-    private static final PIDController autonomousDriveToPointController = new PIDController(3.0, 0, 0.1);
-    private static final PIDController teleopDriveToPointController = new PIDController(3.6, 0, 0.1);
+    private static final PIDController autonomousDriveToPointController = new PIDController(0.5, 0, 0.1);
+    private static final PIDController teleopDriveToPointController = new PIDController(1.5, 0, 0.1);
     private static final PIDController rotationController = new PIDController(6, 0, 0.1);
 
     public static Command handleTeleopDrive(DrivetrainSubsystem drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier strafeSupplier, DoubleSupplier rotationSupplier, boolean isFieldRelative) {
