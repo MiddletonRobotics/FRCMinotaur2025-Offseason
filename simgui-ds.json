@@ -92,10 +92,12 @@
   "robotJoysticks": [
     {
       "guid": "78696e70757401000000000000000000",
+      "name": "Elite",
       "useGamepad": true
     },
     {
-      "guid": "Keyboard1"
+      "name": "Regular",
+      "useGamepad": true
     }
   ]
 }

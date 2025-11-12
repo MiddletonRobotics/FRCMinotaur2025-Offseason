@@ -7,6 +7,8 @@
 
 package frc.robot.constants;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import java.util.ArrayList;
@@ -19,6 +21,13 @@ import java.util.Map;
  * have a blue alliance origin.
  */
 public class FieldConstants {
+    public static final AprilTagFieldLayout FIELD_LAYOUT;
+
+    static {
+        FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+        FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+    }
+    
   public static final double fieldLength = Units.inchesToMeters(690.876);
   public static final double fieldWidth = Units.inchesToMeters(317);
   public static final double startingLineX =

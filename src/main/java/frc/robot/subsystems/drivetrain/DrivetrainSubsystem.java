@@ -12,9 +12,11 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,10 +25,12 @@ import frc.minolib.localization.VisionPoseEstimate;
 import frc.minolib.swerve.pathplanner.PathPlannerLogging;
 import frc.minolib.utilities.SubsystemDataProcessor;
 import frc.minolib.wpilib.RobotTime;
+import frc.robot.Robot;
 import frc.robot.constants.GlobalConstants;
 
 import org.littletonrobotics.junction.Logger;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class DrivetrainSubsystem extends SubsystemBase {
@@ -66,6 +70,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
     }
 
+    private Pose2d driveToPointPose = new Pose2d(0,0, Rotation2d.fromDegrees(0));
+
     private TeleopVelocityCoefficient teleopVelocityCoefficient = TeleopVelocityCoefficient.NORMAL;
 
     private RobotConfig robotConfiguration;
@@ -78,6 +84,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 io.updateModuleInputs(frontLeftInputs, frontRightInputs, backLeftInputs, backRightInputs);
             }
         }, io);
+
+        if (Robot.isSimulation()) {
+            resetOdometry(new Pose2d(6.77, 4.2, Rotation2d.fromDegrees(0)));
+        }
 
         //configurePathPlanner();
     }
@@ -140,7 +150,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return inputs.Pose;
+        if(Robot.isSimulation()) {
+            return getMapleSimDrive().getSimulatedDriveTrainPose();
+        } else {
+            return inputs.Pose;
+        }
+    }
+
+    public Pose2d closestPose(List<Pose2d> poses) {
+        return getPose().nearest(poses);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {

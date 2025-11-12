@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Seconds;
 
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+
 import frc.minolib.swerve.MapleSimulatedSwerveDrivetrain;
 import frc.robot.constants.GlobalConstants;
 
@@ -41,8 +43,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
             mapleSimulatedSwerveDrivetrain = new MapleSimulatedSwerveDrivetrain(
                 Seconds.of(kSimulationLoopPeriod),
                 Pounds.of(140),
-                Inches.of(34),
-                Inches.of(34),
+                Inches.of(31),
+                Inches.of(31),
                 DCMotor.getKrakenX60(1),
                 DCMotor.getKrakenX60(1),
                 1.2,
@@ -55,7 +57,7 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
                 CompetitionTunerConstants.BackRight
             );
 
-            simulatioNotifier = new Notifier(mapleSimulatedSwerveDrivetrain::update);
+            simulatioNotifier = new Notifier(mapleSimulatedSwerveDrivetrain::update); 
         } else {
             lastSimulationTime = Utils.getCurrentTimeSeconds();
             simulatioNotifier = new Notifier(() -> {
@@ -73,8 +75,8 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
     public void resetOdometry(Pose2d pose) {
         if (GlobalConstants.kUseMapleSim) {
             if (mapleSimulatedSwerveDrivetrain != null) {
-                mapleSimulatedSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-                Timer.delay(0.05);
+                getMapleSimulatedDrivetrain().setSimulationWorldPose(pose);
+                Timer.delay(0.1);
             }
         }
         
@@ -89,7 +91,6 @@ public class DrivetrainIOSimulation extends DrivetrainIOCTRE {
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
         if(GlobalConstants.kUseMapleSim) {
             if (mapleSimulatedSwerveDrivetrain != null) {
-                inputs.Pose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
                 lastConsumedPose = getMapleSimulatedDrivetrain().getSimulatedDriveTrainPose();
             }
         }
