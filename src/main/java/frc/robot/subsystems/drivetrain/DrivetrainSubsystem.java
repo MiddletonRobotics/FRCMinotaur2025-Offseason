@@ -162,7 +162,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
-        return inputs.measuredChassisSpeeds;
+        return inputs.measuredRobotRelativeChassisSpeeds;
+    }
+
+    public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+        return inputs.measuredFieldRelativeChassisSpeeds;
     }
 
     public void resetOdometry(Pose2d pose) {

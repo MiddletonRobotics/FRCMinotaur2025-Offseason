@@ -76,8 +76,18 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
         SwerveDriveState state = this.getStateCopy();
-        state.Speeds = ChassisSpeeds.fromRobotRelativeSpeeds(state.Speeds, state.Pose.getRotation());
-        inputs.referenceChassisSpeeds = targetChassisSpeeds;
+
+        ChassisSpeeds measuredRobotRelativeChassisSpeeds = getKinematics().toChassisSpeeds(inputs.currentModuleStates);
+        ChassisSpeeds measuredFieldRelativeChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(measuredRobotRelativeChassisSpeeds, inputs.Pose.getRotation());
+        ChassisSpeeds desiredRobotRelativeChassisSpeeds = getKinematics().toChassisSpeeds(inputs.referenceModuleStates);
+        ChassisSpeeds desiredFieldRelativeChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(desiredRobotRelativeChassisSpeeds, inputs.Pose.getRotation());
+
+        inputs.measuredRobotRelativeChassisSpeeds = measuredRobotRelativeChassisSpeeds;
+        inputs.measuredFieldRelativeChassisSpeeds = measuredFieldRelativeChassisSpeeds;
+        inputs.referenceRobotRelativeChassisSpeeds = desiredRobotRelativeChassisSpeeds;
+        inputs.referenceFieldRelativeChassisSpeeds = desiredFieldRelativeChassisSpeeds;
+
+        state.Speeds = measuredRobotRelativeChassisSpeeds;
         inputs.logState(state);
     }
 
@@ -95,6 +105,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
             inputs[i].steerStatorCurrentAmperes = moduleMap.get("steerStatorCurrentAmperes").getValueAsDouble();
             inputs[i].steerAppliedVoltage = moduleMap.get("steerAppliedVoltage").getValueAsDouble();
             inputs[i].steerTemperatureCelsius = moduleMap.get("steerTemperatureCelsius").getValueAsDouble();
+
         }
     }
 

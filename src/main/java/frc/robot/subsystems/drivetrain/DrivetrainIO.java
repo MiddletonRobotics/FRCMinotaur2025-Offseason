@@ -25,9 +25,11 @@ public interface DrivetrainIO extends SubsystemDataProcessor.IODataRefresher {
     @AutoLog
     public class DrivetrainIOInputs {
         public Pose2d Pose = new Pose2d();
-        public ChassisSpeeds referenceChassisSpeeds = new ChassisSpeeds();
-        public ChassisSpeeds measuredChassisSpeeds = new ChassisSpeeds();
-        public SwerveModuleState[] targetModuleStates;
+        public ChassisSpeeds referenceRobotRelativeChassisSpeeds = new ChassisSpeeds();
+        public ChassisSpeeds measuredRobotRelativeChassisSpeeds = new ChassisSpeeds();
+        public ChassisSpeeds referenceFieldRelativeChassisSpeeds = new ChassisSpeeds();
+        public ChassisSpeeds measuredFieldRelativeChassisSpeeds = new ChassisSpeeds();
+        public SwerveModuleState[] currentModuleStates;
         public SwerveModuleState[] referenceModuleStates;
         public SwerveModulePosition[] modulePositions;
         public Rotation2d rawHeading = new Rotation2d();
@@ -38,8 +40,7 @@ public interface DrivetrainIO extends SubsystemDataProcessor.IODataRefresher {
 
         public void logState(SwerveDrivetrain.SwerveDriveState state) {
             this.Pose = state.Pose;
-            this.measuredChassisSpeeds = state.Speeds;
-            this.targetModuleStates = state.ModuleTargets;
+            this.currentModuleStates = state.ModuleTargets;
             this.referenceModuleStates = state.ModuleStates;
             this.modulePositions = state.ModulePositions;
             this.rawHeading = state.RawHeading;
