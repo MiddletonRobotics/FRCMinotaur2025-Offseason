@@ -30,9 +30,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class DrivetrainFactory {
-    private static final PIDController autonomousDriveToPointController = new PIDController(0.5, 0, 0.1);
-    private static final PIDController teleopDriveToPointController = new PIDController(1.5, 0, 0.1);
-    private static final PIDController rotationController = new PIDController(6, 0, 0.1);
+    private static final PIDController autonomousDriveToPointController = new PIDController(6, 0, 0.1);
+    private static final PIDController teleopDriveToPointController = new PIDController(3.6, 0, 0.3);
+    private static final PIDController rotationController = new PIDController(1, 0, 0.1);
 
     public static Command handleTeleopDrive(DrivetrainSubsystem drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier strafeSupplier, DoubleSupplier rotationSupplier, boolean isFieldRelative) {
         return Commands.run(() -> {
@@ -92,12 +92,14 @@ public class DrivetrainFactory {
             double xComponent = velocityOutput * directionOfTravel.getCos();
             double yComponent = velocityOutput * directionOfTravel.getSin();
 
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/xVelocitySetpoint", xComponent);
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/yVelocitySetpoint", yComponent);
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/velocityOutput", velocityOutput);
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/linearDistance", linearDistance);
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/directionOfTravel", directionOfTravel);
-            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/desiredPoint", desiredPoseForDriveToPoint);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/VelocitySetpointX", xComponent);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/VelocitySetpointY", yComponent);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/VelocityOutput", velocityOutput);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/LinearDistance", linearDistance);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/DirectionOfTravel", directionOfTravel);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/DesiredPoint", desiredPoseForDriveToPoint);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/DesiredHeading", targetHeading);
+            Logger.recordOutput(DrivetrainConstants.kSubsystemName + "/DriveToPoint/CurrentHeading", currentHeading);
 
             if (Double.isNaN(constraintedMaximumAngularVelocity)) {
                 drivetrain.setControl(new SwerveRequest.FieldCentric()
