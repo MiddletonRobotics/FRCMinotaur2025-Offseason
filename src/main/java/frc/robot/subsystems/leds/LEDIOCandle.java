@@ -1,62 +1,37 @@
 package frc.robot.subsystems.leds;
 
 import frc.robot.constants.LEDConstants;
-import frc.robot.subsystems.leds.LedState;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
+import com.ctre.phoenix6.configs.LEDConfigs;
 import com.google.flatbuffers.Constants;
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
 
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LedIOCANdle implements LedIO {
+    private static final int COLOR_SCALAR = 255;
     private final CANdle candle;
-    private LedState currentState = LedState.kRed;
-    private LedState[] currentPixels = new LedState[LEDConstants.kMaxLEDCount];
 
-    public LedIOCANdle() {
-        this.candle = new CANdle(LEDConstants.kCANdleId.deviceNumber, LEDConstants.kCANdleId.CANbusName);
-        candle.configBrightnessScalar(1.0);
-        candle.configLEDType(CANdle.LEDStripType.RGBW);
-    }
-
-    public LedState getCurrentState() {
-        return currentState;
-    }
-
-    public LedState[] getCurrentPixels() {
-        return currentPixels;
+    public LedIOCANdle(int port, String canBus) {
+        this.candle = new CANdle(port, canBus);
+        candle.configLEDType(CANdle.LEDStripType.GRBW);
     }
 
     @Override
-    public void setLEDs(LedState wantedState) {
-        if(wantedState == null) currentState = LedState.kOff;
-        currentState = wantedState;
+    public void setLEDs(Color color) {
+        candle.setLEDs((int) (color.red * COLOR_SCALAR), (int) (color.green * COLOR_SCALAR), (int) (color.blue * COLOR_SCALAR));
+    }
 
-        candle.setLEDs(currentState.red, currentState.green, currentState.blue);
+    public void setLEDs(int red, int green, int blue) {
+        candle.setLEDs(red, green, blue);
     }
 
     @Override
-    public void setLEDs(LedState[] wantedStates) {
-        if (wantedStates == null || wantedStates.length == 0) {
-            return;
-        }
-
-        LedState run = wantedStates[0];
-        int runStart = 0;
-
-        for (int i = 0; i < wantedStates.length; i++) {
-            if (wantedStates[i] == null) wantedStates[i] = LedState.kOff;
-            if (!run.equals(wantedStates[i])) {
-                if (candle != null) candle.setLEDs(run.red, run.green, run.blue, 255, runStart, i - runStart);
-                runStart = i;
-                run = wantedStates[i];
-                currentPixels[i] = run;
-            }
-        }
-
-        candle.setLEDs(run.red, run.green, run.blue, 255, runStart, wantedStates.length - runStart);
+    public void setAnimation(Animation animation) {
+        candle.animate(animation);
     }
 
     @Override
