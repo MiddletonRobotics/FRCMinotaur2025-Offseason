@@ -27,6 +27,8 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
   private DrivetrainSubsystem drivetrain;
+  private LedSubsystem led;
+  private Superstructure superstructure;
   private VisionSubsystem vision;
 
   private CommandXboxController driverController;
@@ -67,6 +69,22 @@ public class RobotContainer {
     return vision;
   }
 
+  public LedSubsystem buildLedSubsystem() {
+    return new LedSubsystem(new LedIOCANdle(23, "*"));
+  }
+
+  public LedSubsystem getLedSubsystem() {
+    return led;
+  }
+
+  public Superstructure buildSuperstructure() {
+    return new Superstructure(drivetrain, led, controlboard);
+  }
+
+  public Superstructure getSuperstructureSubsystem() {
+    return superstructure;
+  }
+
   public Controlboard buildControlboad() {
     return Controlboard.getInstance();
   }
@@ -87,7 +105,10 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
+    led = buildLedSubsystem();
     vision = buildVision();
+
+    superstructure = buildSuperstructure();
   }
 
   private void configureBindings() {
