@@ -1,4 +1,4 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.bucket;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -37,9 +37,9 @@ import static frc.minolib.phoenix.PhoenixUtility.retryUntilSuccess;
 
 import frc.minolib.phoenix.PhoenixUtility;
 import frc.robot.constants.GlobalConstants;
-import frc.robot.subsystems.coral.CoralIO.CoralIOInputs;
+import frc.robot.subsystems.bucket.BucketIO.CoralIOInputs;
 
-public class CoralIOHardware implements CoralIO {
+public class BucketIOHardware implements BucketIO {
     private final SparkBase rollerMotor;
     private final RelativeEncoder rollerEncoder;
     private final SparkBaseConfig rollerConfiguration;
@@ -55,7 +55,7 @@ public class CoralIOHardware implements CoralIO {
     private int currentLimit = 60;
     private boolean brakeModeEnabled = true;
 
-    public CoralIOHardware(int deviceID, boolean isFlex) {
+    public BucketIOHardware(int deviceID, boolean isFlex) {
         rollerMotor = isFlex
             ? new SparkFlex(deviceID, SparkLowLevel.MotorType.kBrushless) 
             : new SparkMax(deviceID, SparkLowLevel.MotorType.kBrushless);

@@ -1,10 +1,10 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.bucket;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.minolib.utilities.SubsystemDataProcessor;
 
-public interface CoralIO extends SubsystemDataProcessor.IODataRefresher {
+public interface BucketIO extends SubsystemDataProcessor.IODataRefresher {
     @AutoLog
     public class CoralIOInputs {
         public boolean firstCANRangeTripped = false;
