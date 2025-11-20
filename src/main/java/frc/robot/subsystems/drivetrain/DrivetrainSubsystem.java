@@ -70,8 +70,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
     }
 
-    private Pose2d driveToPointPose = new Pose2d(0,0, Rotation2d.fromDegrees(0));
-
     private TeleopVelocityCoefficient teleopVelocityCoefficient = TeleopVelocityCoefficient.NORMAL;
 
     private RobotConfig robotConfiguration;
@@ -87,6 +85,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         if (Robot.isSimulation()) {
             resetOdometry(new Pose2d(6.77, 4.2, Rotation2d.fromDegrees(0)));
+        } else {
+            resetOdometry(new Pose2d(3, 4, Rotation2d.fromDegrees(0)));
         }
 
         //configurePathPlanner();
