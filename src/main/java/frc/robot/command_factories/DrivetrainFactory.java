@@ -52,7 +52,7 @@ public class DrivetrainFactory {
                     .withRotationalRate(chassisSpeeds.omegaRadiansPerSecond)
                 );
             }
-        }, drivetrain);
+        }, drivetrain).withName("HandleTelopDrive");
     }
 
     public static Command driveToPoint(DrivetrainSubsystem drivetrain, double constraintedMaximumLinearVelocity, double constraintedMaximumAngularVelocity, boolean isLeft) {
@@ -122,7 +122,7 @@ public class DrivetrainFactory {
     }
 
     public static Command resetDrivetrainPose(Command... commands) {
-        return Commands.sequence(commands);
+        return Commands.sequence(commands).withName("DrivetrainResetPose");
     }
 
 
