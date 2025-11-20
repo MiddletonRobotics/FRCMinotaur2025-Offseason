@@ -30,6 +30,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import frc.minolib.localization.VisionPoseEstimate;
 
 public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements DrivetrainIO {
@@ -76,6 +77,7 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
     @Override
     public void updateDrivetrainInputs(DrivetrainIOInputs inputs) {
         SwerveDriveState state = this.getStateCopy();
+        inputs.logState(state);
 
         ChassisSpeeds measuredRobotRelativeChassisSpeeds = getKinematics().toChassisSpeeds(inputs.currentModuleStates);
         ChassisSpeeds measuredFieldRelativeChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(measuredRobotRelativeChassisSpeeds, inputs.Pose.getRotation());
@@ -86,9 +88,6 @@ public class DrivetrainIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcode
         inputs.measuredFieldRelativeChassisSpeeds = measuredFieldRelativeChassisSpeeds;
         inputs.referenceRobotRelativeChassisSpeeds = desiredRobotRelativeChassisSpeeds;
         inputs.referenceFieldRelativeChassisSpeeds = desiredFieldRelativeChassisSpeeds;
-
-        state.Speeds = measuredRobotRelativeChassisSpeeds;
-        inputs.logState(state);
     }
 
     @Override
