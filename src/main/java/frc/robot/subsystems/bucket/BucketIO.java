@@ -6,7 +6,7 @@ import frc.minolib.utilities.SubsystemDataProcessor;
 
 public interface BucketIO extends SubsystemDataProcessor.IODataRefresher {
     @AutoLog
-    public class CoralIOInputs {
+    public class BucketIOInputs {
         public boolean firstCANRangeTripped = false;
         public double firstCANRangeSignalStrength = 0.0;
         public double firstCANRangeDistanceInMeters = 0.0;
@@ -19,7 +19,7 @@ public interface BucketIO extends SubsystemDataProcessor.IODataRefresher {
         public double coralTemperature = 0.0;
     }
 
-    public default void updateInputs(CoralIOInputs inputs) {}
+    public default void updateInputs(BucketIOInputs inputs) {}
 
     public default void runVolts(double voltage) {}
 

@@ -37,7 +37,7 @@ import static frc.minolib.phoenix.PhoenixUtility.retryUntilSuccess;
 
 import frc.minolib.phoenix.PhoenixUtility;
 import frc.robot.constants.GlobalConstants;
-import frc.robot.subsystems.bucket.BucketIO.CoralIOInputs;
+import frc.robot.subsystems.bucket.BucketIO.BucketIOInputs;
 
 public class BucketIOHardware implements BucketIO {
     private final SparkBase rollerMotor;
@@ -109,7 +109,7 @@ public class BucketIOHardware implements BucketIO {
     }
 
     @Override
-    public void updateInputs(CoralIOInputs inputs) {
+    public void updateInputs(BucketIOInputs inputs) {
         inputs.coralVelocity = ifOkOrDefault(rollerMotor, rollerEncoder::getVelocity, inputs.coralVelocity);
         inputs.coralAppliedVoltage = ifOkOrDefault(
             rollerMotor, 
