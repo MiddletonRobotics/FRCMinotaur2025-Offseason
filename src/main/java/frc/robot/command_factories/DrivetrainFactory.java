@@ -106,19 +106,23 @@ public class DrivetrainFactory {
                     .withVelocityX(xComponent)
                     .withVelocityY(yComponent)
                     .withRotationalRate(angularVelocity)
-                    .withDriveRequestType(DriveRequestType.Velocity)
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 );
             } else {
                 angularVelocity = MathUtil.clamp(angularVelocity, -constraintedMaximumAngularVelocity, constraintedMaximumAngularVelocity);
 
                 drivetrain.setControl(new SwerveRequest.FieldCentric()
-                    .withVelocityX(xComponent)
+                    .withVelocityX(xComponent) 
                     .withVelocityY(yComponent)
                     .withRotationalRate(angularVelocity)
-                    .withDriveRequestType(DriveRequestType.Velocity)
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 );
             }
         }, drivetrain).until(() -> MathUtil.isNear(0.0, drivetrain.closestPose(isLeft ? ReefConstants.LEFT_REEF_WAYPOINTS : ReefConstants.RIGHT_REEF_WAYPOINTS).getTranslation().getNorm() - drivetrain.getPose().getTranslation().getNorm(), Units.inchesToMeters(1))).withName("DriveToPoint");
+    }
+
+    public static Command resetDrivetrainPose(Command... commands) {
+        return Commands.sequence(commands);
     }
 
 

@@ -18,6 +18,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
 
+import com.google.flatbuffers.Constants;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -34,12 +35,16 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.command_factories.DrivetrainFactory;
+import frc.robot.commands.TimedFlashLEDCommand;
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.GlobalConstants;
+import frc.robot.subsystems.leds.LedSubsystem;
 import frc.minolib.advantagekit.LocalADStarAK;
 import frc.minolib.advantagekit.LoggedTracer;
 import frc.minolib.hardware.MinoCANBus;
@@ -157,6 +162,24 @@ public class Robot extends LoggedRobot {
     if (!GlobalConstants.kTuningMode) {
       Threads.setCurrentThreadPriority(true, 10);
     }
+
+    Shuffleboard.getTab("Dashboard").add(DrivetrainFactory.resetDrivetrainPose(
+      new InstantCommand(() -> robotContainer.getDrivetrainSubsystem().resetOdometry(new Pose2d())) { //TODO: Change the parameter to something when we actually run autonomous (maybe add simulation stuff here too)
+        @Override
+        public boolean runsWhenDisabled() {
+            return true;
+        }
+      }.andThen(new TimedFlashLEDCommand(
+        robotContainer.getSuperstructureSubsystem(),
+        robotContainer.getLedSubsystem(),
+        LedSubsystem.WantedState.DISPLAY_POSE_RESET,
+        2.0
+      )).andThen(new InstantCommand(() -> robotContainer.getSuperstructureSubsystem().toggleHasPoseBeenSetForPrematch(true)) {
+        @Override
+        public boolean runsWhenDisabled() {
+            return true;
+        }
+      }))).withSize(6, 3);
   }
 
   @Override
