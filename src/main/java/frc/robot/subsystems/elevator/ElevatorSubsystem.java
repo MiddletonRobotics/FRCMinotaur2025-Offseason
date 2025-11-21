@@ -40,13 +40,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     @AutoLogOutput private boolean brakeModeEnabled = true;
 
     private TrapezoidProfile profile;
-    private TrapezoidProfile algaeProfile;
     @Getter private State setpoint = new State();
     private Supplier<State> goal = State::new;
     private boolean stopProfile = false;
     @Getter private boolean shouldEStop = false;
     @Setter private boolean isEStopped = false;
-    @Setter private boolean hasAlgae = false;
     @Setter private boolean forceFastConstraints = false;
 
     @AutoLogOutput(key = "Elevator/HomedPositionRotations")
@@ -119,7 +117,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             );
 
             double previousVelocity = setpoint.velocity;
-            setpoint = (hasAlgae && !forceFastConstraints ? algaeProfile : profile).calculate(GlobalConstants.kLoopPeriodSeconds, setpoint, goalState);
+            setpoint = profile.calculate(GlobalConstants.kLoopPeriodSeconds, setpoint, goalState);
 
             if (setpoint.position < 0.0 || setpoint.position > Units.inchesToMeters(100)) {
                 setpoint = new State(MathUtil.clamp(setpoint.position, 0.0, Units.inchesToMeters(100)), 0.0);
