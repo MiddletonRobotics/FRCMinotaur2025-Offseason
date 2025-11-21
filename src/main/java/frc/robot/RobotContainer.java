@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.command_factories.DrivetrainFactory;
+import frc.robot.constants.GlobalConstants;
 import frc.robot.constants.ReefConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.oi.Controlboard;
@@ -19,6 +20,8 @@ import frc.robot.subsystems.drivetrain.CompetitionTunerConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainIOCTRE;
 import frc.robot.subsystems.drivetrain.DrivetrainIOSimulation;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.elevator.ElevatorIOHardware;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.leds.LedIOCANdle;
 import frc.robot.subsystems.leds.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -27,6 +30,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
   private DrivetrainSubsystem drivetrain;
+  private ElevatorSubsystem elevator;
   private LedSubsystem led;
   private Superstructure superstructure;
   private VisionSubsystem vision;
@@ -47,6 +51,18 @@ public class RobotContainer {
 
   public DrivetrainSubsystem getDrivetrainSubsystem() {
     return drivetrain;
+  }
+
+  private ElevatorSubsystem buildElevator() {
+    if(Robot.isSimulation()) {
+      return new ElevatorSubsystem(new ElevatorIOHardware()); // TODO: Write the simulation for elevaator
+    } else {
+      return new ElevatorSubsystem(new ElevatorIOHardware());
+    }
+  }
+
+  public ElevatorSubsystem getElevatorSubsystem() {
+    return elevator;
   }
 
   private VisionSubsystem buildVision() {
@@ -70,7 +86,7 @@ public class RobotContainer {
   }
 
   public LedSubsystem buildLedSubsystem() {
-    return new LedSubsystem(new LedIOCANdle(23, "*"));
+    return new LedSubsystem(new LedIOCANdle(23, GlobalConstants.kCanivoreName));
   }
 
   public LedSubsystem getLedSubsystem() {
@@ -78,7 +94,7 @@ public class RobotContainer {
   }
 
   public Superstructure buildSuperstructure() {
-    return new Superstructure(drivetrain, led, controlboard);
+    return new Superstructure(drivetrain, elevator, led, controlboard);
   }
 
   public Superstructure getSuperstructureSubsystem() {
@@ -105,6 +121,7 @@ public class RobotContainer {
 
   private void configureSubsystems() {
     drivetrain = buildDrivetrain();
+    elevator = buildElevator();
     led = buildLedSubsystem();
     vision = buildVision();
 

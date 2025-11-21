@@ -5,6 +5,7 @@
       "/AdvantageKit/RealOutputs/PathPlanner": "Alerts",
       "/AdvantageKit/RealOutputs/PhotonAlerts": "Alerts",
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Dashboard/DrivetrainResetPose": "Command",
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/PathPlanner": "Alerts",

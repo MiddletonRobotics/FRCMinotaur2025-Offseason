@@ -3,16 +3,20 @@ package frc.minolib.phoenix;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.ToFParamsConfigs;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -61,6 +65,43 @@ public class PhoenixUtility {
     return false;
   }
 
+  public static boolean CANRangeConfigsEqual(final CANrangeConfiguration expected, final CANrangeConfiguration actual) {
+    if (!isEqual(expected.ProximityParams, actual.ProximityParams)) {
+      DriverStation.reportWarning("[ProximityParams] Expected: " + expected.ProximityParams + ", Actual: " + actual.ProximityParams, false);
+      return false;
+    }
+
+    if (!isEqual(expected.ToFParams, actual.ToFParams)) {
+      DriverStation.reportWarning("[ToFParams] Expected: " + expected.ToFParams + ", Actual: " + actual.ToFParams, false);
+      return false;
+    }
+
+    if (!isEqual(expected.FovParams, actual.FovParams)) {
+      DriverStation.reportWarning("[FovParams] Expected: " + expected.FovParams + ", Actual: " + actual.FovParams, false);
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean isEqual(ProximityParamsConfigs a, ProximityParamsConfigs b) {
+    return EqualsUtility.epsilonEquals(a.MinSignalStrengthForValidMeasurement, b.MinSignalStrengthForValidMeasurement, kEps) 
+      && EqualsUtility.epsilonEquals(a.ProximityHysteresis, b.ProximityHysteresis, kEps) 
+      && EqualsUtility.epsilonEquals(a.ProximityThreshold, b.ProximityThreshold, kEps);
+  }
+
+  public static boolean isEqual(ToFParamsConfigs a, ToFParamsConfigs b) {
+    return EqualsUtility.epsilonEquals(a.UpdateFrequency, b.UpdateFrequency, kEps) 
+      && EqualsUtility.epsilonEquals(a.UpdateMode.value, b.UpdateMode.value, kEps);
+  }
+
+  public static boolean isEqual(FovParamsConfigs a, FovParamsConfigs b) {
+    return EqualsUtility.epsilonEquals(a.FOVCenterX, b.FOVCenterX, kEps) 
+      && EqualsUtility.epsilonEquals(a.FOVCenterY, b.FOVCenterY, kEps) 
+      && EqualsUtility.epsilonEquals(a.FOVRangeX, b.FOVRangeX, kEps)
+      && EqualsUtility.epsilonEquals(a.FOVRangeY, b.FOVRangeY, kEps);
+  }
+
   public static boolean CANcoderConfigsEqual(final CANcoderConfiguration expected, final CANcoderConfiguration actual) {
     if (!expected.MagnetSensor.SensorDirection.equals(actual.MagnetSensor.SensorDirection)) {
       DriverStation.reportWarning("[SensorDirection] Expected: " + expected.MagnetSensor.SensorDirection + ", Actual: " + actual.MagnetSensor.SensorDirection, false);
@@ -95,11 +136,15 @@ public class PhoenixUtility {
   }
 
   public static boolean isEqual(MountPoseConfigs a, MountPoseConfigs b) {
-    return EqualsUtility.epsilonEquals(a.MountPoseRoll, b.MountPoseRoll, kEps) && EqualsUtility.epsilonEquals(a.MountPosePitch, b.MountPosePitch, kEps) && EqualsUtility.epsilonEquals(a.MountPoseYaw, b.MountPoseYaw, kEps);
+    return EqualsUtility.epsilonEquals(a.MountPoseRoll, b.MountPoseRoll, kEps) 
+      && EqualsUtility.epsilonEquals(a.MountPosePitch, b.MountPosePitch, kEps) 
+      && EqualsUtility.epsilonEquals(a.MountPoseYaw, b.MountPoseYaw, kEps);
   }
 
   public static boolean isEqual(GyroTrimConfigs a, GyroTrimConfigs b) {
-    return EqualsUtility.epsilonEquals(a.GyroScalarX, b.GyroScalarX, kEps) && EqualsUtility.epsilonEquals(a.GyroScalarY, b.GyroScalarY, kEps) && EqualsUtility.epsilonEquals(a.GyroScalarZ, b.GyroScalarZ, kEps);
+    return EqualsUtility.epsilonEquals(a.GyroScalarX, b.GyroScalarX, kEps) 
+      && EqualsUtility.epsilonEquals(a.GyroScalarY, b.GyroScalarY, kEps) 
+      && EqualsUtility.epsilonEquals(a.GyroScalarZ, b.GyroScalarZ, kEps);
   }
 
   public static boolean TalonFXConfigsEqual(TalonFXConfiguration expected, TalonFXConfiguration actual) {
