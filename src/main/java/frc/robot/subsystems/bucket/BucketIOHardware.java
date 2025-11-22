@@ -110,17 +110,16 @@ public class BucketIOHardware implements BucketIO {
 
     @Override
     public void updateInputs(BucketIOInputs inputs) {
-        inputs.coralVelocity = ifOkOrDefault(rollerMotor, rollerEncoder::getVelocity, inputs.coralVelocity);
-        inputs.coralAppliedVoltage = ifOkOrDefault(
+        inputs.bucketVelocity = ifOkOrDefault(rollerMotor, rollerEncoder::getVelocity, inputs.bucketVelocity);
+        inputs.bucketAppliedVoltage = ifOkOrDefault(
             rollerMotor, 
             new DoubleSupplier[] {rollerMotor::getBusVoltage, rollerMotor::getAppliedOutput}, x -> x[0] * x[1],
-            inputs.coralAppliedVoltage
+            inputs.bucketAppliedVoltage
         );
 
-        inputs.coralSupplyCurrent = ifOkOrDefault(rollerMotor, rollerMotor::getOutputCurrent, inputs.coralSupplyCurrent);
-        inputs.coralStatorCurrent = -1.0;
-        inputs.coralTemperature = ifOkOrDefault(rollerMotor, rollerMotor::getMotorTemperature, inputs.coralTemperature);
-        inputs.coralVelocity = ifOkOrDefault(rollerMotor, rollerEncoder::getVelocity, inputs.coralVelocity);
+        inputs.bucketSupplyCurrent = ifOkOrDefault(rollerMotor, rollerMotor::getOutputCurrent, inputs.bucketSupplyCurrent);
+        inputs.bucketStatorCurrent = -1.0;
+        inputs.bucketTemperature = ifOkOrDefault(rollerMotor, rollerMotor::getMotorTemperature, inputs.bucketTemperature);
 
         inputs.firstCANRangeTripped = isDetected.getValue().booleanValue();
         inputs.firstCANRangeSignalStrength = signalStrength.getValue().doubleValue();

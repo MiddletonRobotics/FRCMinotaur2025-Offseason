@@ -12,11 +12,11 @@ public interface BucketIO extends SubsystemDataProcessor.IODataRefresher {
         public double firstCANRangeDistanceInMeters = 0.0;
         public boolean secondCoralBannerTripped = false;
 
-        public double coralVelocity = 0.0;
-        public double coralAppliedVoltage = 0.0;
-        public double coralSupplyCurrent = 0.0;
-        public double coralStatorCurrent = 0.0;
-        public double coralTemperature = 0.0;
+        public double bucketVelocity = 0.0;
+        public double bucketAppliedVoltage = 0.0;
+        public double bucketSupplyCurrent = 0.0;
+        public double bucketStatorCurrent = 0.0;
+        public double bucketTemperature = 0.0;
     }
 
     public default void updateInputs(BucketIOInputs inputs) {}
