@@ -43,11 +43,11 @@ public class BucketSubsystem {
   }
 
   public double getSupplyCurrent() {
-    return inputs.coralSupplyCurrent;
+    return inputs.bucketSupplyCurrent;
   }
 
   public double getVelocity() {
-    return inputs.coralVelocity;
+    return inputs.bucketVelocity;
   }
 
   public void stop() {
